@@ -42,10 +42,12 @@ class DynamicAccessControlTest extends TestCase
             ['name' => 'Resident Management', 'slug' => 'resident-management', 'sort_order' => 10],
             ['name' => 'Visitor Management', 'slug' => 'visitor-management', 'sort_order' => 20],
             ['name' => 'Service Request', 'slug' => 'service-request', 'sort_order' => 30],
-            ['name' => 'Users', 'slug' => 'users', 'sort_order' => 40],
-            ['name' => 'Modules', 'slug' => 'modules', 'sort_order' => 50],
-            ['name' => 'Access', 'slug' => 'access', 'sort_order' => 60],
-            ['name' => 'Roles', 'slug' => 'roles', 'sort_order' => 70],
+            ['name' => 'Community Management', 'slug' => 'community-management', 'sort_order' => 40],
+            ['name' => 'Tenant Marketplace', 'slug' => 'tenant-marketplace', 'sort_order' => 50],
+            ['name' => 'Users', 'slug' => 'users', 'sort_order' => 60],
+            ['name' => 'Modules', 'slug' => 'modules', 'sort_order' => 70],
+            ['name' => 'Access', 'slug' => 'access', 'sort_order' => 80],
+            ['name' => 'Roles', 'slug' => 'roles', 'sort_order' => 90],
         ])->map(fn (array $module) => Module::query()->create($module + ['is_active' => true]));
     }
 
@@ -90,6 +92,10 @@ class DynamicAccessControlTest extends TestCase
         $this->get(route('visitor-management.registration'))->assertRedirect(route('login'));
         $this->get(route('service-request.index'))->assertRedirect(route('login'));
         $this->get(route('service-request.ticket-queue'))->assertRedirect(route('login'));
+        $this->get(route('community-management.index'))->assertRedirect(route('login'));
+        $this->get(route('community-management.announcements'))->assertRedirect(route('login'));
+        $this->get(route('tenant-marketplace.index'))->assertRedirect(route('login'));
+        $this->get(route('tenant-marketplace.directory'))->assertRedirect(route('login'));
     }
 
     public function test_admin_role_can_access_modules_without_permission_rows(): void
@@ -164,6 +170,44 @@ class DynamicAccessControlTest extends TestCase
         }
     }
 
+    public function test_admin_can_access_community_management_pages_without_permission_rows(): void
+    {
+        $admin = $this->makeUser($this->adminRole, [
+            'username' => 'admin',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('community-management.index'))
+            ->assertRedirect(route('community-management.announcements'));
+
+        foreach ($this->communityRoutes() as $routeName => $expectedText) {
+            $this->actingAs($admin)
+                ->get(route($routeName))
+                ->assertOk()
+                ->assertSee('Community Management')
+                ->assertSee($expectedText);
+        }
+    }
+
+    public function test_admin_can_access_tenant_marketplace_pages_without_permission_rows(): void
+    {
+        $admin = $this->makeUser($this->adminRole, [
+            'username' => 'admin',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('tenant-marketplace.index'))
+            ->assertRedirect(route('tenant-marketplace.directory'));
+
+        foreach ($this->tenantRoutes() as $routeName => $expectedText) {
+            $this->actingAs($admin)
+                ->get(route($routeName))
+                ->assertOk()
+                ->assertSee('Tenant Marketplace')
+                ->assertSee($expectedText);
+        }
+    }
+
     public function test_visitor_management_uses_subpage_routes_without_separate_check_in_or_check_out(): void
     {
         $visitorRouteNames = collect(Route::getRoutes())
@@ -197,6 +241,36 @@ class DynamicAccessControlTest extends TestCase
         }
     }
 
+    public function test_community_management_uses_dropdown_subpage_routes(): void
+    {
+        $communityRouteNames = collect(Route::getRoutes())
+            ->map(fn ($route) => $route->getName())
+            ->filter(fn (?string $name) => str_starts_with($name ?? '', 'community-management.'))
+            ->values()
+            ->all();
+
+        $this->assertContains('community-management.index', $communityRouteNames);
+
+        foreach (array_keys($this->communityRoutes()) as $routeName) {
+            $this->assertContains($routeName, $communityRouteNames);
+        }
+    }
+
+    public function test_tenant_marketplace_uses_dropdown_subpage_routes(): void
+    {
+        $tenantRouteNames = collect(Route::getRoutes())
+            ->map(fn ($route) => $route->getName())
+            ->filter(fn (?string $name) => str_starts_with($name ?? '', 'tenant-marketplace.'))
+            ->values()
+            ->all();
+
+        $this->assertContains('tenant-marketplace.index', $tenantRouteNames);
+
+        foreach (array_keys($this->tenantRoutes()) as $routeName) {
+            $this->assertContains($routeName, $tenantRouteNames);
+        }
+    }
+
     public function test_non_admin_is_forbidden_without_user_module_permission(): void
     {
         $user = $this->makeUser($this->staffRole);
@@ -223,6 +297,22 @@ class DynamicAccessControlTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('service-request.ticket-queue'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->get(route('community-management.index'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->get(route('community-management.announcements'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->get(route('tenant-marketplace.index'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->get(route('tenant-marketplace.directory'))
             ->assertForbidden();
     }
 
@@ -275,6 +365,46 @@ class DynamicAccessControlTest extends TestCase
             ->assertRedirect(route('service-request.ticket-queue'));
 
         foreach ($this->serviceRoutes() as $routeName => $expectedText) {
+            $this->actingAs($user)
+                ->get(route($routeName))
+                ->assertOk()
+                ->assertSee($expectedText);
+        }
+    }
+
+    public function test_non_admin_can_access_community_management_pages_with_read_permission(): void
+    {
+        $user = $this->makeUser($this->staffRole);
+
+        $this->grant($user, 'community-management', [
+            'can_read' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('community-management.index'))
+            ->assertRedirect(route('community-management.announcements'));
+
+        foreach ($this->communityRoutes() as $routeName => $expectedText) {
+            $this->actingAs($user)
+                ->get(route($routeName))
+                ->assertOk()
+                ->assertSee($expectedText);
+        }
+    }
+
+    public function test_non_admin_can_access_tenant_marketplace_pages_with_read_permission(): void
+    {
+        $user = $this->makeUser($this->staffRole);
+
+        $this->grant($user, 'tenant-marketplace', [
+            'can_read' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('tenant-marketplace.index'))
+            ->assertRedirect(route('tenant-marketplace.directory'));
+
+        foreach ($this->tenantRoutes() as $routeName => $expectedText) {
             $this->actingAs($user)
                 ->get(route($routeName))
                 ->assertOk()
@@ -420,6 +550,56 @@ class DynamicAccessControlTest extends TestCase
         }
     }
 
+    public function test_community_management_sidebar_dropdown_uses_real_routes(): void
+    {
+        $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
+
+        $response = $this->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Community Management')
+            ->assertSee('Announcement Center')
+            ->assertSee('Event Management')
+            ->assertSee('Polling &amp; Survey', false)
+            ->assertSee('Community Settings')
+            ->assertDontSee('<a href="#" class="side-link" title="Community Management">', false);
+
+        foreach (array_keys($this->communityRoutes()) as $routeName) {
+            $response->assertSee('href="'.route($routeName).'"', false);
+        }
+
+        $this->actingAs($admin)
+            ->get(route('community-management.announcements'))
+            ->assertOk()
+            ->assertSee('Create Announcement')
+            ->assertSee('Create Event')
+            ->assertSee('Send Broadcast')
+            ->assertSee('Create Polling');
+    }
+
+    public function test_tenant_marketplace_sidebar_dropdown_uses_real_routes(): void
+    {
+        $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
+
+        $response = $this->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Tenant Marketplace')
+            ->assertSee('Tenant Directory')
+            ->assertSee('Add / Input Tenant')
+            ->assertDontSee('<a href="#" class="side-link" title="Tenant Marketplace">', false);
+
+        foreach (array_keys($this->tenantRoutes()) as $routeName) {
+            $response->assertSee('href="'.route($routeName).'"', false);
+        }
+
+        $this->actingAs($admin)
+            ->get(route('tenant-marketplace.directory'))
+            ->assertOk()
+            ->assertSee('Add / Input Tenant')
+            ->assertSee('Generate Report');
+    }
+
     public function test_system_role_and_modules_are_protected(): void
     {
         $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
@@ -427,6 +607,8 @@ class DynamicAccessControlTest extends TestCase
         $residentModule = $this->module('resident-management');
         $visitorModule = $this->module('visitor-management');
         $serviceModule = $this->module('service-request');
+        $communityModule = $this->module('community-management');
+        $tenantModule = $this->module('tenant-marketplace');
 
         $this->actingAs($admin)
             ->put(route('roles.update', $this->adminRole), [
@@ -522,6 +704,38 @@ class DynamicAccessControlTest extends TestCase
             'slug' => 'service-request',
             'is_active' => 1,
         ]);
+
+        $this->actingAs($admin)
+            ->put(route('modules.update', $communityModule), [
+                'name' => 'Community Operations',
+                'slug' => 'community-ops',
+                'sort_order' => 5,
+                'is_active' => '0',
+            ])
+            ->assertRedirect(route('modules.index'));
+
+        $this->assertDatabaseHas('modules', [
+            'id' => $communityModule->id,
+            'name' => 'Community Operations',
+            'slug' => 'community-management',
+            'is_active' => 1,
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('modules.update', $tenantModule), [
+                'name' => 'Tenant Operations',
+                'slug' => 'tenant-ops',
+                'sort_order' => 6,
+                'is_active' => '0',
+            ])
+            ->assertRedirect(route('modules.index'));
+
+        $this->assertDatabaseHas('modules', [
+            'id' => $tenantModule->id,
+            'name' => 'Tenant Operations',
+            'slug' => 'tenant-marketplace',
+            'is_active' => 1,
+        ]);
     }
 
     /**
@@ -611,6 +825,40 @@ class DynamicAccessControlTest extends TestCase
             'service-request.sla-monitoring' => 'SLA Performance Dashboard',
             'service-request.service-history' => 'Service Request History Log',
             'service-request.settings' => 'Suite Settings Configuration',
+        ];
+    }
+
+    /**
+     * Get community management route names and their page-specific text.
+     *
+     * @return array<string, string>
+     */
+    private function communityRoutes(): array
+    {
+        return [
+            'community-management.announcements' => 'Community Management',
+            'community-management.events' => 'Event Management',
+            'community-management.polling-survey' => 'Polling & Survey Management',
+            'community-management.forum' => 'Resident Forum Management',
+            'community-management.broadcasts' => 'Broadcast Notification Management',
+            'community-management.programs' => 'Community Program Management',
+            'community-management.calendar' => 'Community Event Calendar',
+            'community-management.engagement' => 'Dasbor Keterlibatan Penduduk',
+            'community-management.archive' => 'Arsip Komunitas',
+            'community-management.settings' => 'Pengaturan Komunitas',
+        ];
+    }
+
+    /**
+     * Get tenant marketplace route names and their page-specific text.
+     *
+     * @return array<string, string>
+     */
+    private function tenantRoutes(): array
+    {
+        return [
+            'tenant-marketplace.directory' => 'Tenant Directory',
+            'tenant-marketplace.add-input' => 'Add New Tenant',
         ];
     }
 }

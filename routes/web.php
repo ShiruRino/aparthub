@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommunityManagementController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ResidentManagementController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\TenantMarketplaceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisitorManagementController;
 use Illuminate\Support\Facades\Route;
@@ -68,6 +70,32 @@ Route::middleware('auth')->group(function () {
             Route::get('/sla-monitoring', [ServiceRequestController::class, 'slaMonitoring'])->name('sla-monitoring');
             Route::get('/service-history', [ServiceRequestController::class, 'serviceHistory'])->name('service-history');
             Route::get('/settings', [ServiceRequestController::class, 'settings'])->name('settings');
+        });
+
+    Route::prefix('community-management')
+        ->name('community-management.')
+        ->middleware('module.access:community-management,read')
+        ->group(function () {
+            Route::redirect('/', '/community-management/announcements')->name('index');
+            Route::get('/announcements', [CommunityManagementController::class, 'announcements'])->name('announcements');
+            Route::get('/events', [CommunityManagementController::class, 'events'])->name('events');
+            Route::get('/polling-survey', [CommunityManagementController::class, 'pollingSurvey'])->name('polling-survey');
+            Route::get('/forum', [CommunityManagementController::class, 'forum'])->name('forum');
+            Route::get('/broadcasts', [CommunityManagementController::class, 'broadcasts'])->name('broadcasts');
+            Route::get('/programs', [CommunityManagementController::class, 'programs'])->name('programs');
+            Route::get('/calendar', [CommunityManagementController::class, 'calendar'])->name('calendar');
+            Route::get('/engagement', [CommunityManagementController::class, 'engagement'])->name('engagement');
+            Route::get('/archive', [CommunityManagementController::class, 'archive'])->name('archive');
+            Route::get('/settings', [CommunityManagementController::class, 'settings'])->name('settings');
+        });
+
+    Route::prefix('tenant-marketplace')
+        ->name('tenant-marketplace.')
+        ->middleware('module.access:tenant-marketplace,read')
+        ->group(function () {
+            Route::redirect('/', '/tenant-marketplace/directory')->name('index');
+            Route::get('/directory', [TenantMarketplaceController::class, 'directory'])->name('directory');
+            Route::get('/add-input', [TenantMarketplaceController::class, 'addInput'])->name('add-input');
         });
 
     Route::get('/users', [UserController::class, 'index'])

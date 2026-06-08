@@ -2050,6 +2050,737 @@
             background: #159a63;
         }
 
+        .community-content { padding: 18px 14px 30px; }
+        .community-page { display: grid; gap: 12px; }
+
+        .community-workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 330px;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .community-main,
+        .community-side {
+            display: grid;
+            min-width: 0;
+            gap: 12px;
+        }
+
+        .community-split {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+            gap: 12px;
+            align-items: start;
+        }
+
+        .community-card-row {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .community-metric {
+            display: grid;
+            grid-template-columns: 52px minmax(0, 1fr);
+            gap: 12px;
+            align-items: center;
+            min-height: 92px;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 8px 20px rgba(5, 18, 42, 0.06);
+        }
+
+        .community-metric-icon,
+        .community-tile-icon {
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            color: #0b2149;
+            font-weight: 900;
+        }
+
+        .community-metric-icon {
+            width: 46px;
+            height: 46px;
+            background: #edf3fb;
+        }
+
+        .community-metric.purple .community-metric-icon { background: #f4eafd; color: #7b3dd1; }
+        .community-metric.green .community-metric-icon { background: #e8f7ee; color: #13925a; }
+        .community-metric.gold .community-metric-icon { background: #fff5df; color: #b87924; }
+        .community-metric.blue .community-metric-icon { background: #e7f1ff; color: #1f7bef; }
+        .community-metric.red .community-metric-icon { background: #ffecef; color: #c73b33; }
+
+        .community-metric span {
+            display: block;
+            color: #607087;
+            font-size: 11px;
+            font-weight: 780;
+            line-height: 1.2;
+        }
+
+        .community-metric strong {
+            display: block;
+            margin-top: 4px;
+            color: #071935;
+            font-size: 22px;
+            font-weight: 930;
+            line-height: 1;
+        }
+
+        .community-list { display: grid; gap: 0; }
+
+        .community-row {
+            display: grid;
+            grid-template-columns: 58px minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: center;
+            min-height: 92px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e8eef6;
+        }
+
+        .community-row:last-child { border-bottom: 0; }
+
+        .community-tile-icon {
+            width: 54px;
+            height: 54px;
+            background: #edf3fb;
+            font-size: 20px;
+        }
+
+        .community-thumb {
+            width: 96px;
+            height: 54px;
+            border-radius: 7px;
+            background:
+                linear-gradient(135deg, rgba(6, 25, 54, 0.08), rgba(6, 25, 54, 0.18)),
+                repeating-linear-gradient(45deg, #edf4fb 0 12px, #dce8f6 12px 24px);
+            object-fit: cover;
+        }
+
+        .community-row h3,
+        .community-event-title {
+            margin: 0;
+            color: #10264a;
+            font-size: 13px;
+            font-weight: 920;
+        }
+
+        .community-row p {
+            margin: 5px 0 0;
+            color: #53647d;
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        .community-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            margin-top: 8px;
+            color: #607087;
+            font-size: 11px;
+            font-weight: 720;
+        }
+
+        .community-date-tile {
+            display: grid;
+            width: 62px;
+            height: 70px;
+            place-items: center;
+            border: 1px solid #e3eaf3;
+            border-radius: 8px;
+            background: #f8fbff;
+            color: #0b2149;
+            text-align: center;
+        }
+
+        .community-date-tile strong {
+            display: block;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .community-date-tile span {
+            display: block;
+            margin-top: 4px;
+            color: #53647d;
+            font-size: 11px;
+            font-weight: 850;
+        }
+
+        .community-event-row {
+            display: grid;
+            grid-template-columns: 62px 96px minmax(0, 1fr);
+            gap: 12px;
+            align-items: center;
+            min-height: 92px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e8eef6;
+        }
+
+        .community-event-row:last-child { border-bottom: 0; }
+
+        .community-progress-line {
+            height: 7px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #e8eef6;
+        }
+
+        .community-progress-line span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: #1f7bef;
+        }
+
+        .community-progress-line.green span { background: #159a63; }
+        .community-progress-line.gold span { background: #e3a843; }
+        .community-progress-line.red span { background: #c73b33; }
+
+        .community-donut {
+            display: grid;
+            width: 132px;
+            height: 132px;
+            place-items: center;
+            border-radius: 50%;
+            background: conic-gradient(#159a63 0 42%, #1f7bef 42% 74%, #f4c15d 74% 100%);
+        }
+
+        .community-donut::after {
+            content: attr(data-value);
+            display: grid;
+            width: 72px;
+            height: 72px;
+            place-items: center;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #0b2149;
+            font-size: 17px;
+            font-weight: 930;
+            text-align: center;
+            white-space: pre-line;
+        }
+
+        .community-donut-panel {
+            display: grid;
+            grid-template-columns: 140px minmax(0, 1fr);
+            gap: 12px;
+            align-items: center;
+        }
+
+        .community-legend {
+            display: grid;
+            gap: 10px;
+            color: #10264a;
+            font-size: 12px;
+            font-weight: 760;
+        }
+
+        .community-legend span {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .community-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #159a63;
+        }
+
+        .community-dot.blue { background: #1f7bef; }
+        .community-dot.gold { background: #f4c15d; }
+
+        .community-broadcast {
+            display: grid;
+            gap: 10px;
+        }
+
+        .community-broadcast textarea {
+            min-height: 96px;
+            resize: vertical;
+        }
+
+        .community-mini-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .community-mini-row {
+            display: grid;
+            grid-template-columns: 28px minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: center;
+            color: #10264a;
+            font-size: 12px;
+            font-weight: 760;
+        }
+
+        .community-calendar-mini,
+        .community-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 4px;
+            text-align: center;
+        }
+
+        .community-calendar-mini span,
+        .community-calendar-grid > span,
+        .community-calendar-day {
+            min-height: 30px;
+            padding: 7px 4px;
+            border-radius: 7px;
+            color: #10264a;
+            font-size: 11px;
+            font-weight: 760;
+        }
+
+        .community-calendar-mini .active,
+        .community-calendar-day.active {
+            background: #0d2a62;
+            color: #ffffff;
+        }
+
+        .community-filter-bar {
+            display: grid;
+            grid-template-columns: minmax(220px, 1.4fr) repeat(4, minmax(150px, 1fr));
+            gap: 9px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e3eaf3;
+        }
+
+        .community-filter-bar input,
+        .community-filter-bar select {
+            min-height: 36px;
+        }
+
+        .community-action-icons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .community-icon-btn {
+            display: grid;
+            width: 30px;
+            height: 30px;
+            place-items: center;
+            border: 1px solid #dce4ef;
+            border-radius: 7px;
+            background: #ffffff;
+            color: #0d2a62;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .community-icon-btn.gold { background: #fff5df; color: #8b5d09; }
+        .community-icon-btn.green { background: #e6f8ee; color: #0f7d45; }
+        .community-icon-btn:hover { border-color: #9eb2ca; background: #edf3fb; }
+
+        .community-chart-line {
+            position: relative;
+            min-height: 230px;
+            border-left: 1px solid #cbd6e4;
+            border-bottom: 1px solid #cbd6e4;
+            background:
+                linear-gradient(180deg, rgba(67, 127, 172, 0.18), rgba(67, 127, 172, 0.03)),
+                repeating-linear-gradient(0deg, #ffffff 0 43px, #e5ecf5 44px 45px);
+            overflow: hidden;
+        }
+
+        .community-chart-line::before,
+        .community-chart-line::after {
+            content: "";
+            position: absolute;
+            inset: 32px 24px 38px 24px;
+            background: linear-gradient(135deg, transparent 0 9%, #0d2a62 9.4% 10.2%, transparent 10.6% 21%, #0d2a62 21.4% 22.2%, transparent 22.6% 34%, #0d2a62 34.4% 35.2%, transparent 35.6% 48%, #0d2a62 48.4% 49.2%, transparent 49.6% 62%, #0d2a62 62.4% 63.2%, transparent 63.6% 77%, #0d2a62 77.4% 78.2%, transparent 78.6% 90%, #0d2a62 90.4% 91.2%, transparent 91.6%);
+        }
+
+        .community-chart-line::after {
+            inset: 48px 24px 54px 24px;
+            opacity: 0.8;
+            background: linear-gradient(135deg, transparent 0 11%, #159a63 11.4% 12.2%, transparent 12.6% 25%, #159a63 25.4% 26.2%, transparent 26.6% 39%, #159a63 39.4% 40.2%, transparent 40.6% 52%, #159a63 52.4% 53.2%, transparent 53.6% 66%, #159a63 66.4% 67.2%, transparent 67.6% 81%, #159a63 81.4% 82.2%, transparent 82.6%);
+        }
+
+        .community-bar-chart {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            align-items: end;
+            gap: 12px;
+            min-height: 220px;
+            padding: 12px 6px 0;
+            border-bottom: 1px solid #cbd6e4;
+            background: repeating-linear-gradient(0deg, #ffffff 0 43px, #e5ecf5 44px 45px);
+        }
+
+        .community-bar {
+            min-height: 34px;
+            border-radius: 5px 5px 0 0;
+            background: #4d86b5;
+        }
+
+        .community-bar.hot { background: #0d2a62; }
+        .community-bar.green { background: #159a63; }
+        .community-bar.gold { background: #e3a843; }
+
+        .community-calendar-large {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(110px, 1fr));
+            min-width: 780px;
+            border: 1px solid #dce4ef;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .community-calendar-large > div {
+            min-height: 112px;
+            padding: 9px;
+            border-right: 1px solid #e3eaf3;
+            border-bottom: 1px solid #e3eaf3;
+        }
+
+        .community-calendar-large > div:nth-child(7n) { border-right: 0; }
+
+        .community-calendar-head {
+            min-height: auto !important;
+            padding: 8px !important;
+            background: #f2f5f9;
+            color: #0b2149;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .community-event-block {
+            display: block;
+            margin-top: 7px;
+            padding: 7px;
+            border-radius: 7px;
+            background: #e8f7ee;
+            color: #0b4d31;
+            font-size: 11px;
+            font-weight: 780;
+        }
+
+        .community-event-block.blue { background: #e7f1ff; color: #0d2a62; }
+        .community-event-block.gold { background: #fff5df; color: #8b5d09; }
+        .community-event-block.red { background: #ffecef; color: #9f1d24; }
+
+        .community-setting-toggle {
+            display: inline-flex;
+            width: 42px;
+            height: 22px;
+            align-items: center;
+            padding: 3px;
+            border-radius: 999px;
+            background: #159a63;
+        }
+
+        .community-setting-toggle::after {
+            content: "";
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            margin-left: auto;
+        }
+
+        .community-setting-toggle.off {
+            background: #9eb2ca;
+        }
+
+        .community-setting-toggle.off::after {
+            margin-left: 0;
+        }
+
+        .tenant-content { padding: 18px 14px 30px; }
+        .tenant-page { display: grid; gap: 14px; }
+
+        .tenant-workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 330px;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .tenant-main,
+        .tenant-side {
+            display: grid;
+            min-width: 0;
+            gap: 14px;
+        }
+
+        .tenant-titlebar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 4px 2px 8px;
+        }
+
+        .tenant-titlebar h2 {
+            margin: 0;
+            color: #0b2149;
+            font-size: 24px;
+            font-weight: 920;
+            line-height: 1.1;
+        }
+
+        .tenant-titlebar p {
+            margin: 8px 0 0;
+            color: #607087;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .tenant-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .tenant-metrics {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .tenant-metric {
+            display: grid;
+            grid-template-columns: 52px minmax(0, 1fr);
+            gap: 13px;
+            align-items: center;
+            min-height: 108px;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 8px 20px rgba(5, 18, 42, 0.06);
+        }
+
+        .tenant-metric-icon,
+        .tenant-logo {
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            color: #0d2a62;
+            font-weight: 920;
+        }
+
+        .tenant-metric-icon {
+            width: 50px;
+            height: 50px;
+            background: #e7f1ff;
+        }
+
+        .tenant-metric.green .tenant-metric-icon { background: #e6f8ee; color: #0f7d45; }
+        .tenant-metric.gold .tenant-metric-icon { background: #fff5df; color: #b87924; }
+        .tenant-metric.red .tenant-metric-icon { background: #ffe9e7; color: #b42318; }
+        .tenant-metric.purple .tenant-metric-icon { background: #f4eafd; color: #7b3dd1; }
+
+        .tenant-metric span {
+            display: block;
+            color: #607087;
+            font-size: 12px;
+            font-weight: 760;
+        }
+
+        .tenant-metric strong {
+            display: block;
+            margin: 6px 0 5px;
+            color: #071935;
+            font-size: 26px;
+            font-weight: 930;
+            line-height: 1;
+        }
+
+        .tenant-filter-bar {
+            display: grid;
+            grid-template-columns: minmax(240px, 1.5fr) repeat(3, minmax(155px, 1fr)) 110px;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid #e3eaf3;
+            background: #ffffff;
+        }
+
+        .tenant-logo {
+            width: 44px;
+            height: 44px;
+            overflow: hidden;
+            border-radius: 50%;
+            background: #0d2a62;
+            color: #ffffff;
+            font-size: 9px;
+            line-height: 1.05;
+            text-align: center;
+        }
+
+        .tenant-logo.blue { background: #1f7bef; }
+        .tenant-logo.green { background: #38b893; }
+        .tenant-logo.teal { background: #4d9fc0; }
+        .tenant-logo.pink { background: #f2a9ba; color: #63202d; }
+        .tenant-logo.gold { background: #e58a12; }
+        .tenant-logo.black { background: #111827; }
+
+        .tenant-name strong {
+            display: block;
+            color: #10264a;
+            font-weight: 900;
+        }
+
+        .tenant-name span {
+            display: block;
+            margin-top: 4px;
+            color: #53647d;
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        .tenant-donut {
+            display: grid;
+            width: 156px;
+            height: 156px;
+            place-items: center;
+            border-radius: 50%;
+            background: conic-gradient(#159a63 0 87.5%, #f4c15d 87.5% 95.8%, #e43f35 95.8% 100%);
+        }
+
+        .tenant-donut::after {
+            content: attr(data-value);
+            display: grid;
+            width: 86px;
+            height: 86px;
+            place-items: center;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #0b2149;
+            font-size: 20px;
+            font-weight: 930;
+            text-align: center;
+            white-space: pre-line;
+        }
+
+        .tenant-category-list {
+            display: grid;
+            gap: 13px;
+        }
+
+        .tenant-category-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 90px 28px;
+            gap: 10px;
+            align-items: center;
+            color: #10264a;
+            font-size: 12px;
+            font-weight: 760;
+        }
+
+        .tenant-category-track {
+            height: 6px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #e8eef6;
+        }
+
+        .tenant-category-track span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: #0d2a62;
+        }
+
+        .tenant-info-box {
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr);
+            gap: 14px;
+            align-items: start;
+            color: #10264a;
+        }
+
+        .tenant-phone-icon {
+            display: grid;
+            width: 36px;
+            height: 54px;
+            place-items: center;
+            border: 2px solid #71809a;
+            border-radius: 8px;
+            color: #0d2a62;
+            font-weight: 900;
+        }
+
+        .tenant-form-panel {
+            display: grid;
+            gap: 22px;
+            padding: 18px;
+        }
+
+        .tenant-form-section {
+            display: grid;
+            gap: 13px;
+        }
+
+        .tenant-form-section h3 {
+            margin: 0;
+            color: #111827;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .tenant-form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px 16px;
+        }
+
+        .tenant-form-grid.two {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .tenant-location-grid {
+            display: grid;
+            grid-template-columns: 110px minmax(0, 1fr) 40px;
+            gap: 8px;
+        }
+
+        .tenant-upload {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-height: 46px;
+            padding: 10px 12px;
+            border: 1px dashed #bcc9da;
+            border-radius: 8px;
+            background: #f9fbfe;
+            color: #10264a;
+            font-size: 13px;
+            font-weight: 760;
+        }
+
+        .tenant-form-footer {
+            position: sticky;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 18px;
+            border-top: 1px solid #e3eaf3;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(8px);
+        }
+
         body.is-modal-open { overflow: hidden; }
 
         .visitor-modal {
@@ -2162,6 +2893,13 @@
             .service-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .service-widget-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .service-kanban { grid-template-columns: minmax(0, 1fr); }
+            .community-workspace { grid-template-columns: 1fr; }
+            .community-card-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .community-split { grid-template-columns: 1fr; }
+            .community-filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .tenant-workspace { grid-template-columns: 1fr; }
+            .tenant-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .tenant-filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         @media (max-width: 980px) {
@@ -2217,6 +2955,19 @@
             .service-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .service-widget-grid { grid-template-columns: 1fr; }
             .service-attachment-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .community-workspace { grid-template-columns: 1fr; }
+            .community-card-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .community-filter-bar { grid-template-columns: 1fr; }
+            .community-event-row { grid-template-columns: 62px minmax(0, 1fr); }
+            .community-event-row .community-thumb { display: none; }
+            .community-donut-panel { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+            .tenant-workspace { grid-template-columns: 1fr; }
+            .tenant-titlebar { align-items: stretch; flex-direction: column; }
+            .tenant-actions { justify-content: flex-start; }
+            .tenant-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .tenant-filter-bar,
+            .tenant-form-grid,
+            .tenant-form-grid.two { grid-template-columns: 1fr; }
             .benefit-cell { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
             .benefit-cell:last-child { border-bottom: 0; }
             .summary-cell { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.11); }
@@ -2243,6 +2994,8 @@
             .resident-benefit-icon { width: 34px; height: 34px; }
             .visitor-content { padding: 12px; }
             .service-content { padding: 12px; }
+            .community-content { padding: 12px; }
+            .tenant-content { padding: 12px; }
             .visitor-toolbar { padding-top: 0; }
             .visitor-heading { grid-template-columns: 34px minmax(0, 1fr); }
             .visitor-heading h2 { font-size: 16px; }
@@ -2255,6 +3008,15 @@
             .service-metrics { grid-template-columns: 1fr; }
             .service-metric { min-height: 64px; }
             .service-photo-pair, .service-attachment-row { grid-template-columns: 1fr; }
+            .community-card-row { grid-template-columns: 1fr; }
+            .community-row { grid-template-columns: 46px minmax(0, 1fr); }
+            .community-row > .visitor-action-buttons { grid-column: 1 / -1; justify-content: flex-start; }
+            .tenant-titlebar h2 { font-size: 20px; }
+            .tenant-metrics { grid-template-columns: 1fr; }
+            .tenant-location-grid { grid-template-columns: 1fr; }
+            .tenant-form-footer { align-items: stretch; flex-direction: column; }
+            .tenant-form-footer .tenant-actions,
+            .tenant-form-footer .btn { width: 100%; }
             th, td { padding: 11px 10px; }
         }
     </style>
@@ -2268,6 +3030,8 @@
         $canResidentRead = $authUser?->canAccessModule('resident-management', 'read');
         $canVisitorRead = $authUser?->canAccessModule('visitor-management', 'read');
         $canServiceRead = $authUser?->canAccessModule('service-request', 'read');
+        $canCommunityRead = $authUser?->canAccessModule('community-management', 'read');
+        $canTenantRead = $authUser?->canAccessModule('tenant-marketplace', 'read');
     @endphp
 
     <div class="sidebar-overlay" data-sidebar-close></div>
@@ -2378,8 +3142,56 @@
                     @foreach ([
                         ['Facility Management', 'M4 21V7l8-4 8 4v14M9 21v-7h6v7'],
                         ['Package Center', 'M12 2 3 7v10l9 5 9-5V7l-9-5ZM3 7l9 5 9-5M12 12v10'],
-                        ['Community Management', 'M7 20a5 5 0 0 1 10 0M9 8a3 3 0 1 0 6 0 3 3 0 0 0-6 0M3 19a4 4 0 0 1 5-3.87M16 15.13A4 4 0 0 1 21 19'],
-                        ['Tenant Marketplace', 'M5 9h14l-1 11H6L5 9ZM8 9a4 4 0 0 1 8 0'],
+                    ] as [$label, $path])
+                        <a href="#" class="side-link" title="{{ $label }}">
+                            <span class="side-icon">
+                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="{{ $path }}" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>{{ $label }}</span>
+                        </a>
+                    @endforeach
+
+                    @if ($canCommunityRead)
+                        <div @class(['side-section', 'is-open' => request()->routeIs('community-management.*')])>
+                            <button type="button" title="Community Management" data-sidebar-toggle @class(['side-parent', 'active' => request()->routeIs('community-management.*')]) aria-expanded="{{ request()->routeIs('community-management.*') ? 'true' : 'false' }}">
+                                <span class="side-icon">
+                                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 20a5 5 0 0 1 10 0M9 8a3 3 0 1 0 6 0 3 3 0 0 0-6 0M3 19a4 4 0 0 1 5-3.87M16 15.13A4 4 0 0 1 21 19" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span>Community Management</span>
+                                <span class="side-caret">v</span>
+                            </button>
+                            <div class="side-sub">
+                                <a href="{{ route('community-management.announcements') }}" @class(['active' => request()->routeIs('community-management.announcements')])>Announcement Center</a>
+                                <a href="{{ route('community-management.events') }}" @class(['active' => request()->routeIs('community-management.events')])>Event Management</a>
+                                <a href="{{ route('community-management.polling-survey') }}" @class(['active' => request()->routeIs('community-management.polling-survey')])>Polling &amp; Survey</a>
+                                <a href="{{ route('community-management.forum') }}" @class(['active' => request()->routeIs('community-management.forum')])>Resident Forum</a>
+                                <a href="{{ route('community-management.broadcasts') }}" @class(['active' => request()->routeIs('community-management.broadcasts')])>Broadcast Notification</a>
+                                <a href="{{ route('community-management.programs') }}" @class(['active' => request()->routeIs('community-management.programs')])>Community Programs</a>
+                                <a href="{{ route('community-management.calendar') }}" @class(['active' => request()->routeIs('community-management.calendar')])>Event Calendar</a>
+                                <a href="{{ route('community-management.engagement') }}" @class(['active' => request()->routeIs('community-management.engagement')])>Resident Engagement</a>
+                                <a href="{{ route('community-management.archive') }}" @class(['active' => request()->routeIs('community-management.archive')])>Community Archive</a>
+                                <a href="{{ route('community-management.settings') }}" @class(['active' => request()->routeIs('community-management.settings')])>Community Settings</a>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($canTenantRead)
+                        <div @class(['side-section', 'is-open' => request()->routeIs('tenant-marketplace.*')])>
+                            <button type="button" title="Tenant Marketplace" data-sidebar-toggle @class(['side-parent', 'active' => request()->routeIs('tenant-marketplace.*')]) aria-expanded="{{ request()->routeIs('tenant-marketplace.*') ? 'true' : 'false' }}">
+                                <span class="side-icon">
+                                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9h14l-1 11H6L5 9ZM8 9a4 4 0 0 1 8 0M8 13h.01M12 13h.01M16 13h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span>Tenant Marketplace</span>
+                                <span class="side-caret">v</span>
+                            </button>
+                            <div class="side-sub">
+                                <a href="{{ route('tenant-marketplace.directory') }}" @class(['active' => request()->routeIs('tenant-marketplace.directory')])>Tenant Directory</a>
+                                <a href="{{ route('tenant-marketplace.add-input') }}" @class(['active' => request()->routeIs('tenant-marketplace.add-input')])>Add / Input Tenant</a>
+                            </div>
+                        </div>
+                    @endif
+
+                    @foreach ([
                         ['Reports & Analytics', 'M4 19V5M8 19v-6M12 19V8M16 19v-9M20 19V4'],
                     ] as [$label, $path])
                         <a href="#" class="side-link" title="{{ $label }}">
@@ -2412,7 +3224,33 @@
                     </div>
                 </nav>
 
-                @if ($canServiceRead)
+                @if ($canTenantRead && request()->routeIs('tenant-marketplace.*'))
+                    <div class="sidebar-quick-actions" aria-label="Tenant marketplace quick actions">
+                        <div class="sidebar-quick-title">Quick Actions</div>
+                        <a class="sidebar-quick-link" href="{{ route('tenant-marketplace.add-input') }}">
+                            <span>+</span><span>Add / Input Tenant</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('tenant-marketplace.directory') }}">
+                            <span>#</span><span>Generate Report</span>
+                        </a>
+                    </div>
+                @elseif ($canCommunityRead && request()->routeIs('community-management.*'))
+                    <div class="sidebar-quick-actions" aria-label="Community management quick actions">
+                        <div class="sidebar-quick-title">Quick Actions</div>
+                        <a class="sidebar-quick-link" href="{{ route('community-management.announcements') }}">
+                            <span>+</span><span>Create Announcement</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('community-management.events') }}">
+                            <span>*</span><span>Create Event</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('community-management.broadcasts') }}">
+                            <span>&gt;</span><span>Send Broadcast</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('community-management.polling-survey') }}">
+                            <span>#</span><span>Create Polling</span>
+                        </a>
+                    </div>
+                @elseif ($canServiceRead)
                     <div class="sidebar-quick-actions" aria-label="Service request quick actions">
                         <div class="sidebar-quick-title">Quick Actions</div>
                         <a class="sidebar-quick-link" href="{{ route('service-request.new-request') }}">
@@ -2515,6 +3353,8 @@
                 'resident-content' => request()->routeIs('resident-management.*'),
                 'visitor-content' => request()->routeIs('visitor-management.*'),
                 'service-content' => request()->routeIs('service-request.*'),
+                'community-content' => request()->routeIs('community-management.*'),
+                'tenant-content' => request()->routeIs('tenant-marketplace.*'),
             ])>
                 @if (session('status'))
                     <div class="alert success">{{ session('status') }}</div>
