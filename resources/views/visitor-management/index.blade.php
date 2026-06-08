@@ -1,0 +1,422 @@
+@extends('layouts.app')
+
+@php
+    $navItems = [
+        'registration' => ['number' => 1, 'label' => 'Visitor Registration', 'route' => 'visitor-management.registration'],
+        'pending-approval' => ['number' => 2, 'label' => 'Pending Approval', 'route' => 'visitor-management.pending-approval'],
+        'expected-visitors' => ['number' => 3, 'label' => 'Expected Visitors', 'route' => 'visitor-management.expected-visitors'],
+        'check-in-out' => ['number' => 4, 'label' => 'Check-In / Check-Out', 'route' => 'visitor-management.check-in-out'],
+        'history' => ['number' => 5, 'label' => 'Visitor History', 'route' => 'visitor-management.history'],
+        'vehicles' => ['number' => 6, 'label' => 'Vehicle Visitor', 'route' => 'visitor-management.vehicles'],
+        'blacklist' => ['number' => 7, 'label' => 'Blacklist Management', 'route' => 'visitor-management.blacklist'],
+        'reports' => ['number' => 8, 'label' => 'Reports', 'route' => 'visitor-management.reports'],
+    ];
+
+    $pageKey = $pageKey ?? 'registration';
+
+    $visitors = [
+        ['name' => 'John Doe', 'unit' => 'A-1808', 'resident' => 'Ahmad Rizky', 'time' => '10:00 AM', 'purpose' => 'Meeting', 'vehicle' => 'B 1234 ABC', 'status' => 'Pending', 'statusClass' => 'status-pending'],
+        ['name' => 'Michael Tan', 'unit' => 'B-1205', 'resident' => 'Sarah Lim', 'time' => '11:30 AM', 'purpose' => 'Family Visit', 'vehicle' => '-', 'status' => 'Approved', 'statusClass' => 'status-approved'],
+        ['name' => 'Sarah Lim', 'unit' => 'C-2501', 'resident' => 'Jason Lee', 'time' => '01:00 PM', 'purpose' => 'Delivery', 'vehicle' => 'B 5678 DEF', 'status' => 'Pending', 'statusClass' => 'status-pending'],
+        ['name' => 'David Lee', 'unit' => 'A-1002', 'resident' => 'Nina Putri', 'time' => '03:00 PM', 'purpose' => 'Contractor', 'vehicle' => '-', 'status' => 'Rejected', 'statusClass' => 'status-rejected'],
+        ['name' => 'Kevin Hartono', 'unit' => 'B-2008', 'resident' => 'Budi Santoso', 'time' => '04:30 PM', 'purpose' => 'Maintenance', 'vehicle' => 'D 2345 GHI', 'status' => 'Expired', 'statusClass' => 'status-expired'],
+    ];
+
+    $queueColumns = [
+        ['label' => 'No.', 'key' => 'no'],
+        ['label' => 'Visitor Name', 'key' => 'name'],
+        ['label' => 'To Unit', 'key' => 'unit'],
+        ['label' => 'Visit Date & Time', 'key' => 'date'],
+        ['label' => 'Purpose', 'key' => 'purpose'],
+        ['label' => 'Vehicle', 'key' => 'vehicle'],
+        ['label' => 'Status', 'key' => 'status'],
+        ['label' => 'Action', 'key' => 'action'],
+    ];
+
+    $historyColumns = [
+        ['label' => 'No.', 'key' => 'no'],
+        ['label' => 'Visitor Name', 'key' => 'name'],
+        ['label' => 'To Unit', 'key' => 'unit'],
+        ['label' => 'Visit Date & Time', 'key' => 'date'],
+        ['label' => 'Check-Out Time', 'key' => 'checkout'],
+        ['label' => 'Status', 'key' => 'status'],
+        ['label' => 'Action', 'key' => 'action'],
+    ];
+
+    $vehicleColumns = [
+        ['label' => 'No.', 'key' => 'no'],
+        ['label' => 'Plate Number', 'key' => 'plate'],
+        ['label' => 'Vehicle Type', 'key' => 'type'],
+        ['label' => 'Assigned Lot', 'key' => 'lot'],
+        ['label' => 'Visitor Name', 'key' => 'name'],
+        ['label' => 'Unit', 'key' => 'unit'],
+        ['label' => 'Entry Date & Time', 'key' => 'date'],
+        ['label' => 'Parking Status', 'key' => 'status'],
+        ['label' => 'Action', 'key' => 'action'],
+    ];
+
+    $blacklistColumns = [
+        ['label' => 'No.', 'key' => 'no'],
+        ['label' => 'Visitor Name', 'key' => 'name'],
+        ['label' => 'Phone / Email', 'key' => 'contact'],
+        ['label' => 'Reason for Blacklisting', 'key' => 'reason'],
+        ['label' => 'Blocked Date', 'key' => 'blocked'],
+        ['label' => 'Blocked By', 'key' => 'blockedBy'],
+        ['label' => 'Expiry Date', 'key' => 'expiry'],
+        ['label' => 'Status', 'key' => 'status'],
+        ['label' => 'Action', 'key' => 'action'],
+    ];
+
+    $rows = [
+        'pending-approval' => [
+            ['no' => 1, 'name' => 'John Doe', 'unit' => 'A-1808', 'date' => '07 Jun 2026 - 10:00 AM', 'purpose' => 'Meeting', 'vehicle' => 'B 1234 ABC', 'status' => 'Pending', 'statusClass' => 'status-pending', 'actions' => [['Approve', 'success'], ['Reject', 'danger'], ['View', 'info']]],
+            ['no' => 2, 'name' => 'Sarah Lim', 'unit' => 'C-2501', 'date' => '07 Jun 2026 - 12:50 AM', 'purpose' => 'Delivery', 'vehicle' => 'B 5678 DEF', 'status' => 'Pending', 'statusClass' => 'status-pending', 'actions' => [['Approve', 'success'], ['Reject', 'danger'], ['View', 'info']]],
+            ['no' => 3, 'name' => 'Jane Doe', 'unit' => 'B-1205', 'date' => '08 Jun 2026 - 02:50 PM', 'purpose' => 'Private Visit', 'vehicle' => '-', 'status' => 'Pending', 'statusClass' => 'status-pending', 'actions' => [['Approve', 'success'], ['Reject', 'danger'], ['View', 'info']]],
+            ['no' => 4, 'name' => 'Alex Wong', 'unit' => 'D-1002', 'date' => '08 Jun 2026 - 05:30 PM', 'purpose' => 'Maintenance', 'vehicle' => 'D 2345 GHI', 'status' => 'Pending', 'statusClass' => 'status-pending', 'actions' => [['Approve', 'success'], ['Reject', 'danger'], ['View', 'info']]],
+            ['no' => 5, 'name' => 'Ahmad Rizky', 'unit' => 'B-1002', 'date' => '08 Jun 2026 - 05:30 PM', 'purpose' => 'Family Visit', 'vehicle' => '-', 'status' => 'Pending', 'statusClass' => 'status-pending', 'actions' => [['Approve', 'success'], ['Reject', 'danger'], ['View', 'info']]],
+        ],
+        'expected-visitors' => [
+            ['no' => 1, 'name' => 'Alice Smith', 'unit' => 'A-1808', 'date' => '07 Jun 2026 - 10:00 AM', 'purpose' => 'Meeting', 'vehicle' => 'B 1234 ABC', 'status' => 'Confirmed', 'statusClass' => 'status-approved', 'actions' => [['Arrive', 'success'], ['Cancel', 'danger'], ['View', 'info']]],
+            ['no' => 2, 'name' => 'Bob Jones', 'unit' => 'C-2501', 'date' => '07 Jun 2026 - 12:50 AM', 'purpose' => 'Delivery', 'vehicle' => 'B 5677 DEF', 'status' => 'Confirmed', 'statusClass' => 'status-approved', 'actions' => [['Arrive', 'success'], ['Cancel', 'danger'], ['View', 'info']]],
+            ['no' => 3, 'name' => 'Charlie Brown', 'unit' => 'B-1205', 'date' => '08 Jun 2026 - 12:50 PM', 'purpose' => 'Private Visit', 'vehicle' => '-', 'status' => 'Expected', 'statusClass' => 'status-approved', 'actions' => [['Arrive', 'success'], ['Cancel', 'danger'], ['View', 'info']]],
+            ['no' => 4, 'name' => 'Alex Wong', 'unit' => 'B-1002', 'date' => '08 Jun 2026 - 08:30 PM', 'purpose' => 'Maintenance', 'vehicle' => 'B 2345 GHI', 'status' => 'Confirmed', 'statusClass' => 'status-approved', 'actions' => [['Arrive', 'success'], ['Cancel', 'danger'], ['View', 'info']]],
+            ['no' => 5, 'name' => 'Marcia Lee', 'unit' => 'A-1002', 'date' => '08 Jun 2026 - 08:30 PM', 'purpose' => 'Family Visit', 'vehicle' => '-', 'status' => 'Expected', 'statusClass' => 'status-approved', 'actions' => [['Arrive', 'success'], ['Cancel', 'danger'], ['View', 'info']]],
+        ],
+        'check-in' => [
+            ['no' => 1, 'name' => 'Michael Chen', 'unit' => 'C-2201', 'date' => '07 Jun 2026 - 11:00 AM', 'purpose' => 'Maintenance', 'vehicle' => 'B 4567 XYZ', 'status' => 'Expected', 'statusClass' => 'status-approved', 'actions' => [['Check-In', 'success'], ['View', 'info']]],
+            ['no' => 2, 'name' => 'Jessica Wong', 'unit' => 'B-1505', 'date' => '07 Jun 2026 - 02:00 PM', 'purpose' => 'Guest', 'vehicle' => '-', 'status' => 'Expected', 'statusClass' => 'status-approved', 'actions' => [['Check-In', 'success'], ['View', 'info']]],
+            ['no' => 3, 'name' => 'David Lee', 'unit' => 'A-1808', 'date' => '07 Jun 2026 - 04:30 PM', 'purpose' => 'Delivery', 'vehicle' => 'B 9012 AB', 'status' => 'Expected', 'statusClass' => 'status-approved', 'actions' => [['Check-In', 'success'], ['View', 'info']]],
+        ],
+        'check-out' => [
+            ['no' => 1, 'name' => 'Lisa Adams', 'unit' => 'B-1002', 'date' => '07 Jun 2026 - 09:30 AM', 'purpose' => 'Maintenance', 'vehicle' => 'B 1234 CD', 'status' => 'Checked-In', 'statusClass' => 'status-approved', 'actions' => [['Check-Out', 'danger'], ['View', 'info']]],
+            ['no' => 2, 'name' => 'Kenji Tanaka', 'unit' => 'C-2201', 'date' => '07 Jun 2026 - 10:15 AM', 'purpose' => 'Guest', 'vehicle' => '-', 'status' => 'Checked-In', 'statusClass' => 'status-approved', 'actions' => [['Check-Out', 'danger'], ['View', 'info']]],
+            ['no' => 3, 'name' => 'Maria Garcia', 'unit' => 'A-1808', 'date' => '07 Jun 2026 - 11:00 AM', 'purpose' => 'Delivery', 'vehicle' => 'B 5678 FG', 'status' => 'Checked-In', 'statusClass' => 'status-approved', 'actions' => [['Check-Out', 'danger'], ['View', 'info']]],
+        ],
+        'history' => [
+            ['no' => 1, 'name' => 'Lisa Adams', 'unit' => 'B-1002', 'date' => '07 Jun 2026 - 09:30 AM', 'checkout' => '07 Jun 2026 - 11:45 AM', 'status' => 'Visit Complete', 'statusClass' => 'status-approved', 'actions' => [['View Details', 'info']]],
+            ['no' => 2, 'name' => 'Kenji Tanaka', 'unit' => 'C-2201', 'date' => '07 Jun 2026 - 10:15 AM', 'checkout' => '07 Jun 2026 - 12:30 PM', 'status' => 'Visit Complete', 'statusClass' => 'status-approved', 'actions' => [['View Details', 'info']]],
+            ['no' => 3, 'name' => 'Maria Garcia', 'unit' => 'A-1808', 'date' => '07 Jun 2026 - 11:00 AM', 'checkout' => '07 Jun 2026 - 02:30 PM', 'status' => 'Visit Complete', 'statusClass' => 'status-approved', 'actions' => [['View Details', 'info']]],
+            ['no' => 4, 'name' => 'David Johnson', 'unit' => 'D-1002', 'date' => '07 Jun 2026 - 11:45 AM', 'checkout' => '07 Jun 2026 - 12:30 AM', 'status' => 'Visit Complete', 'statusClass' => 'status-approved', 'actions' => [['View Details', 'info']]],
+        ],
+        'vehicles' => [
+            ['no' => 1, 'plate' => 'B 4578 XYZ', 'type' => 'Mobil', 'lot' => 'V-12', 'name' => 'Lisa Adams', 'unit' => 'B-1002', 'date' => '07 Jun 2026 - 10:15 AM', 'status' => 'Parked', 'statusClass' => 'status-approved', 'actions' => [['Manage Access', 'info'], ['Verify Plate', 'secondary']]],
+            ['no' => 2, 'plate' => 'D 1234 XY', 'type' => 'Mobil', 'lot' => 'V-14', 'name' => 'Kenji Tanaka', 'unit' => 'C-2201', 'date' => '07 Jun 2026 - 11:30 AM', 'status' => 'Parked', 'statusClass' => 'status-approved', 'actions' => [['Manage Access', 'info'], ['Verify Plate', 'secondary']]],
+            ['no' => 3, 'plate' => 'B 2345 HI', 'type' => 'Mobil', 'lot' => 'V-13', 'name' => 'Maria Garcia', 'unit' => 'A-1808', 'date' => '07 Jun 2026 - 11:45 AM', 'status' => 'Parked', 'statusClass' => 'status-approved', 'actions' => [['Manage Access', 'info'], ['Verify Plate', 'secondary']]],
+            ['no' => 4, 'plate' => 'D 9012 AB', 'type' => 'Motor', 'lot' => 'M-08', 'name' => 'David Johnson', 'unit' => 'D-1002', 'date' => '07 Jun 2026 - 12:10 PM', 'status' => 'Parked', 'statusClass' => 'status-approved', 'actions' => [['Manage Access', 'info'], ['Verify Plate', 'secondary']]],
+        ],
+        'blacklist' => [
+            ['no' => 1, 'name' => 'Mike Thompson', 'contact' => '08111222333', 'reason' => 'Unauthorized access', 'blocked' => '01 Mar 2026', 'blockedBy' => 'Security Chief', 'expiry' => 'Indefinite', 'status' => 'Active', 'statusClass' => 'status-approved', 'actions' => [['Review Record', 'info']]],
+            ['no' => 2, 'name' => 'Jane Fisher', 'contact' => 'jane.f@email.com', 'reason' => 'Property Damage', 'blocked' => '15 Apr 2026', 'blockedBy' => 'Ops Manager', 'expiry' => '15 Apr 2027', 'status' => 'Active', 'statusClass' => 'status-approved', 'actions' => [['Review Record', 'info']]],
+            ['no' => 3, 'name' => 'Alex Wong', 'contact' => '08556677889', 'reason' => 'Theft', 'blocked' => '20 May 2026', 'blockedBy' => 'Building Mgr.', 'expiry' => 'Indefinite', 'status' => 'Active', 'statusClass' => 'status-approved', 'actions' => [['Review Record', 'info']]],
+            ['no' => 4, 'name' => 'David Johnson', 'contact' => '08778899000', 'reason' => 'Unauthorized parking violation', 'blocked' => '05 Jun 2026', 'blockedBy' => 'Traffic Control', 'expiry' => '05 Dec 2026', 'status' => 'Active', 'statusClass' => 'status-approved', 'actions' => [['Review Record', 'info']]],
+        ],
+    ];
+
+    $pages = [
+        'registration' => [
+            'label' => 'Visitor Registration',
+            'title' => 'Visitor Registration',
+            'subtitle' => 'Input data visitor atau walk-in visitor oleh front office / security.',
+            'stats' => [],
+        ],
+        'pending-approval' => [
+            'label' => 'Pending Approval',
+            'title' => 'Pending Approval',
+            'subtitle' => 'Input data visitor atau walk-in visitor oleh front office / security.',
+            'stats' => ['Total Pending Requests: 7'],
+            'tableTitle' => 'Pending Visitor Approval Queue',
+            'columns' => $queueColumns,
+            'rows' => $rows['pending-approval'],
+            'detailTitle' => 'Pending Request Details',
+            'detailStatus' => ['John Doe', 'Pending', 'status-pending'],
+            'detailActionsTitle' => 'Approval Actions',
+            'detailActions' => [['Reject Request', 'danger'], ['Approve Request', 'success']],
+        ],
+        'expected-visitors' => [
+            'label' => 'Expected Visitors',
+            'title' => 'Expected Visitors',
+            'subtitle' => 'Input data visitor atau walk-in visitor oleh front office / security.',
+            'stats' => ['Total Expected Visitors: 20'],
+            'tableTitle' => 'Expected Visitors Queue',
+            'columns' => $queueColumns,
+            'rows' => $rows['expected-visitors'],
+            'detailTitle' => 'Visitor Detail (Expected)',
+            'detailStatus' => ['Alice Smith', 'Confirmed', 'status-approved'],
+            'detailActionsTitle' => 'Arrival Actions',
+            'detailActions' => [['Cancel Expected Arrival', 'danger'], ['Confirm Arrival & Check-In', 'success']],
+        ],
+        'check-in-out' => [
+            'label' => 'Check-In / Check-Out',
+            'title' => 'Visitor Check-In / Check-Out',
+            'subtitle' => 'Manage check-ins and check-outs for expected and approved visitors.',
+            'stats' => ['Total Expected Today: 12', 'Total Visitors Currently Inside: 18'],
+            'detailTitle' => 'Visitor Check-In / Check-Out Details',
+            'detailStatus' => ['Michael Chen', 'Ready to Check-In', 'status-approved'],
+        ],
+        'history' => [
+            'label' => 'Visitor History',
+            'title' => 'Visitor History Log',
+            'subtitle' => 'Manage completed visitor records and visit audit trail.',
+            'stats' => ['Total History Records (This Month): 350'],
+            'tableTitle' => 'Visitor History Log',
+            'columns' => $historyColumns,
+            'rows' => $rows['history'],
+            'detailTitle' => 'Visitor History Details',
+            'detailStatus' => ['Lisa Adams', 'Visit Complete', 'status-approved'],
+            'detailActionsTitle' => 'History Actions',
+            'detailActions' => [['Re-print Visit Pass', 'info'], ['View Linked Service Report', 'gold']],
+        ],
+        'vehicles' => [
+            'label' => 'Vehicle Visitor',
+            'title' => 'Visitor Vehicle Management',
+            'subtitle' => 'Manage visitor vehicles, parking lots, and temporary parking permits.',
+            'stats' => ['Total Visitor Vehicles Currently in Park: 22 / 30'],
+            'tableTitle' => 'Visitor Vehicle Management',
+            'columns' => $vehicleColumns,
+            'rows' => $rows['vehicles'],
+            'detailTitle' => 'Visitor Vehicle Details',
+            'detailStatus' => ['Lisa Adams', 'Vehicle Parked', 'status-approved'],
+            'detailActionsTitle' => 'Vehicle Access Control',
+            'detailActions' => [['Re-allocate Lot', 'info'], ['Log Mis-Parking Violation', 'danger'], ['Extend Visitor Parking Permit', 'gold']],
+        ],
+        'blacklist' => [
+            'label' => 'Blacklist Management',
+            'title' => 'Visitor Blacklist Management',
+            'subtitle' => 'Manage visitor blacklist records and incident notes.',
+            'stats' => ['Total Visitors Currently Blacklisted: 12 / 50', 'Last Blacklist Activity: Alex Wong (Theft)'],
+            'tableTitle' => 'Visitor Blacklist Management',
+            'columns' => $blacklistColumns,
+            'rows' => $rows['blacklist'],
+            'detailTitle' => 'Visitor Blacklist Details',
+            'detailStatus' => ['Mike Thompson', 'Blacklisted', 'status-rejected'],
+            'detailActionsTitle' => 'Blacklist Actions',
+            'detailActions' => [['Add Incident Report', 'info'], ['Revoke Blacklist', 'gold'], ['Edit Blacklist Record', 'danger']],
+        ],
+        'reports' => [
+            'label' => 'Reports',
+            'title' => 'Visitor Reports & Analytics',
+            'subtitle' => 'Review visitor trends, purposes, and peak check-in hours.',
+            'stats' => ['Total Visits (This Month): 1,250', 'Average Duration of Visit: 45 min'],
+        ],
+    ];
+
+    $page = $pages[$pageKey] ?? $pages['registration'];
+@endphp
+
+@section('title', $page['label'])
+@section('topbar_context')
+    Visitor Management > {{ $page['label'] }}
+@endsection
+@section('topbar_subtitle', $page['subtitle'])
+
+@section('content')
+    <div class="visitor-page">
+        <section class="visitor-toolbar">
+            <div class="visitor-heading">
+                <span class="visitor-step">{{ $navItems[$pageKey]['number'] ?? 1 }}</span>
+                <div>
+                    <h2>{{ $page['title'] }}</h2>
+                    <p>{{ $page['subtitle'] }}</p>
+                </div>
+            </div>
+
+            <div class="visitor-toolbar-actions">
+                @if (! empty($page['stats']))
+                    <div class="visitor-stat-strip">
+                        @foreach ($page['stats'] as $stat)
+                            <span class="visitor-chip">{{ $stat }}</span>
+                        @endforeach
+                    </div>
+                @endif
+                <button class="btn secondary" type="button">{{ $pageKey === 'reports' ? 'Download Report' : 'Download Template' }}</button>
+                <button class="btn" type="button">Register Walk-In Visitor</button>
+            </div>
+        </section>
+
+        @if ($pageKey === 'registration')
+            <div class="visitor-grid">
+                <section class="visitor-panel visitor-span-5">
+                    <div class="visitor-panel-head">
+                        <h2 class="visitor-panel-title">Register Visitor</h2>
+                        <span class="badge">Front Office</span>
+                    </div>
+                    <div class="visitor-panel-body">
+                        <form class="visitor-form-grid">
+                            <div class="field"><label for="visitor-kind">Visitor Type</label><select id="visitor-kind"><option>Guest</option><option>Contractor</option><option>Delivery</option></select></div>
+                            <div class="field"><label for="visit-type">Visit Type</label><select id="visit-type"><option>Personal Visit</option><option>Family Visit</option><option>Maintenance</option></select></div>
+                            <div class="field"><label for="visitor-name">Visitor Name</label><input id="visitor-name" type="text" value="John Doe"></div>
+                            <div class="field"><label for="visitor-mobile">Mobile Number</label><input id="visitor-mobile" type="text" value="0812 3456 7890"></div>
+                            <div class="field"><label for="visitor-email">Email</label><input id="visitor-email" type="text" value="johndoe@email.com"></div>
+                            <div class="field"><label for="visitor-id-type">ID Type</label><select id="visitor-id-type"><option>KTP</option><option>Passport</option><option>SIM</option></select></div>
+                            <div class="field"><label for="visitor-id-number">ID Number</label><input id="visitor-id-number" type="text" value="3171 8806 9000 0001"></div>
+                            <div class="field"><label for="visitor-date">Visit Date</label><input id="visitor-date" type="text" value="07 Jun 2026"></div>
+                            <div class="field"><label for="visitor-time">Visit Time</label><input id="visitor-time" type="text" value="10:00 AM"></div>
+                            <div class="field"><label for="visitor-purpose">Purpose</label><select id="visitor-purpose"><option>Meeting</option><option>Delivery</option><option>Family Visit</option></select></div>
+                            <div class="field"><label for="visitor-unit">To Unit / Resident</label><select id="visitor-unit"><option>A-1808 - Ahmad Rizky</option><option>B-1205 - Sarah Lim</option></select></div>
+                            <div class="field"><label for="visitor-vehicle-number">Vehicle Number</label><input id="visitor-vehicle-number" type="text" value="B 1234 ABC"></div>
+                            <div class="field"><label for="visitor-vehicle-type">Vehicle Type</label><select id="visitor-vehicle-type"><option>Car</option><option>Motorcycle</option><option>None</option></select></div>
+                            <div class="field full"><label for="visitor-notes">Notes</label><input id="visitor-notes" type="text" value="Meeting with unit owner."></div>
+                        </form>
+
+                        <div class="visitor-form-actions">
+                            <button class="btn secondary" type="button">Reset</button>
+                            <button class="btn" type="button">Submit Registration</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="visitor-panel visitor-span-4">
+                    <div class="visitor-panel-head">
+                        <h2 class="visitor-panel-title">Recently Registered</h2>
+                        <a class="btn secondary" href="{{ route('visitor-management.history') }}">View All</a>
+                    </div>
+                    <div class="visitor-panel-body">
+                        <div class="visitor-list">
+                            @foreach ($visitors as $visitor)
+                                <div class="visitor-list-row">
+                                    <div class="visitor-avatar">{{ strtoupper(substr($visitor['name'], 0, 1)) }}</div>
+                                    <div>
+                                        <strong>{{ $visitor['name'] }}</strong>
+                                        <small>To Unit {{ $visitor['unit'] }} - {{ $visitor['resident'] }}</small>
+                                        <small>07 Jun 2026 - {{ $visitor['time'] }}</small>
+                                    </div>
+                                    <span class="badge {{ $visitor['statusClass'] }}">{{ $visitor['status'] }}</span>
+                                    <span></span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </section>
+
+                @include('visitor-management.partials.detail', [
+                    'panelClass' => 'visitor-span-3',
+                    'title' => 'Visitor Detail',
+                    'status' => ['John Doe', 'Pending', 'status-pending'],
+                    'actionsTitle' => 'Visitor Actions',
+                    'actions' => [['Edit', 'secondary'], ['Cancel Registration', 'danger']],
+                ])
+
+                <section class="visitor-panel visitor-span-9">
+                    <div class="visitor-panel-head">
+                        <h2 class="visitor-panel-title">All Visitor Registration</h2>
+                        @include('visitor-management.partials.filters', ['search' => 'Search visitor, unit, resident...'])
+                    </div>
+                    @include('visitor-management.partials.table', ['columns' => $queueColumns, 'rows' => $visitors])
+                </section>
+
+                @include('visitor-management.partials.integration', ['panelClass' => 'visitor-span-3'])
+            </div>
+        @elseif ($pageKey === 'check-in-out')
+            <div class="visitor-tabs" aria-label="Check-in and check-out mode">
+                <button class="visitor-tab active" type="button">Check-In Queue</button>
+                <button class="visitor-tab" type="button">Check-Out Queue</button>
+            </div>
+
+            <div class="visitor-grid">
+                <section class="visitor-panel visitor-span-9">
+                    <div class="visitor-panel-head">
+                        <h2 class="visitor-panel-title">Visitor Check-In Queue</h2>
+                        <button class="btn success" type="button">Check-In Selected</button>
+                    </div>
+                    @include('visitor-management.partials.filters', ['search' => 'Search expected, unit, resident...'])
+                    @include('visitor-management.partials.table', ['columns' => $queueColumns, 'rows' => $rows['check-in']])
+                </section>
+
+                @include('visitor-management.partials.detail', [
+                    'panelClass' => 'visitor-span-3',
+                    'title' => $page['detailTitle'],
+                    'status' => $page['detailStatus'],
+                    'actionsTitle' => 'Check-In / Check-Out Actions',
+                    'actions' => [['Confirm Check-In', 'success'], ['Confirm Check-Out', 'danger']],
+                ])
+
+                <section class="visitor-panel visitor-span-9">
+                    <div class="visitor-panel-head">
+                        <h2 class="visitor-panel-title">Visitor Check-Out Queue</h2>
+                        <button class="btn danger" type="button">Check-Out Selected</button>
+                    </div>
+                    @include('visitor-management.partials.filters', ['search' => 'Search currently inside...'])
+                    @include('visitor-management.partials.table', ['columns' => $queueColumns, 'rows' => $rows['check-out']])
+                </section>
+
+                @include('visitor-management.partials.integration', ['panelClass' => 'visitor-span-3'])
+            </div>
+        @elseif ($pageKey === 'reports')
+            <div class="visitor-grid">
+                <section class="visitor-panel visitor-span-9">
+                    <div class="visitor-panel-head">
+                        <h2 class="visitor-panel-title">Visitor Reports & Analytics</h2>
+                        @include('visitor-management.partials.filters', ['search' => 'All visit purposes'])
+                    </div>
+                    <div class="visitor-chart">
+                        <h3 style="margin:0 0 14px;color:#0b2149;">Visits Over Time</h3>
+                        <div class="visitor-line-chart" aria-label="Visits over time chart"></div>
+                        <div class="visitor-chart-labels">
+                            <span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span><span>Week 5</span><span>Week 6</span><span>Week 7</span>
+                        </div>
+                    </div>
+                </section>
+
+                @include('visitor-management.partials.detail', [
+                    'panelClass' => 'visitor-span-3',
+                    'title' => 'Report Summary & Options',
+                    'status' => ['Monthly Report', 'Ready', 'status-approved'],
+                    'actionsTitle' => 'Report Actions',
+                    'actions' => [['Export as PDF', 'gold'], ['Schedule Email Report', 'info'], ['Print Report', 'info']],
+                ])
+
+                <section class="visitor-panel visitor-span-9">
+                    <div class="visitor-report-grid visitor-panel-body">
+                        <div>
+                            <h3 class="visitor-panel-title">Visit Purpose Breakdown</h3>
+                            <div class="visitor-donut-wrap">
+                                <div class="visitor-donut-purpose"></div>
+                                <div class="legend">
+                                    <div class="legend-row"><span class="dot"></span><span>Business</span><strong>30%</strong></div>
+                                    <div class="legend-row"><span class="dot green"></span><span>Maintenance</span><strong>27%</strong></div>
+                                    <div class="legend-row"><span class="dot red"></span><span>Social</span><strong>16%</strong></div>
+                                    <div class="legend-row"><span class="dot gold"></span><span>Delivery</span><strong>20%</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="visitor-panel-title">Peak Check-In Hours</h3>
+                            <div class="visitor-bars-chart" aria-label="Peak check-in hours chart">
+                                @foreach ([18, 16, 38, 74, 92, 100, 90, 76, 49, 34] as $height)
+                                    <span @class(['visitor-bar', 'hot' => $height >= 90]) style="height: {{ $height }}%;"></span>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        @else
+            <div class="visitor-grid">
+                <section class="visitor-panel visitor-span-9">
+                    <div class="visitor-panel-head">
+                        <h2 class="visitor-panel-title">{{ $page['tableTitle'] }}</h2>
+                        @if ($pageKey === 'pending-approval')
+                            <button class="btn success" type="button">Approve Selected</button>
+                        @elseif ($pageKey === 'expected-visitors')
+                            <button class="btn success" type="button">Confirm Arrival Selected</button>
+                        @endif
+                    </div>
+                    @include('visitor-management.partials.filters', ['search' => $pageKey === 'vehicles' ? 'Search by plate number / type' : 'Search visitor, unit, resident...'])
+                    @include('visitor-management.partials.table', ['columns' => $page['columns'], 'rows' => $page['rows']])
+                </section>
+
+                @include('visitor-management.partials.detail', [
+                    'panelClass' => 'visitor-span-3',
+                    'title' => $page['detailTitle'],
+                    'status' => $page['detailStatus'],
+                    'actionsTitle' => $page['detailActionsTitle'],
+                    'actions' => $page['detailActions'],
+                ])
+
+                @if (in_array($pageKey, ['pending-approval', 'expected-visitors'], true))
+                    @include('visitor-management.partials.integration', ['panelClass' => 'visitor-span-3'])
+                @endif
+            </div>
+        @endif
+    </div>
+@endsection
