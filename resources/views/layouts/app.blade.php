@@ -1588,6 +1588,7 @@
         .status-approved { background: #e6f8ee; color: #0f7d45; }
         .status-rejected { background: #ffe9e7; color: #b42318; }
         .status-expired { background: #eef3fa; color: #53647d; }
+        .status-slate { background: #e7edf7; color: #314662; }
 
         .btn.success { background: #159a63; }
         .btn.success:hover { background: #0f7d45; }
@@ -2502,6 +2503,356 @@
 
         .community-setting-toggle.off::after {
             margin-left: 0;
+        }
+
+        .billing-content { padding: 18px 14px 30px; }
+
+        .billing-page,
+        .billing-grid,
+        .billing-metrics,
+        .billing-bars,
+        .billing-donut-panel,
+        .billing-legend,
+        .billing-summary {
+            display: grid;
+            gap: 14px;
+        }
+
+        .billing-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 2px 2px 8px;
+        }
+
+        .billing-header h2 {
+            margin: 0;
+            color: #071935;
+            font-size: 23px;
+            font-weight: 930;
+            text-transform: uppercase;
+        }
+
+        .billing-header p {
+            margin: 6px 0 0;
+            color: #5b6d84;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .billing-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .billing-metrics {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .billing-metric {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 106px;
+            gap: 12px;
+            align-items: center;
+            min-height: 96px;
+            padding: 16px 18px;
+            border: 1px solid #dde6f1;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 8px 22px rgba(5, 18, 42, 0.06);
+        }
+
+        .billing-metric span,
+        .billing-metric small {
+            display: block;
+            color: #5b6d84;
+            font-size: 12px;
+            font-weight: 760;
+        }
+
+        .billing-metric strong {
+            display: block;
+            margin-top: 7px;
+            color: #071935;
+            font-size: 24px;
+            font-weight: 930;
+            line-height: 1.05;
+        }
+
+        .billing-trend {
+            display: flex;
+            align-items: end;
+            justify-content: flex-end;
+            gap: 4px;
+            min-height: 48px;
+        }
+
+        .billing-trend span {
+            width: 9px;
+            border-radius: 999px 999px 3px 3px;
+            background: #c5d6f5;
+        }
+
+        .billing-metric.gold .billing-trend span { background: linear-gradient(180deg, #f6d782, #d7a73a); }
+        .billing-metric.green .billing-trend span { background: linear-gradient(180deg, #86ddb2, #1fae69); }
+        .billing-metric.red .billing-trend span { background: linear-gradient(180deg, #f0b1ab, #d25f53); }
+        .billing-metric.blue .billing-trend span { background: linear-gradient(180deg, #b8d4ff, #4d8cea); }
+
+        .billing-grid {
+            grid-template-columns: minmax(0, 1fr) 210px;
+            align-items: start;
+        }
+
+        .billing-main { grid-column: 1; }
+
+        .billing-panel {
+            overflow: hidden;
+            border: 1px solid #dde6f1;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 10px 24px rgba(5, 18, 42, 0.06);
+        }
+
+        .billing-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 14px 0;
+        }
+
+        .billing-panel-head h3 {
+            margin: 0;
+            color: #0b2149;
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .billing-search {
+            width: min(220px, 100%);
+        }
+
+        .billing-search input {
+            width: 100%;
+            min-height: 34px;
+            padding: 7px 11px;
+            border: 1px solid #d7e2ef;
+            border-radius: 7px;
+            background: #fbfcff;
+        }
+
+        .billing-row-actions {
+            color: #12294d;
+            font-size: 11px;
+            font-weight: 760;
+            white-space: nowrap;
+        }
+
+        .billing-link {
+            color: #2366bf;
+            font-weight: 780;
+            text-decoration: underline;
+        }
+
+        .billing-donut-panel {
+            justify-items: center;
+            padding: 18px 12px 22px;
+        }
+
+        .billing-donut {
+            width: 112px;
+            height: 112px;
+            border-radius: 50%;
+            background: conic-gradient(#2c82e6 0 42%, #f0bd41 42% 72%, #d75a4f 72% 100%);
+            position: relative;
+        }
+
+        .billing-donut::after {
+            content: "";
+            position: absolute;
+            inset: 22px;
+            border-radius: 50%;
+            background: #ffffff;
+        }
+
+        .billing-donut.collections { background: conic-gradient(#2c82e6 0 38%, #f0bd41 38% 56%, #2da56d 56% 77%, #d75a4f 77% 100%); }
+        .billing-donut.autobills { background: conic-gradient(#2da56d 0 82%, #d75a4f 82% 95%, #9eacbe 95% 100%); }
+        .billing-donut.history { background: conic-gradient(#2da56d 0 48%, #d75a4f 48% 60%, #9eacbe 60% 86%, #2c82e6 86% 100%); }
+
+        .billing-legend {
+            width: 100%;
+        }
+
+        .billing-legend span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2a3b54;
+            font-size: 12px;
+            font-weight: 760;
+        }
+
+        .billing-legend i {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2c82e6;
+        }
+
+        .billing-legend .gold { background: #f0bd41; }
+        .billing-legend .green { background: #2da56d; }
+        .billing-legend .red { background: #d75a4f; }
+        .billing-legend .slate { background: #9eacbe; }
+
+        .billing-chart-key {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #51647d;
+            font-size: 11px;
+            font-weight: 760;
+        }
+
+        .blue-dot,
+        .gold-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            background: #2c82e6;
+        }
+
+        .gold-dot { background: #f0bd41; }
+
+        .billing-bars {
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            align-items: end;
+            gap: 8px;
+            min-height: 214px;
+            padding: 22px 16px 16px;
+        }
+
+        .billing-bar-col {
+            position: relative;
+            display: grid;
+            justify-items: center;
+            align-items: end;
+            gap: 8px;
+            min-height: 176px;
+        }
+
+        .billing-bar-col small {
+            color: #5b6d84;
+            font-size: 11px;
+            font-weight: 760;
+        }
+
+        .billing-bar-pair,
+        .billing-bar-stack {
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            gap: 5px;
+            width: 100%;
+            min-height: 150px;
+        }
+
+        .billing-bar-stack {
+            flex-direction: column-reverse;
+            gap: 0;
+            width: 30px;
+            overflow: hidden;
+            border-radius: 7px 7px 0 0;
+            background: #eef3f9;
+        }
+
+        .billing-bar-pair span,
+        .billing-bar-stack span {
+            display: block;
+            border-radius: 7px 7px 0 0;
+        }
+
+        .billing-bar-pair span {
+            width: 16px;
+            background: #2c82e6;
+        }
+
+        .billing-bar-pair .gold { background: #f0bd41; }
+        .billing-bar-pair .green { background: #63b683; }
+        .billing-bar-stack .blue { background: #2c82e6; }
+        .billing-bar-stack .gold { background: #f0bd41; }
+        .billing-bar-stack .green { background: #2da56d; }
+        .billing-bar-stack .red { background: #d75a4f; }
+
+        .billing-line-point {
+            position: absolute;
+            left: 50%;
+            z-index: 2;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #8f8a43;
+            transform: translateX(-50%);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.75);
+        }
+
+        .billing-line-point.gold-point { background: #cbb24d; }
+
+        .billing-summary {
+            grid-column: 1 / -1;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            padding: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            background: linear-gradient(180deg, #0b2049, #08162f);
+            color: #ffffff;
+        }
+
+        .billing-summary-item {
+            padding: 16px 14px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .billing-summary-item:last-child { border-right: 0; }
+
+        .billing-summary-item span,
+        .billing-summary-item small {
+            display: block;
+            color: rgba(234, 241, 250, 0.76);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .billing-summary-item strong {
+            display: block;
+            margin: 6px 0;
+            font-size: 24px;
+            font-weight: 900;
+            line-height: 1.05;
+        }
+
+        .billing-export-copy strong {
+            display: block;
+            color: #0b2149;
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .billing-export-copy p {
+            margin: 8px 0 0;
+            color: #5b6d84;
+            font-size: 13px;
+        }
+
+        .billing-export-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
         }
 
         .tenant-content { padding: 18px 14px 30px; }
@@ -3422,6 +3773,8 @@
             .service-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .service-widget-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .service-kanban { grid-template-columns: minmax(0, 1fr); }
+            .billing-grid { grid-template-columns: 1fr; }
+            .billing-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .community-workspace { grid-template-columns: 1fr; }
             .community-card-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .community-split { grid-template-columns: 1fr; }
@@ -3484,6 +3837,12 @@
             .service-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .service-widget-grid { grid-template-columns: 1fr; }
             .service-attachment-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .billing-header { align-items: stretch; flex-direction: column; }
+            .billing-actions { justify-content: flex-start; }
+            .billing-metrics { grid-template-columns: 1fr; }
+            .billing-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .billing-search { width: 100%; }
+            .billing-panel-head { align-items: stretch; flex-direction: column; }
             .community-workspace { grid-template-columns: 1fr; }
             .community-card-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .community-filter-bar { grid-template-columns: 1fr; }
@@ -3531,6 +3890,7 @@
             .resident-benefit-icon { width: 34px; height: 34px; }
             .visitor-content { padding: 12px; }
             .service-content { padding: 12px; }
+            .billing-content { padding: 12px; }
             .community-content { padding: 12px; }
             .tenant-content { padding: 12px; }
             .package-content { padding: 12px; }
@@ -3549,6 +3909,11 @@
             .community-card-row { grid-template-columns: 1fr; }
             .community-row { grid-template-columns: 46px minmax(0, 1fr); }
             .community-row > .visitor-action-buttons { grid-column: 1 / -1; justify-content: flex-start; }
+            .billing-header h2 { font-size: 19px; }
+            .billing-bars { gap: 4px; padding-inline: 10px; }
+            .billing-summary { grid-template-columns: 1fr; }
+            .billing-export-actions, .billing-actions { width: 100%; }
+            .billing-export-actions .btn, .billing-actions .btn { width: 100%; }
             .tenant-titlebar h2 { font-size: 20px; }
             .tenant-metrics { grid-template-columns: 1fr; }
             .tenant-location-grid { grid-template-columns: 1fr; }
@@ -3583,6 +3948,7 @@
         $canCommunityRead = $authUser?->canAccessModule('community-management', 'read');
         $canTenantRead = $authUser?->canAccessModule('tenant-marketplace', 'read');
         $canPackageRead = $authUser?->canAccessModule('package-center', 'read');
+        $canBillingRead = $authUser?->canAccessModule('billing-finance', 'read');
     @endphp
 
     <div class="sidebar-overlay" data-sidebar-close></div>
@@ -3628,8 +3994,9 @@
                         </div>
                     @endif
 
-                    <div class="side-section">
-                        <button type="button" class="side-parent" title="Billing & Finance" data-sidebar-toggle aria-expanded="false">
+                    @if ($canBillingRead)
+                        <div @class(['side-section', 'is-open' => request()->routeIs('billing-finance.*')])>
+                        <button type="button" class="side-parent" title="Billing & Finance" data-sidebar-toggle @class(['active' => request()->routeIs('billing-finance.*')]) aria-expanded="{{ request()->routeIs('billing-finance.*') ? 'true' : 'false' }}">
                             <span class="side-icon">
                                 <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12v20H6z"/><path d="M9 6h6M9 10h6M9 14h3"/></svg>
                             </span>
@@ -3637,12 +4004,13 @@
                             <span class="side-caret">v</span>
                         </button>
                         <div class="side-sub">
-                            <a href="#">Invoice Management</a>
-                            <a href="#">Collection & Payment</a>
-                            <a href="#">Late Fee & Penalty</a>
-                            <a href="#">Financial Report</a>
+                            <a href="{{ route('billing-finance.invoices') }}" @class(['active' => request()->routeIs('billing-finance.invoices')])>Invoice Management</a>
+                            <a href="{{ route('billing-finance.debt-collection') }}" @class(['active' => request()->routeIs('billing-finance.debt-collection')])>Debt Collection</a>
+                            <a href="{{ route('billing-finance.auto-bills') }}" @class(['active' => request()->routeIs('billing-finance.auto-bills')])>Auto Bills</a>
+                            <a href="{{ route('billing-finance.history-payment') }}" @class(['active' => request()->routeIs('billing-finance.history-payment')])>History Payment</a>
                         </div>
                     </div>
+                    @endif
 
                     @if ($canVisitorRead)
                         <div @class(['side-section', 'is-open' => request()->routeIs('visitor-management.*')])>
@@ -3783,7 +4151,20 @@
                     </div>
                 </nav>
 
-                @if ($canPackageRead && request()->routeIs('package-center.*'))
+                @if ($canBillingRead && request()->routeIs('billing-finance.*'))
+                    <div class="sidebar-quick-actions" aria-label="Billing finance quick actions">
+                        <div class="sidebar-quick-title">Quick Actions</div>
+                        <a class="sidebar-quick-link" href="{{ route('billing-finance.invoices') }}">
+                            <span>#</span><span>Export Excel</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('billing-finance.debt-collection') }}">
+                            <span>&gt;</span><span>View Collection</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('billing-finance.auto-bills') }}">
+                            <span>+</span><span>Auto Billing</span>
+                        </a>
+                    </div>
+                @elseif ($canPackageRead && request()->routeIs('package-center.*'))
                     <div class="sidebar-quick-actions" aria-label="Package center quick actions">
                         <div class="sidebar-quick-title">Quick Actions</div>
                         <a class="sidebar-quick-link" href="{{ route('package-center.index') }}">
@@ -3923,6 +4304,7 @@
                 'content',
                 'dashboard-content' => request()->routeIs('dashboard'),
                 'resident-content' => request()->routeIs('resident-management.*'),
+                'billing-content' => request()->routeIs('billing-finance.*'),
                 'visitor-content' => request()->routeIs('visitor-management.*'),
                 'service-content' => request()->routeIs('service-request.*'),
                 'community-content' => request()->routeIs('community-management.*'),

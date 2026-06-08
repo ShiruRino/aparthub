@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BillingFinanceController;
 use App\Http\Controllers\CommunityManagementController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ModuleController;
@@ -39,6 +40,17 @@ Route::middleware('auth')->group(function () {
             Route::get('/move-in-out', [ResidentManagementController::class, 'moveInOut'])->name('move-in-out');
             Route::get('/family-members', [ResidentManagementController::class, 'familyMembers'])->name('family-members');
             Route::get('/vehicles', [ResidentManagementController::class, 'vehicles'])->name('vehicles');
+        });
+
+    Route::prefix('billing-finance')
+        ->name('billing-finance.')
+        ->middleware('module.access:billing-finance,read')
+        ->group(function () {
+            Route::redirect('/', '/billing-finance/invoices')->name('index');
+            Route::get('/invoices', [BillingFinanceController::class, 'invoices'])->name('invoices');
+            Route::get('/debt-collection', [BillingFinanceController::class, 'debtCollection'])->name('debt-collection');
+            Route::get('/auto-bills', [BillingFinanceController::class, 'autoBills'])->name('auto-bills');
+            Route::get('/history-payment', [BillingFinanceController::class, 'historyPayment'])->name('history-payment');
         });
 
     Route::prefix('visitor-management')

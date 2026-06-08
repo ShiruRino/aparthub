@@ -45,10 +45,11 @@ class DynamicAccessControlTest extends TestCase
             ['name' => 'Community Management', 'slug' => 'community-management', 'sort_order' => 40],
             ['name' => 'Tenant Marketplace', 'slug' => 'tenant-marketplace', 'sort_order' => 50],
             ['name' => 'Package Center', 'slug' => 'package-center', 'sort_order' => 60],
-            ['name' => 'Users', 'slug' => 'users', 'sort_order' => 70],
-            ['name' => 'Modules', 'slug' => 'modules', 'sort_order' => 80],
-            ['name' => 'Access', 'slug' => 'access', 'sort_order' => 90],
-            ['name' => 'Roles', 'slug' => 'roles', 'sort_order' => 100],
+            ['name' => 'Billing & Finance', 'slug' => 'billing-finance', 'sort_order' => 70],
+            ['name' => 'Users', 'slug' => 'users', 'sort_order' => 80],
+            ['name' => 'Modules', 'slug' => 'modules', 'sort_order' => 90],
+            ['name' => 'Access', 'slug' => 'access', 'sort_order' => 100],
+            ['name' => 'Roles', 'slug' => 'roles', 'sort_order' => 110],
         ])->map(fn (array $module) => Module::query()->create($module + ['is_active' => true]));
     }
 
@@ -89,6 +90,8 @@ class DynamicAccessControlTest extends TestCase
         $this->get(route('dashboard'))->assertRedirect(route('login'));
         $this->get(route('users.index'))->assertRedirect(route('login'));
         $this->get(route('resident-management.residents'))->assertRedirect(route('login'));
+        $this->get(route('billing-finance.index'))->assertRedirect(route('login'));
+        $this->get(route('billing-finance.invoices'))->assertRedirect(route('login'));
         $this->get(route('visitor-management.index'))->assertRedirect(route('login'));
         $this->get(route('visitor-management.registration'))->assertRedirect(route('login'));
         $this->get(route('service-request.index'))->assertRedirect(route('login'));
@@ -131,6 +134,26 @@ class DynamicAccessControlTest extends TestCase
                 ->assertSee('Resident Management Flow')
                 ->assertSee($expectedText, false)
                 ->assertDontSee('Step 1');
+        }
+    }
+
+    public function test_admin_can_access_billing_finance_pages_without_permission_rows(): void
+    {
+        $admin = $this->makeUser($this->adminRole, [
+            'username' => 'admin',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('billing-finance.index'))
+            ->assertRedirect(route('billing-finance.invoices'));
+
+        foreach ($this->billingRoutes() as $routeName => $expectedText) {
+            $this->actingAs($admin)
+                ->get(route($routeName))
+                ->assertOk()
+                ->assertSee('Billing &amp; Finance', false)
+                ->assertSee($expectedText)
+                ->assertSee('Export Excel');
         }
     }
 
@@ -242,6 +265,21 @@ class DynamicAccessControlTest extends TestCase
         $this->assertNotContains('visitor-management.check-out', $visitorRouteNames);
     }
 
+    public function test_billing_finance_uses_dropdown_subpage_routes(): void
+    {
+        $billingRouteNames = collect(Route::getRoutes())
+            ->map(fn ($route) => $route->getName())
+            ->filter(fn (?string $name) => str_starts_with($name ?? '', 'billing-finance.'))
+            ->values()
+            ->all();
+
+        $this->assertContains('billing-finance.index', $billingRouteNames);
+
+        foreach (array_keys($this->billingRoutes()) as $routeName) {
+            $this->assertContains($routeName, $billingRouteNames);
+        }
+    }
+
     public function test_service_request_uses_dropdown_subpage_routes(): void
     {
         $serviceRouteNames = collect(Route::getRoutes())
@@ -311,6 +349,14 @@ class DynamicAccessControlTest extends TestCase
             ->assertForbidden();
 
         $this->actingAs($user)
+            ->get(route('billing-finance.index'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->get(route('billing-finance.invoices'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
             ->get(route('visitor-management.index'))
             ->assertForbidden();
 
@@ -360,6 +406,27 @@ class DynamicAccessControlTest extends TestCase
                 ->get(route($routeName))
                 ->assertOk()
                 ->assertSee($expectedText, false);
+        }
+    }
+
+    public function test_non_admin_can_access_billing_finance_pages_with_read_permission(): void
+    {
+        $user = $this->makeUser($this->staffRole);
+
+        $this->grant($user, 'billing-finance', [
+            'can_read' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('billing-finance.index'))
+            ->assertRedirect(route('billing-finance.invoices'));
+
+        foreach ($this->billingRoutes() as $routeName => $expectedText) {
+            $this->actingAs($user)
+                ->get(route($routeName))
+                ->assertOk()
+                ->assertSee($expectedText)
+                ->assertSee('Export Excel');
         }
     }
 
@@ -561,6 +628,32 @@ class DynamicAccessControlTest extends TestCase
         }
     }
 
+    public function test_billing_finance_sidebar_dropdown_uses_real_routes(): void
+    {
+        $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
+
+        $response = $this->actingAs($admin)
+            ->get(route('billing-finance.invoices'))
+            ->assertOk()
+            ->assertSeeText('Billing & Finance')
+            ->assertSee('Invoice Management')
+            ->assertSee('Debt Collection')
+            ->assertSee('Auto Bills')
+            ->assertSee('History Payment')
+            ->assertDontSee('<a href="#">Invoice Management</a>', false);
+
+        foreach (array_keys($this->billingRoutes()) as $routeName) {
+            $response->assertSee('href="'.route($routeName).'"', false);
+        }
+
+        $this->actingAs($admin)
+            ->get(route('billing-finance.invoices'))
+            ->assertOk()
+            ->assertSee('Export Excel')
+            ->assertSee('View Collection')
+            ->assertSee('Auto Billing');
+    }
+
     public function test_visitor_management_sidebar_dropdown_uses_real_routes(): void
     {
         $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
@@ -676,6 +769,7 @@ class DynamicAccessControlTest extends TestCase
         $communityModule = $this->module('community-management');
         $tenantModule = $this->module('tenant-marketplace');
         $packageModule = $this->module('package-center');
+        $billingModule = $this->module('billing-finance');
 
         $this->actingAs($admin)
             ->put(route('roles.update', $this->adminRole), [
@@ -819,6 +913,22 @@ class DynamicAccessControlTest extends TestCase
             'slug' => 'package-center',
             'is_active' => 1,
         ]);
+
+        $this->actingAs($admin)
+            ->put(route('modules.update', $billingModule), [
+                'name' => 'Billing Operations',
+                'slug' => 'billing-ops',
+                'sort_order' => 8,
+                'is_active' => '0',
+            ])
+            ->assertRedirect(route('modules.index'));
+
+        $this->assertDatabaseHas('modules', [
+            'id' => $billingModule->id,
+            'name' => 'Billing Operations',
+            'slug' => 'billing-finance',
+            'is_active' => 1,
+        ]);
     }
 
     /**
@@ -868,6 +978,21 @@ class DynamicAccessControlTest extends TestCase
             'resident-management.move-in-out' => 'Manajemen Pindah Masuk & Keluar Aether Residences',
             'resident-management.family-members' => 'Daftar Anggota Keluarga Aether Residences',
             'resident-management.vehicles' => 'Daftar Kendaraan Penghuni Aether Residences',
+        ];
+    }
+
+    /**
+     * Get billing finance route names and their page-specific text.
+     *
+     * @return array<string, string>
+     */
+    private function billingRoutes(): array
+    {
+        return [
+            'billing-finance.invoices' => 'Invoice Management',
+            'billing-finance.debt-collection' => 'Bills Collecting',
+            'billing-finance.auto-bills' => 'Auto Billing Control Center',
+            'billing-finance.history-payment' => 'History Payment',
         ];
     }
 
