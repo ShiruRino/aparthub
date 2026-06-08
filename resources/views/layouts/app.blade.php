@@ -2781,6 +2781,535 @@
             backdrop-filter: blur(8px);
         }
 
+        .package-content { padding: 18px 14px 30px; }
+        .package-page,
+        .package-main,
+        .package-bottom-grid,
+        .package-benefits,
+        .package-modal-form,
+        .package-modal-section {
+            display: grid;
+            gap: 14px;
+        }
+
+        .package-page { min-width: 0; }
+
+        .package-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.85fr);
+            gap: 20px;
+            align-items: stretch;
+            padding: 20px 24px;
+            border: 1px solid #dde6f1;
+            border-radius: 10px;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(221, 165, 68, 0.16), transparent 30%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 253, 0.98));
+            box-shadow: 0 16px 34px rgba(5, 18, 42, 0.08);
+        }
+
+        .package-hero-main {
+            display: grid;
+            grid-template-columns: 104px minmax(0, 1fr);
+            gap: 20px;
+            align-items: center;
+        }
+
+        .package-hero-icon {
+            display: grid;
+            width: 104px;
+            height: 104px;
+            place-items: center;
+            border-radius: 22px;
+            background: linear-gradient(180deg, #0a2450, #08204a);
+            color: #ffffff;
+            box-shadow: inset 0 0 0 3px rgba(221, 165, 68, 0.78), 0 18px 30px rgba(5, 18, 42, 0.16);
+        }
+
+        .package-hero-copy h2 {
+            margin: 0;
+            color: #0b2149;
+            font-size: 28px;
+            font-weight: 930;
+            line-height: 1.06;
+        }
+
+        .package-hero-copy p {
+            max-width: 620px;
+            margin: 12px 0 0;
+            color: #41526a;
+            font-size: 15px;
+            font-weight: 580;
+        }
+
+        .package-illustration {
+            position: relative;
+            min-height: 176px;
+            overflow: hidden;
+            border-radius: 8px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0)),
+                radial-gradient(circle at 85% 15%, rgba(244, 193, 93, 0.42), transparent 22%),
+                linear-gradient(180deg, rgba(241, 245, 251, 0.95), rgba(249, 251, 254, 0.72));
+        }
+
+        .package-plant {
+            position: absolute;
+            right: 22px;
+            bottom: 18px;
+            width: 46px;
+            height: 92px;
+            border-radius: 18px 18px 8px 8px;
+            background:
+                radial-gradient(circle at 50% 18%, #6fbe7a 0 22px, transparent 22px),
+                linear-gradient(180deg, rgba(0, 0, 0, 0) 0 60%, #8d6841 60% 100%);
+        }
+
+        .package-plant::before,
+        .package-plant::after {
+            content: "";
+            position: absolute;
+            top: 12px;
+            width: 16px;
+            height: 44px;
+            border-radius: 16px 16px 0 16px;
+            background: linear-gradient(180deg, #74c67c, #3d8a49);
+        }
+
+        .package-plant::before {
+            left: -8px;
+            transform: rotate(-28deg);
+        }
+
+        .package-plant::after {
+            right: -8px;
+            transform: scaleX(-1) rotate(-28deg);
+        }
+
+        .package-box {
+            position: absolute;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #dba24c, #c98528);
+            box-shadow: 0 14px 28px rgba(127, 84, 18, 0.18);
+        }
+
+        .package-box::before,
+        .package-box::after {
+            content: "";
+            position: absolute;
+            background: rgba(255, 255, 255, 0.24);
+        }
+
+        .package-box::before {
+            top: 16%;
+            left: 46%;
+            width: 8%;
+            height: 68%;
+        }
+
+        .package-box::after {
+            top: 44%;
+            left: 10%;
+            width: 80%;
+            height: 8%;
+        }
+
+        .package-box.one {
+            right: 110px;
+            bottom: 18px;
+            width: 136px;
+            height: 104px;
+        }
+
+        .package-box.two {
+            right: 30px;
+            bottom: 40px;
+            width: 112px;
+            height: 86px;
+        }
+
+        .package-box.three {
+            right: 70px;
+            top: 16px;
+            width: 88px;
+            height: 68px;
+        }
+
+        .package-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .package-metric {
+            display: grid;
+            grid-template-columns: 56px minmax(0, 1fr);
+            gap: 14px;
+            align-items: center;
+            min-height: 118px;
+            padding: 18px;
+            border: 1px solid #dde6f1;
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 10px 24px rgba(5, 18, 42, 0.06);
+        }
+
+        .package-metric-icon {
+            display: grid;
+            width: 54px;
+            height: 54px;
+            place-items: center;
+            border-radius: 50%;
+            color: #0d2a62;
+            background: #edf4ff;
+        }
+
+        .package-metric-icon.gold { background: #fff6e0; color: #c38320; }
+        .package-metric-icon.green { background: #e8f8ef; color: #12915a; }
+        .package-metric-icon.purple { background: #f3eafd; color: #7f4ad3; }
+
+        .package-metric span {
+            display: block;
+            color: #607087;
+            font-size: 12px;
+            font-weight: 760;
+        }
+
+        .package-metric strong {
+            display: block;
+            margin: 7px 0 4px;
+            color: #071935;
+            font-size: 23px;
+            font-weight: 930;
+            line-height: 1;
+        }
+
+        .package-metric .package-change {
+            color: #14925c;
+            font-size: 12px;
+            font-weight: 860;
+        }
+
+        .package-panel {
+            overflow: hidden;
+            border: 1px solid #dde6f1;
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 14px 30px rgba(5, 18, 42, 0.06);
+        }
+
+        .package-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 18px 20px 0;
+        }
+
+        .package-panel-head h3 {
+            margin: 0;
+            color: #0b2149;
+            font-size: 18px;
+            font-weight: 920;
+        }
+
+        .package-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px 20px;
+        }
+
+        .package-search {
+            position: relative;
+            flex: 1 1 320px;
+            min-width: 0;
+        }
+
+        .package-search input {
+            width: 100%;
+            min-height: 46px;
+            padding-right: 44px;
+        }
+
+        .package-search svg {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            color: #73839b;
+            transform: translateY(-50%);
+        }
+
+        .package-toolbar-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .package-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 34px;
+            padding: 7px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 840;
+            white-space: nowrap;
+        }
+
+        .package-status.waiting { background: #fff5df; color: #a96d10; }
+        .package-status.collected { background: #e7f8ec; color: #0d8a48; }
+        .package-status.ready { background: #e4f6eb; color: #107851; }
+        .package-status.expired { background: #fdebec; color: #c0363d; }
+
+        .package-table-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .package-kebab {
+            display: grid;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            border: 1px solid #dbe4ef;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #73561f;
+            cursor: pointer;
+        }
+
+        .package-benefits {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            padding: 0;
+            overflow: hidden;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #ffffff, #fbfcff);
+            border: 1px solid #dde6f1;
+            box-shadow: 0 14px 30px rgba(5, 18, 42, 0.05);
+        }
+
+        .package-benefit {
+            display: grid;
+            grid-template-columns: 48px minmax(0, 1fr);
+            gap: 14px;
+            align-items: start;
+            padding: 18px 16px;
+            border-right: 1px solid #ebf0f7;
+        }
+
+        .package-benefit:last-child { border-right: 0; }
+
+        .package-benefit-icon {
+            display: grid;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            border-radius: 12px;
+            background: #edf4ff;
+            color: #0b2149;
+        }
+
+        .package-benefit h4 {
+            margin: 0 0 8px;
+            color: #0b2149;
+            font-size: 15px;
+            font-weight: 860;
+        }
+
+        .package-benefit p {
+            margin: 0;
+            color: #586a82;
+            font-size: 12px;
+            font-weight: 620;
+        }
+
+        .package-modal-dialog {
+            width: min(920px, 100%);
+        }
+
+        .package-modal-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 20px 22px 14px;
+            border-bottom: 1px solid #e3eaf3;
+        }
+
+        .package-modal-titlewrap {
+            display: grid;
+            grid-template-columns: 54px minmax(0, 1fr);
+            gap: 14px;
+            align-items: center;
+        }
+
+        .package-modal-symbol {
+            display: grid;
+            width: 54px;
+            height: 54px;
+            place-items: center;
+            border-radius: 50%;
+            background: #fff5df;
+            color: #c38320;
+        }
+
+        .package-modal-titlewrap h3 {
+            margin: 0;
+            color: #0b2149;
+            font-size: 18px;
+            font-weight: 920;
+        }
+
+        .package-modal-titlewrap p {
+            margin: 6px 0 0;
+            color: #607087;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .package-modal-body {
+            display: grid;
+            gap: 18px;
+            padding: 18px 22px 22px;
+        }
+
+        .package-modal-section {
+            padding-bottom: 16px;
+            border-bottom: 1px solid #ebf0f7;
+        }
+
+        .package-modal-section:last-of-type {
+            padding-bottom: 0;
+            border-bottom: 0;
+        }
+
+        .package-modal-section h4 {
+            margin: 0;
+            color: #111827;
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+        .package-modal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px 16px;
+        }
+
+        .package-modal-grid.two {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .package-modal-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .package-radio-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            color: #10264a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .package-radio-row label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .package-upload {
+            display: grid;
+            justify-items: center;
+            gap: 8px;
+            min-height: 112px;
+            padding: 22px 18px;
+            border: 1px dashed #bcc9da;
+            border-radius: 10px;
+            background: #fbfcff;
+            color: #4e6078;
+            text-align: center;
+        }
+
+        .package-steps {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            align-items: center;
+        }
+
+        .package-step {
+            display: grid;
+            grid-template-columns: 34px minmax(0, 1fr);
+            gap: 10px;
+            align-items: center;
+            color: #66768d;
+            font-size: 13px;
+            font-weight: 760;
+        }
+
+        .package-step::after {
+            content: "";
+            grid-column: 2 / -1;
+            width: 100%;
+            height: 1px;
+            background: #d8e1ec;
+            margin-top: -16px;
+        }
+
+        .package-step:last-child::after { display: none; }
+
+        .package-step-index {
+            display: grid;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            border-radius: 50%;
+            border: 1px solid #cbd7e5;
+            background: #ffffff;
+            color: #7a8ba2;
+            font-weight: 900;
+        }
+
+        .package-step.active { color: #0b2149; }
+        .package-step.active .package-step-index {
+            border-color: #0d2a62;
+            background: #0d2a62;
+            color: #ffffff;
+        }
+
+        .package-signature {
+            display: grid;
+            place-items: center;
+            min-height: 112px;
+            border: 1px solid #d7e1ed;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #ffffff, #f9fbfe);
+            color: #111827;
+            font-size: 42px;
+            font-family: "Segoe Script", "Brush Script MT", cursive;
+        }
+
+        .package-inline-status {
+            display: inline-flex;
+            width: fit-content;
+            margin-top: 6px;
+        }
+
+        .package-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 2px;
+        }
+
         body.is-modal-open { overflow: hidden; }
 
         .visitor-modal {
@@ -2968,6 +3497,14 @@
             .tenant-filter-bar,
             .tenant-form-grid,
             .tenant-form-grid.two { grid-template-columns: 1fr; }
+            .package-hero,
+            .package-hero-main,
+            .package-modal-grid,
+            .package-modal-grid.two,
+            .package-benefits { grid-template-columns: 1fr; }
+            .package-toolbar { align-items: stretch; }
+            .package-toolbar-actions { justify-content: flex-start; }
+            .package-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .benefit-cell { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
             .benefit-cell:last-child { border-bottom: 0; }
             .summary-cell { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.11); }
@@ -2996,6 +3533,7 @@
             .service-content { padding: 12px; }
             .community-content { padding: 12px; }
             .tenant-content { padding: 12px; }
+            .package-content { padding: 12px; }
             .visitor-toolbar { padding-top: 0; }
             .visitor-heading { grid-template-columns: 34px minmax(0, 1fr); }
             .visitor-heading h2 { font-size: 16px; }
@@ -3017,6 +3555,18 @@
             .tenant-form-footer { align-items: stretch; flex-direction: column; }
             .tenant-form-footer .tenant-actions,
             .tenant-form-footer .btn { width: 100%; }
+            .package-hero { padding: 16px; }
+            .package-hero-icon { width: 78px; height: 78px; }
+            .package-hero-copy h2 { font-size: 22px; }
+            .package-metrics { grid-template-columns: 1fr; }
+            .package-panel-head,
+            .package-toolbar { padding-inline: 14px; }
+            .package-modal { padding: 10px; }
+            .package-modal-dialog { max-height: calc(100vh - 20px); }
+            .package-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .package-step::after { display: none; }
+            .package-modal-head,
+            .package-modal-body { padding-inline: 14px; }
             th, td { padding: 11px 10px; }
         }
     </style>
@@ -3032,6 +3582,7 @@
         $canServiceRead = $authUser?->canAccessModule('service-request', 'read');
         $canCommunityRead = $authUser?->canAccessModule('community-management', 'read');
         $canTenantRead = $authUser?->canAccessModule('tenant-marketplace', 'read');
+        $canPackageRead = $authUser?->canAccessModule('package-center', 'read');
     @endphp
 
     <div class="sidebar-overlay" data-sidebar-close></div>
@@ -3141,7 +3692,6 @@
 
                     @foreach ([
                         ['Facility Management', 'M4 21V7l8-4 8 4v14M9 21v-7h6v7'],
-                        ['Package Center', 'M12 2 3 7v10l9 5 9-5V7l-9-5ZM3 7l9 5 9-5M12 12v10'],
                     ] as [$label, $path])
                         <a href="#" class="side-link" title="{{ $label }}">
                             <span class="side-icon">
@@ -3150,6 +3700,15 @@
                             <span>{{ $label }}</span>
                         </a>
                     @endforeach
+
+                    @if ($canPackageRead)
+                        <a href="{{ route('package-center.index') }}" title="Package Center" @class(['side-link', 'active' => request()->routeIs('package-center.*')])>
+                            <span class="side-icon">
+                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5ZM3 7l9 5 9-5M12 12v10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>Package Center</span>
+                        </a>
+                    @endif
 
                     @if ($canCommunityRead)
                         <div @class(['side-section', 'is-open' => request()->routeIs('community-management.*')])>
@@ -3224,7 +3783,20 @@
                     </div>
                 </nav>
 
-                @if ($canTenantRead && request()->routeIs('tenant-marketplace.*'))
+                @if ($canPackageRead && request()->routeIs('package-center.*'))
+                    <div class="sidebar-quick-actions" aria-label="Package center quick actions">
+                        <div class="sidebar-quick-title">Quick Actions</div>
+                        <a class="sidebar-quick-link" href="{{ route('package-center.index') }}">
+                            <span>+</span><span>Register Package</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('package-center.index') }}">
+                            <span>&gt;</span><span>Pickup Status</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('package-center.index') }}">
+                            <span>#</span><span>Package Reports</span>
+                        </a>
+                    </div>
+                @elseif ($canTenantRead && request()->routeIs('tenant-marketplace.*'))
                     <div class="sidebar-quick-actions" aria-label="Tenant marketplace quick actions">
                         <div class="sidebar-quick-title">Quick Actions</div>
                         <a class="sidebar-quick-link" href="{{ route('tenant-marketplace.add-input') }}">
@@ -3355,6 +3927,7 @@
                 'service-content' => request()->routeIs('service-request.*'),
                 'community-content' => request()->routeIs('community-management.*'),
                 'tenant-content' => request()->routeIs('tenant-marketplace.*'),
+                'package-content' => request()->routeIs('package-center.*'),
             ])>
                 @if (session('status'))
                     <div class="alert success">{{ session('status') }}</div>

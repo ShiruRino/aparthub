@@ -44,10 +44,11 @@ class DynamicAccessControlTest extends TestCase
             ['name' => 'Service Request', 'slug' => 'service-request', 'sort_order' => 30],
             ['name' => 'Community Management', 'slug' => 'community-management', 'sort_order' => 40],
             ['name' => 'Tenant Marketplace', 'slug' => 'tenant-marketplace', 'sort_order' => 50],
-            ['name' => 'Users', 'slug' => 'users', 'sort_order' => 60],
-            ['name' => 'Modules', 'slug' => 'modules', 'sort_order' => 70],
-            ['name' => 'Access', 'slug' => 'access', 'sort_order' => 80],
-            ['name' => 'Roles', 'slug' => 'roles', 'sort_order' => 90],
+            ['name' => 'Package Center', 'slug' => 'package-center', 'sort_order' => 60],
+            ['name' => 'Users', 'slug' => 'users', 'sort_order' => 70],
+            ['name' => 'Modules', 'slug' => 'modules', 'sort_order' => 80],
+            ['name' => 'Access', 'slug' => 'access', 'sort_order' => 90],
+            ['name' => 'Roles', 'slug' => 'roles', 'sort_order' => 100],
         ])->map(fn (array $module) => Module::query()->create($module + ['is_active' => true]));
     }
 
@@ -96,6 +97,7 @@ class DynamicAccessControlTest extends TestCase
         $this->get(route('community-management.announcements'))->assertRedirect(route('login'));
         $this->get(route('tenant-marketplace.index'))->assertRedirect(route('login'));
         $this->get(route('tenant-marketplace.directory'))->assertRedirect(route('login'));
+        $this->get(route('package-center.index'))->assertRedirect(route('login'));
     }
 
     public function test_admin_role_can_access_modules_without_permission_rows(): void
@@ -208,6 +210,20 @@ class DynamicAccessControlTest extends TestCase
         }
     }
 
+    public function test_admin_can_access_package_center_without_permission_rows(): void
+    {
+        $admin = $this->makeUser($this->adminRole, [
+            'username' => 'admin',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('package-center.index'))
+            ->assertOk()
+            ->assertSee('Package Center')
+            ->assertSee('Incoming Packages')
+            ->assertDontSee('Alur Pengelolaan Paket');
+    }
+
     public function test_visitor_management_uses_subpage_routes_without_separate_check_in_or_check_out(): void
     {
         $visitorRouteNames = collect(Route::getRoutes())
@@ -271,6 +287,17 @@ class DynamicAccessControlTest extends TestCase
         }
     }
 
+    public function test_package_center_uses_single_real_route(): void
+    {
+        $packageRouteNames = collect(Route::getRoutes())
+            ->map(fn ($route) => $route->getName())
+            ->filter(fn (?string $name) => str_starts_with($name ?? '', 'package-center.'))
+            ->values()
+            ->all();
+
+        $this->assertSame(['package-center.index'], $packageRouteNames);
+    }
+
     public function test_non_admin_is_forbidden_without_user_module_permission(): void
     {
         $user = $this->makeUser($this->staffRole);
@@ -313,6 +340,10 @@ class DynamicAccessControlTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('tenant-marketplace.directory'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->get(route('package-center.index'))
             ->assertForbidden();
     }
 
@@ -410,6 +441,21 @@ class DynamicAccessControlTest extends TestCase
                 ->assertOk()
                 ->assertSee($expectedText);
         }
+    }
+
+    public function test_non_admin_can_access_package_center_with_read_permission(): void
+    {
+        $user = $this->makeUser($this->staffRole);
+
+        $this->grant($user, 'package-center', [
+            'can_read' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('package-center.index'))
+            ->assertOk()
+            ->assertSee('Package Center')
+            ->assertSee('Incoming Packages');
     }
 
     public function test_non_admin_can_only_access_checked_crud_actions(): void
@@ -600,6 +646,26 @@ class DynamicAccessControlTest extends TestCase
             ->assertSee('Generate Report');
     }
 
+    public function test_package_center_sidebar_link_uses_real_route(): void
+    {
+        $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
+
+        $response = $this->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Package Center')
+            ->assertDontSee('<a href="#" class="side-link" title="Package Center">', false);
+
+        $response->assertSee('href="'.route('package-center.index').'"', false);
+
+        $this->actingAs($admin)
+            ->get(route('package-center.index'))
+            ->assertOk()
+            ->assertSee('Register Package')
+            ->assertSee('Pickup Status')
+            ->assertSee('Package Reports');
+    }
+
     public function test_system_role_and_modules_are_protected(): void
     {
         $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
@@ -609,6 +675,7 @@ class DynamicAccessControlTest extends TestCase
         $serviceModule = $this->module('service-request');
         $communityModule = $this->module('community-management');
         $tenantModule = $this->module('tenant-marketplace');
+        $packageModule = $this->module('package-center');
 
         $this->actingAs($admin)
             ->put(route('roles.update', $this->adminRole), [
@@ -734,6 +801,22 @@ class DynamicAccessControlTest extends TestCase
             'id' => $tenantModule->id,
             'name' => 'Tenant Operations',
             'slug' => 'tenant-marketplace',
+            'is_active' => 1,
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('modules.update', $packageModule), [
+                'name' => 'Package Operations',
+                'slug' => 'package-ops',
+                'sort_order' => 7,
+                'is_active' => '0',
+            ])
+            ->assertRedirect(route('modules.index'));
+
+        $this->assertDatabaseHas('modules', [
+            'id' => $packageModule->id,
+            'name' => 'Package Operations',
+            'slug' => 'package-center',
             'is_active' => 1,
         ]);
     }

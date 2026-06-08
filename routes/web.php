@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommunityManagementController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\PackageCenterController;
 use App\Http\Controllers\ResidentManagementController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceRequestController;
@@ -97,6 +98,10 @@ Route::middleware('auth')->group(function () {
             Route::get('/directory', [TenantMarketplaceController::class, 'directory'])->name('directory');
             Route::get('/add-input', [TenantMarketplaceController::class, 'addInput'])->name('add-input');
         });
+
+    Route::get('/package-center', PackageCenterController::class)
+        ->middleware('module.access:package-center,read')
+        ->name('package-center.index');
 
     Route::get('/users', [UserController::class, 'index'])
         ->middleware('module.access:users,read')
