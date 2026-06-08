@@ -1,80 +1,114 @@
 @extends('layouts.app')
 
+@php
+    $rows = [
+        ['request' => 'MOI-2026-001', 'unit' => 'Unit A-1808', 'kind' => 'Pindah Keluar', 'resident' => 'Sarah Lim', 'date' => '15 Jun 2026', 'status' => 'Menunggu Approval', 'statusNote' => 'Kuning', 'statusClass' => 'pending', 'icon' => 'move'],
+        ['request' => 'MIO-2026-002', 'unit' => 'Unit B-2001', 'kind' => 'Pindah Masuk', 'resident' => 'John Doe', 'date' => '10 Jun 2026', 'status' => 'Menunggu Approval', 'statusNote' => 'Kuning', 'statusClass' => 'pending', 'icon' => 'slot'],
+        ['request' => 'MIO-2026-003', 'unit' => 'Unit A-0503', 'kind' => 'Pindah Masuk', 'resident' => 'Jane Smith', 'date' => 'TBD (After Repair)', 'status' => 'Sedang Berlangsung', 'statusNote' => 'Biru', 'statusClass' => 'process', 'icon' => 'slot'],
+        ['request' => 'MOI-2026-004', 'unit' => 'Unit A-2002', 'kind' => 'Pindah Keluar', 'resident' => 'Mark Wang', 'date' => '08 Jun 2026', 'status' => 'Selesai', 'statusNote' => '', 'statusClass' => 'done', 'icon' => 'move'],
+        ['request' => 'MIO-2026-005', 'unit' => 'Unit A-1808 (Penyewa Baru)', 'kind' => 'Pindah Masuk', 'resident' => 'Kevin Chen', 'date' => '20 Jun 2026', 'status' => 'Menunggu Approval', 'statusNote' => 'Kuning', 'statusClass' => 'pending', 'icon' => 'slot'],
+    ];
+@endphp
+
 @section('title', 'Move In / Out')
 @section('topbar_context', 'Resident Management Flow')
-@section('topbar_subtitle', 'Move-in approval and move-out settlement operations')
+@section('topbar_subtitle', 'Complete Resident Lifecycle Management from Move-In to Move-Out')
 
 @section('content')
-    <div class="resident-page">
-        @include('resident-management._flow', ['activeSteps' => [3, 7]])
+    <div class="resident-list-page">
+        <header class="resident-page-head">
+            <h2>Manajemen Pindah Masuk & Keluar Aether Residences</h2>
+            <button class="btn" type="button" data-modal-open="resident-move-modal">Catat Permohonan Baru</button>
+        </header>
 
-        <div class="resident-grid">
-            <section class="resident-card res-span-4">
-                <div class="resident-card-head">
-                    <h2 class="resident-card-title">Move-In Approval</h2>
-                    <span class="badge green">Ready</span>
+        <section class="resident-filter-panel" aria-label="Filter pindah masuk keluar">
+            <div class="resident-filter-field">
+                <label for="move-search">Search</label>
+                <div class="resident-search">
+                    <input id="move-search" type="search" placeholder="Search">
+                    <button type="button" aria-label="Search">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/></svg>
+                    </button>
                 </div>
-                <div class="resident-card-body">
-                    <div class="resident-row"><div><strong>Document Verification</strong><small>ID, lease, and owner approval</small></div><span class="badge green">Verified</span></div>
-                    <div class="resident-row"><div><strong>Lease Agreement</strong><small>Digital copy stored</small></div><span class="badge green">Verified</span></div>
-                    <div class="resident-row"><div><strong>Deposit Payment</strong><small>Confirmed by finance</small></div><span class="badge green">Paid</span></div>
-                    <div class="resident-row"><div><strong>Move-In Date</strong><small>07 Jun 2026</small></div><span class="badge">Set</span></div>
-                    <button class="btn" type="button">Approve Move-In</button>
-                </div>
-            </section>
+            </div>
+            <div class="resident-filter-field"><label for="move-tower">Tower</label><select id="move-tower"><option>Tower A</option><option>Tower B</option></select></div>
+            <div class="resident-filter-field"><label for="move-floor">Lantai</label><select id="move-floor"><option>01-10</option><option>11-20</option></select></div>
+            <div class="resident-filter-field"><label for="move-kind">Jenis Pindahan</label><select id="move-kind"><option>Semua, Pindah Masuk, Pindah Keluar</option><option>Pindah Masuk</option></select></div>
+            <div class="resident-filter-field"><label for="move-status">Status Pindahan</label><select id="move-status"><option>Semua, Menunggu Approval, Sedang Berlangsung, Selesai</option><option>Menunggu Approval</option></select></div>
+        </section>
 
-            <section class="resident-card res-span-4">
-                <div class="resident-card-head">
-                    <h2 class="resident-card-title">Move-Out Process</h2>
-                    <span class="badge yellow">In Progress</span>
-                </div>
-                <div class="resident-card-body">
-                    <form class="resident-form">
-                        <div class="field">
-                            <label for="moveout-date">Move-Out Date</label>
-                            <input id="moveout-date" type="text" value="20 Jun 2026">
-                        </div>
-                        <div class="status-line">Unit inspection completed</div>
-                        <div class="status-line warn">Deposit settlement waiting finance</div>
-                        <div class="status-line">Access revocation scheduled</div>
-                        <div class="field">
-                            <label for="moveout-note">Notes</label>
-                            <textarea id="moveout-note">Unit in good condition</textarea>
-                        </div>
-                        <button class="btn" type="button">Complete Move-Out</button>
-                    </form>
-                </div>
-            </section>
+        <section class="resident-table-panel">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><input class="resident-check" type="checkbox" aria-label="Select all requests"></th>
+                            <th>No. Permohonan</th>
+                            <th>No. Unit</th>
+                            <th>Jenis Pindahan</th>
+                            <th>Nama Penghuni</th>
+                            <th>Tanggal Rencana</th>
+                            <th>Status Pindahan</th>
+                            <th>Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($rows as $row)
+                            <tr>
+                                <td><input class="resident-check" type="checkbox" aria-label="Select {{ $row['request'] }}"></td>
+                                <td>{{ $row['request'] }}</td>
+                                <td>{{ $row['unit'] }}</td>
+                                <td>
+                                    <div class="resident-action-row">
+                                        @include('resident-management.partials.action-button', ['label' => $row['kind'], 'icon' => $row['icon'], 'modal' => 'resident-move-modal'])
+                                    </div>
+                                </td>
+                                <td>{{ $row['resident'] }}</td>
+                                <td>{{ $row['date'] }}</td>
+                                <td><span class="resident-status {{ $row['statusClass'] }}">{{ $row['status'] }}@if ($row['statusNote'])<br>({{ $row['statusNote'] }})@endif</span></td>
+                                <td>
+                                    <div class="resident-action-row">
+                                        @if ($row['statusClass'] === 'pending')
+                                            @include('resident-management.partials.action-button', ['label' => 'Setujui', 'icon' => 'check', 'variant' => 'success', 'modal' => 'resident-move-modal'])
+                                        @endif
+                                        @include('resident-management.partials.action-button', ['label' => 'Detail', 'icon' => 'eye', 'modal' => 'resident-move-modal'])
+                                        @if ($row['statusClass'] !== 'process')
+                                            @include('resident-management.partials.action-button', ['label' => 'Cetak Form', 'icon' => 'print', 'modal' => 'resident-move-modal'])
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="resident-pagination">
+                <span class="resident-page-btn">&lt;</span>
+                <span class="resident-page-btn active">1</span>
+                <span class="resident-page-btn">2</span>
+                <span class="resident-page-btn">3</span>
+                <span class="resident-page-btn">&gt;</span>
+                <span>Showing 1-10 of 500</span>
+            </div>
+        </section>
 
-            <section class="resident-card res-span-4">
-                <div class="resident-card-head">
-                    <h2 class="resident-card-title">Settlement Snapshot</h2>
-                    <span class="badge">Finance</span>
-                </div>
-                <div class="resident-card-body">
-                    <div class="resident-mini-grid">
-                        <div class="resident-stat"><span>Deposit</span><strong>Rp 8.5 M</strong></div>
-                        <div class="resident-stat"><span>Deductions</span><strong>Rp 0</strong></div>
-                        <div class="resident-stat"><span>Open Bills</span><strong>Rp 850 K</strong></div>
-                        <div class="resident-stat"><span>Refund ETA</span><strong>3 days</strong></div>
-                    </div>
-                    <div class="resident-timeline">
-                        <div class="timeline-item"><strong>Inspection</strong><span>Building manager approved unit condition</span></div>
-                        <div class="timeline-item"><strong>Refund Review</strong><span>Finance staff verifies billing settlement</span></div>
-                        <div class="timeline-item"><strong>Access Close</strong><span>System removes service and parking access</span></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="resident-card dark res-span-12">
-                <div class="resident-benefits">
-                    <div class="benefit-cell"><strong>Controlled Move-In</strong><span>Approval only happens after required documents are complete.</span></div>
-                    <div class="benefit-cell"><strong>Inspection Trail</strong><span>Move-out checklist keeps unit handover accountable.</span></div>
-                    <div class="benefit-cell"><strong>Finance Sync</strong><span>Deposit and outstanding bills are visible together.</span></div>
-                    <div class="benefit-cell"><strong>Access Safety</strong><span>Resident access can be revoked after completion.</span></div>
-                    <div class="benefit-cell"><strong>Lifecycle Close</strong><span>History remains available after resident leaves.</span></div>
-                </div>
-            </section>
-        </div>
+        @include('resident-management.partials.benefits')
     </div>
+
+    @include('resident-management.partials.action-modal', [
+        'id' => 'resident-move-modal',
+        'title' => 'Move In / Out Preview',
+        'name' => 'Sarah Lim',
+        'initials' => 'SL',
+        'avatarClass' => 'female',
+        'subtitle' => 'Dummy modal untuk permohonan, approval, detail, dan cetak form.',
+        'rows' => [
+            ['No. Permohonan', 'MOI-2026-001'],
+            ['Unit', 'Unit A-1808'],
+            ['Jenis Pindahan', 'Pindah Keluar'],
+            ['Tanggal Rencana', '15 Jun 2026'],
+            ['Status', 'Menunggu Approval'],
+            ['Mode', 'Static preview only'],
+        ],
+    ])
 @endsection

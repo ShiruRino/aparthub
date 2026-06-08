@@ -1,122 +1,115 @@
 @extends('layouts.app')
 
-@section('title', 'Resident Management')
+@php
+    $rows = [
+        ['name' => 'Ahmad Rizky', 'unit' => 'A-1808', 'tower' => 'Tower A / 18', 'status' => 'Aktif', 'statusClass' => 'active', 'type' => 'Pemilik', 'date' => '07 Jun 2026', 'avatar' => 'AR', 'avatarClass' => ''],
+        ['name' => 'Sarah Lim', 'unit' => 'A-1808', 'tower' => 'Tower A / 18', 'status' => 'Aktif', 'statusClass' => 'active', 'type' => 'Penyewa', 'date' => '07 Jun 2026', 'avatar' => 'SL', 'avatarClass' => 'female'],
+        ['name' => 'John Doe', 'unit' => 'B-2001', 'tower' => 'Tower B / 20', 'status' => 'Menunggu Approval', 'statusClass' => 'pending', 'type' => 'Pemilik', 'date' => 'TBD', 'avatar' => 'JD', 'avatarClass' => 'pending'],
+        ['name' => 'Jane Smith', 'unit' => 'A-0503', 'tower' => 'Tower A / 05', 'status' => 'Keluar', 'statusClass' => 'out', 'type' => 'Penyewa', 'date' => '15 Mei 2024', 'avatar' => 'JS', 'avatarClass' => 'out'],
+        ['name' => 'John Doe', 'unit' => 'A-0503', 'tower' => 'Tower A / 05', 'status' => 'Keluar', 'statusClass' => 'out', 'type' => 'Penyewa', 'date' => '15 Mei 2024', 'avatar' => 'JD', 'avatarClass' => 'female'],
+    ];
+@endphp
+
+@section('title', 'Residents')
 @section('topbar_context', 'Resident Management Flow')
 @section('topbar_subtitle', 'Complete Resident Lifecycle Management from Move-In to Move-Out')
 
 @section('content')
-    <div class="resident-page">
-        @include('resident-management._flow', ['activeSteps' => [1, 4, 6, 8]])
+    <div class="resident-list-page">
+        <header class="resident-page-head">
+            <h2>Daftar Residen Aether Residences</h2>
+            <button class="btn" type="button" data-modal-open="resident-residents-modal">Tambah Residen Baru</button>
+        </header>
 
-        <div class="resident-grid">
-            <section class="resident-card res-span-4">
-                <div class="resident-card-head">
-                    <h2 class="resident-card-title">Resident Registration</h2>
-                    <span class="badge yellow">Front Office</span>
+        <section class="resident-filter-panel" aria-label="Filter daftar residen">
+            <div class="resident-filter-field">
+                <label for="resident-search">Search</label>
+                <div class="resident-search">
+                    <input id="resident-search" type="search" placeholder="Search">
+                    <button type="button" aria-label="Search">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/></svg>
+                    </button>
                 </div>
-                <div class="resident-card-body">
-                    <form class="resident-form">
-                        <div class="field">
-                            <label for="resident-name">Full Name</label>
-                            <input id="resident-name" type="text" value="Ahmad Rizky">
-                        </div>
-                        <div class="field">
-                            <label for="resident-phone">Phone Number</label>
-                            <input id="resident-phone" type="text" value="0812 3456 7890">
-                        </div>
-                        <div class="field">
-                            <label for="resident-id">ID / Passport Number</label>
-                            <input id="resident-id" type="text" value="3171 880690 0001">
-                        </div>
-                        <button class="btn" type="button">Register Resident</button>
-                    </form>
-                </div>
-            </section>
+            </div>
+            <div class="resident-filter-field"><label for="resident-tower">Tower</label><select id="resident-tower"><option>Tower A, Tower B</option><option>Tower C</option></select></div>
+            <div class="resident-filter-field"><label for="resident-floor">Lantai</label><select id="resident-floor"><option>01-10, 11-20</option><option>21+</option></select></div>
+            <div class="resident-filter-field"><label for="resident-status">Status Residen</label><select id="resident-status"><option>Aktif, Menunggu Approval, Keluar</option><option>Aktif</option><option>Keluar</option></select></div>
+            <div class="resident-filter-field"><label for="resident-type">Jenis Residen</label><select id="resident-type"><option>Pemilik, Penyewa</option><option>Pemilik</option><option>Penyewa</option></select></div>
+        </section>
 
-            <section class="resident-card res-span-4">
-                <div class="resident-card-head">
-                    <h2 class="resident-card-title">Active Resident Profile</h2>
-                    <span class="badge green">Active</span>
-                </div>
-                <div class="resident-card-body">
-                    <div class="resident-row">
-                        <div><strong>Ahmad Rizky</strong><small>Unit A-1808 - Tower A / 18</small></div>
-                        <span class="badge green">Lease</span>
-                    </div>
-                    <div class="resident-mini-grid">
-                        <div class="resident-stat"><span>Move-In Date</span><strong>07 Jun 2026</strong></div>
-                        <div class="resident-stat"><span>Access Level</span><strong>Full</strong></div>
-                        <div class="resident-stat"><span>Family Members</span><strong>3</strong></div>
-                        <div class="resident-stat"><span>Vehicles</span><strong>2</strong></div>
-                    </div>
-                    <button class="btn secondary" type="button">View Profile</button>
-                </div>
-            </section>
+        <section class="resident-table-panel">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><input class="resident-check" type="checkbox" aria-label="Select all residents"></th>
+                            <th>Foto</th>
+                            <th>Nama Residen</th>
+                            <th>Unit</th>
+                            <th>Tower/Lantai</th>
+                            <th>Status</th>
+                            <th>Jenis Residen</th>
+                            <th>Tanggal Masuk</th>
+                            <th>Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($rows as $row)
+                            <tr>
+                                <td><input class="resident-check" type="checkbox" aria-label="Select {{ $row['name'] }}"></td>
+                                <td><div class="resident-avatar {{ $row['avatarClass'] }}">{{ $row['avatar'] }}</div></td>
+                                <td>{{ $row['name'] }}</td>
+                                <td>{{ $row['unit'] }}</td>
+                                <td>{{ $row['tower'] }}</td>
+                                <td><span class="resident-status {{ $row['statusClass'] }}">{{ $row['status'] }}</span></td>
+                                <td>{{ $row['type'] }}</td>
+                                <td>{{ $row['date'] }}</td>
+                                <td>
+                                    <div class="resident-action-row">
+                                        @if ($row['statusClass'] === 'pending')
+                                            @include('resident-management.partials.action-button', ['label' => 'Lihat Detail', 'icon' => 'eye', 'modal' => 'resident-residents-modal'])
+                                            @include('resident-management.partials.action-button', ['label' => 'Approve', 'icon' => 'check', 'variant' => 'success', 'modal' => 'resident-residents-modal'])
+                                            @include('resident-management.partials.action-button', ['label' => 'Reject', 'icon' => 'x', 'variant' => 'danger', 'modal' => 'resident-residents-modal'])
+                                        @elseif ($row['statusClass'] === 'out')
+                                            @include('resident-management.partials.action-button', ['label' => 'Lihat Riwayat', 'icon' => 'history', 'modal' => 'resident-residents-modal'])
+                                        @else
+                                            @include('resident-management.partials.action-button', ['label' => 'Lihat Detail', 'icon' => 'eye', 'modal' => 'resident-residents-modal'])
+                                            @include('resident-management.partials.action-button', ['label' => 'Edit', 'icon' => 'edit', 'modal' => 'resident-residents-modal'])
+                                            @include('resident-management.partials.action-button', ['label' => 'Pindahkan Unit', 'icon' => 'move', 'modal' => 'resident-residents-modal'])
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="resident-pagination">
+                <span class="resident-page-btn">&lt;</span>
+                <span class="resident-page-btn active">1</span>
+                <span class="resident-page-btn">2</span>
+                <span class="resident-page-btn">3</span>
+                <span class="resident-page-btn">&gt;</span>
+                <span>Showing 1-10 of 250</span>
+            </div>
+        </section>
 
-            <section class="resident-card res-span-4">
-                <div class="resident-card-head">
-                    <h2 class="resident-card-title">Resident Monitoring</h2>
-                    <span class="badge">Today</span>
-                </div>
-                <div class="resident-card-body">
-                    <div class="resident-row">
-                        <div><strong>Outstanding Bill</strong><small>Due on 20 Jun 2026</small></div>
-                        <span>Rp 850.000</span>
-                    </div>
-                    <div class="resident-row">
-                        <div><strong>Open Service Tickets</strong><small>AC maintenance and water pressure</small></div>
-                        <span>2</span>
-                    </div>
-                    <div class="resident-row">
-                        <div><strong>Visitors This Month</strong><small>Approved through front desk</small></div>
-                        <span>12</span>
-                    </div>
-                    <div class="resident-row">
-                        <div><strong>Packages Received</strong><small>Locker and desk pickup</small></div>
-                        <span>5</span>
-                    </div>
-                </div>
-            </section>
-
-            <section class="resident-card res-span-4">
-                <div class="resident-card-head">
-                    <h2 class="resident-card-title">Resident History</h2>
-                    <span class="badge">Audit Trail</span>
-                </div>
-                <div class="resident-card-body">
-                    <div class="resident-timeline">
-                        <div class="timeline-item"><strong>Move-In</strong><span>07 Jun 2026 - Unit access activated</span></div>
-                        <div class="timeline-item"><strong>Payment History</strong><span>18 transactions recorded</span></div>
-                        <div class="timeline-item"><strong>Visitor History</strong><span>12 visits approved</span></div>
-                        <div class="timeline-item"><strong>Service Requests</strong><span>5 tickets completed</span></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="resident-card res-span-8">
-                <div class="resident-card-head">
-                    <h2 class="resident-card-title">Resident Data Overview</h2>
-                    <span class="badge green">Centralized</span>
-                </div>
-                <div class="resident-card-body">
-                    <div class="resident-visual">
-                        <div class="resident-visual-label">
-                            <span>Aether Residences</span>
-                            <span>1,176 active residents</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="resident-card dark res-span-12">
-                <div class="resident-benefits">
-                    <div class="benefit-cell"><strong>Centralized Data</strong><span>Semua data penghuni tersimpan dan mudah dilacak.</span></div>
-                    <div class="benefit-cell"><strong>Secure Access</strong><span>Akses layanan hanya diberikan untuk resident aktif.</span></div>
-                    <div class="benefit-cell"><strong>Fast Monitoring</strong><span>Aktivitas, bill, request, dan paket terlihat ringkas.</span></div>
-                    <div class="benefit-cell"><strong>Complete History</strong><span>Riwayat tetap tersedia untuk audit operasional.</span></div>
-                    <div class="benefit-cell"><strong>Ready for Data</strong><span>Layout siap dihubungkan ke tabel resident nanti.</span></div>
-                </div>
-            </section>
-        </div>
+        @include('resident-management.partials.benefits')
     </div>
+
+    @include('resident-management.partials.action-modal', [
+        'id' => 'resident-residents-modal',
+        'title' => 'Resident Action Preview',
+        'name' => 'Ahmad Rizky',
+        'initials' => 'AR',
+        'subtitle' => 'Dummy modal untuk tambah, detail, edit, approval, riwayat, dan pindah unit.',
+        'rows' => [
+            ['Unit', 'A-1808'],
+            ['Tower/Lantai', 'Tower A / 18'],
+            ['Status', 'Aktif'],
+            ['Jenis Residen', 'Pemilik'],
+            ['Tanggal Masuk', '07 Jun 2026'],
+            ['Mode', 'Static preview only'],
+        ],
+    ])
 @endsection

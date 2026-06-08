@@ -121,7 +121,8 @@ class DynamicAccessControlTest extends TestCase
                 ->get(route($routeName))
                 ->assertOk()
                 ->assertSee('Resident Management Flow')
-                ->assertSee($expectedText);
+                ->assertSee($expectedText, false)
+                ->assertDontSee('Step 1');
         }
     }
 
@@ -237,7 +238,7 @@ class DynamicAccessControlTest extends TestCase
             $this->actingAs($user)
                 ->get(route($routeName))
                 ->assertOk()
-                ->assertSee($expectedText);
+                ->assertSee($expectedText, false);
         }
     }
 
@@ -565,11 +566,11 @@ class DynamicAccessControlTest extends TestCase
     private function residentRoutes(): array
     {
         return [
-            'resident-management.residents' => 'Resident Registration',
-            'resident-management.units' => 'Unit Assignment',
-            'resident-management.move-in-out' => 'Move-In Approval',
-            'resident-management.family-members' => 'Family Members',
-            'resident-management.vehicles' => 'Vehicle Registration',
+            'resident-management.residents' => 'Daftar Residen Aether Residences',
+            'resident-management.units' => 'Daftar Unit & Inventaris Aether Residences',
+            'resident-management.move-in-out' => 'Manajemen Pindah Masuk & Keluar Aether Residences',
+            'resident-management.family-members' => 'Daftar Anggota Keluarga Aether Residences',
+            'resident-management.vehicles' => 'Daftar Kendaraan Penghuni Aether Residences',
         ];
     }
 
