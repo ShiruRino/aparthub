@@ -212,37 +212,20 @@
             </div>
         </section>
 
-        <section class="ops-panel dark-section span-5">
+        <section class="ops-panel dark-section span-8">
             <div class="panel-head">
-                <h2 class="panel-title">Smart Building Monitoring</h2>
+                <h2 class="panel-title">Quick Summary</h2>
             </div>
-            <div class="panel-body monitor-grid">
-                <div class="monitor-card"><div class="monitor-icon">kW</div><span>Electricity</span><strong>1,245 kW</strong><small>Normal</small></div>
-                <div class="monitor-card"><div class="monitor-icon">m3</div><span>Water Consumption</span><strong>18.6 m3</strong><small>Normal</small></div>
-                <div class="monitor-card"><div class="monitor-icon">LFT</div><span>Lift Status</span><strong>12 / 12</strong><small>All Normal</small></div>
-                <div class="monitor-card"><div class="monitor-icon">GEN</div><span>Generator</span><strong>Online</strong><small>Normal</small></div>
-                <div class="monitor-card"><div class="monitor-icon">CCTV</div><span>CCTV Status</span><strong>128 / 128</strong><small>Online</small></div>
-                <div class="monitor-card"><div class="monitor-icon">F</div><span>Fire Alarm</span><strong>Normal</strong><small>No Alert</small></div>
+            <div class="quick-summary">
+                <div class="summary-cell"><span>Monthly Revenue</span><strong>Rp 2.63 M</strong><div class="trend-up">+ 8.2%</div></div>
+                <div class="summary-cell"><span>Monthly Expense</span><strong>Rp 1.28 M</strong><div class="trend-down">- 2.1%</div></div>
+                <div class="summary-cell"><span>Net Income</span><strong>Rp 1.35 M</strong><div class="trend-up">+ 12.4%</div></div>
+                <div class="summary-cell"><span>Budget vs Actual</span><strong>84.6%</strong><div class="tiny-donut"></div></div>
+                <div class="summary-cell"><span>Resident Satisfaction</span><strong>4.7 / 5.0</strong><div class="stars">*****</div></div>
+                <div class="summary-cell"><span>System Health</span><strong>100%</strong><div class="trend-up">All Systems Operational</div></div>
             </div>
         </section>
-
-        <section class="ops-panel dark-section span-5">
-            <div class="panel-head">
-                <h2 class="panel-title">Live Building Map</h2>
-                <span class="badge">All Towers</span>
-            </div>
-            <div class="panel-body">
-                <div class="map-scene">
-                    <span class="road"></span>
-                    <span class="pin"></span>
-                    <span class="pin"></span>
-                    <span class="pin"></span>
-                    <span class="pin"></span>
-                </div>
-            </div>
-        </section>
-
-        <section class="ops-panel span-2">
+        <section class="ops-panel span-4">
             <div class="panel-head">
                 <h2 class="panel-title">Recent Activities</h2>
                 <span class="muted">View All</span>
@@ -261,20 +244,6 @@
                         <span class="alert-time">{{ $time }}</span>
                     </div>
                 @endforeach
-            </div>
-        </section>
-
-        <section class="ops-panel dark-section span-12">
-            <div class="panel-head">
-                <h2 class="panel-title">Quick Summary</h2>
-            </div>
-            <div class="quick-summary">
-                <div class="summary-cell"><span>Monthly Revenue</span><strong>Rp 2.63 M</strong><div class="trend-up">+ 8.2%</div></div>
-                <div class="summary-cell"><span>Monthly Expense</span><strong>Rp 1.28 M</strong><div class="trend-down">- 2.1%</div></div>
-                <div class="summary-cell"><span>Net Income</span><strong>Rp 1.35 M</strong><div class="trend-up">+ 12.4%</div></div>
-                <div class="summary-cell"><span>Budget vs Actual</span><strong>84.6%</strong><div class="tiny-donut"></div></div>
-                <div class="summary-cell"><span>Resident Satisfaction</span><strong>4.7 / 5.0</strong><div class="stars">*****</div></div>
-                <div class="summary-cell"><span>System Health</span><strong>100%</strong><div class="trend-up">All Systems Operational</div></div>
             </div>
         </section>
     </div>

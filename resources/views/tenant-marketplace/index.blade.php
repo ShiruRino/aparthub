@@ -79,7 +79,24 @@
                         </div>
                         <div class="tenant-actions">
                             <a class="btn" href="{{ route('tenant-marketplace.add-input') }}">+ Add / Input Tenant</a>
-                            <button class="btn secondary" type="button" data-modal-open="tenant-action-modal">Export</button>
+                            <button
+                                class="btn secondary"
+                                type="button"
+                                data-modal-open="tenant-action-modal"
+                                data-modal-title="Export Tenant Directory"
+                                data-modal-headline="Tenant Directory Export"
+                                data-modal-summary="Export Excel masih berupa preview dummy, tetapi alur aksinya sudah memakai popup yang konsisten."
+                                data-modal-section-title="Export Context"
+                                data-modal-workspace="Tenant Directory"
+                                data-modal-entity="48 tenant aktif dan pending"
+                                data-modal-status="Export Excel"
+                                data-modal-next-step="Pilih format export dan lanjutkan unduhan saat backend sudah tersedia."
+                                data-modal-copy="Belum ada file XLSX yang dihasilkan. Popup ini dipakai untuk menjaga pola interaksi header action tetap konsisten."
+                                data-modal-confirm-label="Preview Export"
+                                data-modal-accent="blue"
+                            >
+                                Export
+                            </button>
                         </div>
                     </section>
 
@@ -137,8 +154,43 @@
                                             <td>{!! nl2br(e($tenant['activity'])) !!}</td>
                                             <td>
                                                 <div class="visitor-action-buttons">
-                                                    <button class="btn compact secondary" type="button" data-modal-open="tenant-action-modal">View</button>
-                                                    <button class="community-icon-btn" type="button" data-modal-open="tenant-action-modal">:</button>
+                                                    @include('partials.icon-action-button', [
+                                                        'label' => 'View Tenant Detail',
+                                                        'icon' => 'eye',
+                                                        'modal' => 'tenant-action-modal',
+                                                        'data' => [
+                                                            'data-modal-title' => 'Tenant Detail',
+                                                            'data-modal-headline' => $tenant['name'],
+                                                            'data-modal-summary' => 'Ringkasan tenant marketplace ditampilkan sebagai popup, bukan detail yang menempel di table workspace.',
+                                                            'data-modal-section-title' => 'Tenant Profile',
+                                                            'data-modal-workspace' => 'Tenant Directory',
+                                                            'data-modal-entity' => $tenant['category'] . ' - ' . $tenant['tower'] . ' ' . $tenant['location'],
+                                                            'data-modal-status' => $tenant['status'],
+                                                            'data-modal-next-step' => 'Tinjau aktivitas tenant, status approval, dan lokasi unit sebelum aksi lanjutan.',
+                                                            'data-modal-copy' => $tenant['desc'] . ' pada ' . $tenant['tower'] . ' ' . $tenant['location'] . '. Data masih dummy preview.',
+                                                            'data-modal-confirm-label' => 'Close Preview',
+                                                            'data-modal-accent' => $tenant['tone'],
+                                                        ],
+                                                    ])
+                                                    @include('partials.icon-action-button', [
+                                                        'label' => 'Edit Tenant Entry',
+                                                        'icon' => 'edit',
+                                                        'modal' => 'tenant-action-modal',
+                                                        'variant' => 'gold',
+                                                        'data' => [
+                                                            'data-modal-title' => 'Edit Tenant Entry',
+                                                            'data-modal-headline' => 'Update ' . $tenant['name'],
+                                                            'data-modal-summary' => 'Form edit tenant dibuka sebagai popup dummy agar workspace tetap compact.',
+                                                            'data-modal-section-title' => 'Edit Context',
+                                                            'data-modal-workspace' => 'Tenant Directory',
+                                                            'data-modal-entity' => $tenant['name'],
+                                                            'data-modal-status' => 'Edit Draft',
+                                                            'data-modal-next-step' => 'Perbarui kategori, lokasi, dan status tenant saat backend form sudah diaktifkan.',
+                                                            'data-modal-copy' => 'Belum ada submit backend. Tombol ini hanya menampilkan preview alur edit tenant.',
+                                                            'data-modal-confirm-label' => 'Open Edit Preview',
+                                                            'data-modal-accent' => $tenant['tone'],
+                                                        ],
+                                                    ])
                                                 </div>
                                             </td>
                                         </tr>
@@ -189,7 +241,25 @@
                                                 <div class="tenant-location-grid">
                                                     <select><option>Tower</option></select>
                                                     <input type="text" placeholder="Lot/Shop">
-                                                    <button class="btn compact secondary" type="button">Pin</button>
+                                                    @include('partials.icon-action-button', [
+                                                        'label' => 'Pin Tenant Location',
+                                                        'icon' => 'pin',
+                                                        'modal' => 'tenant-action-modal',
+                                                        'variant' => 'info',
+                                                        'data' => [
+                                                            'data-modal-title' => 'Pin Tenant Location',
+                                                            'data-modal-headline' => 'Target Location Preview',
+                                                            'data-modal-summary' => 'Penentuan tower dan lot tenant dibuka sebagai popup dummy agar tidak terasa kaku.',
+                                                            'data-modal-section-title' => 'Location Context',
+                                                            'data-modal-workspace' => 'Add New Tenant',
+                                                            'data-modal-entity' => 'Tower / Lot / Shop',
+                                                            'data-modal-status' => 'Location Pin',
+                                                            'data-modal-next-step' => 'Pilih koordinat lokasi tenant setelah integrasi map aktif.',
+                                                            'data-modal-copy' => 'Saat ini pin lokasi hanya berupa preview UI tanpa penyimpanan peta atau koordinat.',
+                                                            'data-modal-confirm-label' => 'Use Location Preview',
+                                                            'data-modal-accent' => 'blue',
+                                                        ],
+                                                    ])
                                                 </div>
                                             @else
                                                 <input type="text" placeholder="{{ $placeholder }}">
@@ -223,8 +293,8 @@
                                 </div>
                                 <span class="field-label">Modern File upload for Business Documents</span>
                                 <div class="tenant-form-grid two">
-                                    <button class="tenant-upload" type="button">Upload NIB <span>file</span></button>
-                                    <button class="tenant-upload" type="button">Upload Akta Pendirian <span>file</span></button>
+                                    <button class="tenant-upload" type="button" data-modal-open="tenant-action-modal" data-modal-title="Upload NIB" data-modal-headline="Business Document Upload" data-modal-summary="Upload dokumen tenant masih dummy preview." data-modal-section-title="Document Context" data-modal-workspace="Add New Tenant" data-modal-entity="NIB / Business License" data-modal-status="Document Upload" data-modal-next-step="Siapkan file legal tenant untuk diunggah saat backend aktif." data-modal-copy="Belum ada penyimpanan file. Popup ini menjaga pola upload tetap konsisten dengan modal action lain." data-modal-confirm-label="Preview Upload" data-modal-accent="gold">Upload NIB <span>file</span></button>
+                                    <button class="tenant-upload" type="button" data-modal-open="tenant-action-modal" data-modal-title="Upload Akta Pendirian" data-modal-headline="Legal Document Upload" data-modal-summary="Upload akta pendirian masih berupa popup preview." data-modal-section-title="Document Context" data-modal-workspace="Add New Tenant" data-modal-entity="Akta Pendirian Tenant" data-modal-status="Document Upload" data-modal-next-step="Lanjutkan upload legal document setelah storage backend tersedia." data-modal-copy="Belum ada penyimpanan file atau validasi dokumen nyata." data-modal-confirm-label="Preview Upload" data-modal-accent="gold">Upload Akta Pendirian <span>file</span></button>
                                 </div>
                             </section>
 
@@ -233,11 +303,11 @@
                                 <div class="tenant-form-grid two">
                                     <label>
                                         <span class="field-label">Upload Tenant Logo</span>
-                                        <button class="tenant-upload" type="button">Upload Image <span>image</span></button>
+                                        <button class="tenant-upload" type="button" data-modal-open="tenant-action-modal" data-modal-title="Upload Tenant Logo" data-modal-headline="Branding Asset Preview" data-modal-summary="Upload logo tenant dibuka sebagai popup dummy." data-modal-section-title="Branding Context" data-modal-workspace="Add New Tenant" data-modal-entity="Tenant Logo" data-modal-status="Brand Asset" data-modal-next-step="Pilih file logo resolusi tinggi saat upload backend sudah aktif." data-modal-copy="Belum ada penyimpanan image. Saat ini hanya preview alur branding asset." data-modal-confirm-label="Preview Upload" data-modal-accent="blue">Upload Image <span>image</span></button>
                                     </label>
                                     <label>
                                         <span class="field-label">Upload Storefront Photo</span>
-                                        <button class="tenant-upload" type="button">Upload Image <span>image</span></button>
+                                        <button class="tenant-upload" type="button" data-modal-open="tenant-action-modal" data-modal-title="Upload Storefront Photo" data-modal-headline="Storefront Visual Preview" data-modal-summary="Upload storefront tenant masih berupa popup preview." data-modal-section-title="Branding Context" data-modal-workspace="Add New Tenant" data-modal-entity="Storefront Photo" data-modal-status="Brand Asset" data-modal-next-step="Tambahkan foto facade tenant setelah media upload backend aktif." data-modal-copy="Belum ada penyimpanan image atau validasi ukuran file." data-modal-confirm-label="Preview Upload" data-modal-accent="blue">Upload Image <span>image</span></button>
                                     </label>
                                 </div>
                             </section>
@@ -246,8 +316,8 @@
                         <div class="tenant-form-footer">
                             <a class="btn secondary" href="{{ route('tenant-marketplace.directory') }}">Cancel</a>
                             <div class="tenant-actions">
-                                <button class="btn secondary" type="button" data-modal-open="tenant-action-modal">Save Draft</button>
-                                <button class="btn" type="button" data-modal-open="tenant-action-modal">Save & Submit Tenant</button>
+                                <button class="btn secondary" type="button" data-modal-open="tenant-action-modal" data-modal-title="Save Tenant Draft" data-modal-headline="Draft Tenant Entry" data-modal-summary="Draft tenant disimpan sebagai preview dummy agar alur form tetap terasa rapi." data-modal-section-title="Draft Context" data-modal-workspace="Add New Tenant" data-modal-entity="Draft Business Profile" data-modal-status="Save Draft" data-modal-next-step="Lanjutkan pengisian profil tenant sebelum submit final." data-modal-copy="Belum ada penyimpanan draft ke database. Popup ini hanya memberi feedback interaksi." data-modal-confirm-label="Close Draft Preview" data-modal-accent="gold">Save Draft</button>
+                                <button class="btn" type="button" data-modal-open="tenant-action-modal" data-modal-title="Save & Submit Tenant" data-modal-headline="Submit Tenant Onboarding" data-modal-summary="Submit tenant dibuka sebagai popup preview agar tidak langsung terasa seperti submit backend sungguhan." data-modal-section-title="Submission Context" data-modal-workspace="Add New Tenant" data-modal-entity="New Tenant Onboarding" data-modal-status="Ready to Submit" data-modal-next-step="Validasi profil bisnis, legal document, dan branding sebelum submit final nanti." data-modal-copy="Belum ada create tenant nyata. Tombol ini menjaga UX submit tetap jelas dan smooth." data-modal-confirm-label="Confirm Submission Preview" data-modal-accent="green">Save & Submit Tenant</button>
                             </div>
                         </div>
                     </section>

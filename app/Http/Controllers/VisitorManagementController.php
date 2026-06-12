@@ -6,6 +6,11 @@ use Illuminate\View\View;
 
 class VisitorManagementController extends Controller
 {
+    public function index(): View
+    {
+        return $this->page('registration');
+    }
+
     /**
      * Show visitor registration.
      */

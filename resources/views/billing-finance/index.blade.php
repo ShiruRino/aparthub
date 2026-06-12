@@ -181,7 +181,11 @@
                                         <td>{{ $row['due'] }}</td>
                                         <td><span class="{{ $row['class'] }}">{{ $row['status'] }}</span></td>
                                         <td>{{ $row['payment'] }}</td>
-                                        <td class="billing-row-actions">EMAIL | PRINT | VIEW DETAILS</td>
+                                        <td class="billing-row-actions">
+                                            @include('partials.icon-action-button', ['label' => 'Email Invoice', 'icon' => 'mail', 'modal' => 'billing-export-modal'])
+                                            @include('partials.icon-action-button', ['label' => 'Print Invoice', 'icon' => 'print', 'modal' => 'billing-export-modal'])
+                                            @include('partials.icon-action-button', ['label' => 'View Invoice Detail', 'icon' => 'eye', 'modal' => 'billing-export-modal'])
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -269,7 +273,11 @@
                                         <td>{{ $row['collector'] }}</td>
                                         <td>{{ $row['log'] }}</td>
                                         <td>{{ $row['ptp'] }}</td>
-                                        <td class="billing-row-actions">View Receipt | Log Call | Record PTP</td>
+                                        <td class="billing-row-actions">
+                                            @include('partials.icon-action-button', ['label' => 'View Receipt', 'icon' => 'document', 'modal' => 'billing-export-modal'])
+                                            @include('partials.icon-action-button', ['label' => 'Log Collection Call', 'icon' => 'phone', 'modal' => 'billing-export-modal', 'variant' => 'info'])
+                                            @include('partials.icon-action-button', ['label' => 'Record Promise To Pay', 'icon' => 'edit', 'modal' => 'billing-export-modal', 'variant' => 'gold'])
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -338,7 +346,14 @@
                                         <td>{{ $row['units'] }}</td>
                                         <td><span class="{{ $row['class'] }}">{{ $row['status'] }}</span></td>
                                         <td>{{ $row['revenue'] }}</td>
-                                        <td class="billing-row-actions">View Details | {{ $row['status'] === 'SCHEDULED' ? 'Edit Schedule' : 'Print Kuitansi' }}</td>
+                                        <td class="billing-row-actions">
+                                            @include('partials.icon-action-button', ['label' => 'View Auto Bill Detail', 'icon' => 'eye', 'modal' => 'billing-export-modal'])
+                                            @if ($row['status'] === 'SCHEDULED')
+                                                @include('partials.icon-action-button', ['label' => 'Edit Billing Schedule', 'icon' => 'edit', 'modal' => 'billing-export-modal', 'variant' => 'gold'])
+                                            @else
+                                                @include('partials.icon-action-button', ['label' => 'Print Billing Receipt', 'icon' => 'print', 'modal' => 'billing-export-modal'])
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -414,7 +429,11 @@
                                         <td><span class="{{ $row['class'] }}">{{ $row['status'] }}</span></td>
                                         <td>{{ $row['log'] }}</td>
                                         <td>{{ $row['ptp'] }}</td>
-                                        <td class="billing-row-actions">View Receipt | Log Call | Record PTP</td>
+                                        <td class="billing-row-actions">
+                                            @include('partials.icon-action-button', ['label' => 'View Payment Receipt', 'icon' => 'document', 'modal' => 'billing-export-modal'])
+                                            @include('partials.icon-action-button', ['label' => 'Log Resident Call', 'icon' => 'phone', 'modal' => 'billing-export-modal', 'variant' => 'info'])
+                                            @include('partials.icon-action-button', ['label' => 'Record Promise To Pay', 'icon' => 'edit', 'modal' => 'billing-export-modal', 'variant' => 'gold'])
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>

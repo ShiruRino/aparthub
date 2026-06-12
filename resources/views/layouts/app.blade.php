@@ -437,6 +437,76 @@
             backdrop-filter: blur(2px);
         }
 
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 120;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at top, rgba(221, 165, 68, 0.18), transparent 34%),
+                rgba(2, 11, 30, 0.82);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 220ms ease, visibility 220ms ease;
+        }
+
+        .page-loader.is-active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .page-loader-card {
+            display: grid;
+            justify-items: center;
+            gap: 14px;
+            min-width: min(92vw, 280px);
+            padding: 24px 26px;
+            border: 1px solid rgba(244, 193, 93, 0.18);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(7, 26, 59, 0.96), rgba(4, 16, 38, 0.98));
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+            text-align: center;
+        }
+
+        .page-loader-spinner {
+            position: relative;
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--gold-2);
+            animation: pageLoaderSpin 0.9s linear infinite;
+        }
+
+        .page-loader-spinner::after {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.08);
+            border-right-color: #7fb4ff;
+            animation: pageLoaderSpin 1.2s linear infinite reverse;
+        }
+
+        .page-loader-title {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 820;
+        }
+
+        .page-loader-copy {
+            color: #dbe7f7;
+            font-size: 13px;
+        }
+
+        @keyframes pageLoaderSpin {
+            to { transform: rotate(360deg); }
+        }
+
         .alert {
             margin-bottom: 14px;
             padding: 12px 14px;
@@ -1149,29 +1219,28 @@
         }
 
         .resident-action-btn {
-            display: grid;
-            gap: 3px;
-            min-width: 38px;
-            padding: 3px 4px;
-            border: 0;
-            border-radius: 6px;
-            background: transparent;
+            width: 34px;
+            min-width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 1px solid #d7dee8;
+            border-radius: 10px;
+            background: #ffffff;
             color: #071935;
-            cursor: pointer;
-            font-size: 10px;
-            font-weight: 760;
-            text-align: center;
+            transition: transform .18s ease, border-color .18s ease, background-color .18s ease, box-shadow .18s ease, color .18s ease;
         }
 
         .resident-action-btn svg {
-            justify-self: center;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
         }
 
         .resident-action-btn:hover {
+            border-color: #b8c7d8;
             background: #edf3fb;
             color: var(--navy-800);
+            box-shadow: 0 10px 18px rgba(11, 33, 73, 0.08);
+            transform: translateY(-1px);
         }
 
         .resident-action-btn.success { color: #0f7d45; }
@@ -1281,6 +1350,175 @@
             padding: 4px 2px 10px;
         }
 
+        .visitor-overview {
+            display: grid;
+            gap: 14px;
+        }
+
+        .visitor-overview-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+            gap: 14px;
+            align-items: stretch;
+        }
+
+        .visitor-overview-summary,
+        .visitor-overview-groups,
+        .visitor-overview-card,
+        .visitor-overview-links,
+        .visitor-overview-link,
+        .visitor-overview-stats {
+            display: grid;
+            gap: 12px;
+        }
+
+        .visitor-overview-summary {
+            padding: 20px 22px;
+            border: 1px solid #dde6f1;
+            border-radius: 8px;
+            background:
+                radial-gradient(circle at top right, rgba(244, 193, 93, 0.18), transparent 30%),
+                linear-gradient(135deg, #081d42, #12396e 74%, #1a4e8c);
+            color: #ffffff;
+            box-shadow: 0 12px 30px rgba(5, 18, 42, 0.14);
+        }
+
+        .visitor-overview-summary h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 930;
+            line-height: 1.05;
+            text-transform: uppercase;
+        }
+
+        .visitor-overview-summary p {
+            margin: 0;
+            max-width: 700px;
+            color: #dfeafa;
+            font-size: 14px;
+            font-weight: 650;
+        }
+
+        .visitor-overview-stats {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .visitor-overview-stat {
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .visitor-overview-stat span {
+            display: block;
+            color: #dce7f7;
+            font-size: 11px;
+            font-weight: 780;
+            text-transform: uppercase;
+        }
+
+        .visitor-overview-stat strong {
+            display: block;
+            margin-top: 6px;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 930;
+            line-height: 1;
+        }
+
+        .visitor-overview-groups {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .visitor-overview-card {
+            padding: 18px;
+            border: 1px solid #dde6f1;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 8px 22px rgba(5, 18, 42, 0.06);
+        }
+
+        .visitor-overview-card h3 {
+            margin: 0;
+            color: #0b2149;
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+        .visitor-overview-card p {
+            margin: 0;
+            color: #5b6d84;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .visitor-overview-link {
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            padding: 13px 14px;
+            border: 1px solid #e4ebf4;
+            border-radius: 8px;
+            background: #f9fbfe;
+        }
+
+        .visitor-overview-link strong {
+            display: block;
+            color: #0b2149;
+            font-size: 13px;
+            font-weight: 860;
+        }
+
+        .visitor-overview-link span {
+            display: block;
+            margin-top: 4px;
+            color: #607087;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .visitor-overview-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 116px;
+            min-height: 34px;
+            padding: 8px 12px;
+            border-radius: 7px;
+            background: #0d2a62;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 820;
+        }
+
+        .visitor-overview-chip-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .visitor-overview-chip {
+            display: grid;
+            gap: 4px;
+            padding: 14px;
+            border: 1px solid #dde6f1;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 8px 22px rgba(5, 18, 42, 0.05);
+        }
+
+        .visitor-overview-chip strong {
+            color: #0b2149;
+            font-size: 13px;
+            font-weight: 860;
+        }
+
+        .visitor-overview-chip span {
+            color: #607087;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
         .visitor-heading {
             display: grid;
             grid-template-columns: 38px minmax(0, 1fr);
@@ -1365,12 +1603,27 @@
             color: #53647d;
             font-size: 12px;
             font-weight: 850;
-            cursor: default;
+            cursor: pointer;
+            transition: background-color .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease;
         }
 
         .visitor-tab.active {
             background: var(--navy-800);
             color: #ffffff;
+        }
+
+        .visitor-tab:hover,
+        .visitor-tab:focus-visible {
+            background: rgba(10, 35, 79, 0.08);
+            color: #0b2149;
+            outline: none;
+        }
+
+        .visitor-tab.active:hover,
+        .visitor-tab.active:focus-visible {
+            background: var(--navy-900);
+            color: #ffffff;
+            box-shadow: 0 6px 14px rgba(11, 33, 73, 0.18);
         }
 
         .visitor-action-rail {
@@ -1479,8 +1732,50 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-end;
-            gap: 7px;
+            gap: 8px;
         }
+
+        .icon-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            min-width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 1px solid #d7dee8;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #0b2149;
+            cursor: pointer;
+            transition: transform .18s ease, border-color .18s ease, background-color .18s ease, box-shadow .18s ease, color .18s ease;
+        }
+
+        .icon-action-btn svg,
+        .community-icon-btn svg,
+        .package-kebab svg {
+            width: 16px;
+            height: 16px;
+            flex: 0 0 16px;
+        }
+
+        .icon-action-btn:hover,
+        .icon-action-btn:focus-visible,
+        .community-icon-btn:hover,
+        .community-icon-btn:focus-visible,
+        .package-kebab:hover,
+        .package-kebab:focus-visible {
+            border-color: #b8c7d8;
+            background: #edf3fb;
+            box-shadow: 0 10px 18px rgba(11, 33, 73, 0.08);
+            transform: translateY(-1px);
+            outline: none;
+        }
+
+        .icon-action-btn.is-success { color: #0f7d45; background: #e6f8ee; }
+        .icon-action-btn.is-danger { color: #b42318; background: #fff0ef; }
+        .icon-action-btn.is-gold { color: #8b5d09; background: #fff5df; }
+        .icon-action-btn.is-info { color: #1d4f91; background: #eef4ff; }
 
         .visitor-list { display: grid; gap: 0; }
 
@@ -1732,6 +2027,174 @@
 
         .service-content { padding: 18px 14px 30px; }
         .service-page { display: grid; gap: 12px; }
+
+        .service-overview,
+        .service-overview-groups,
+        .service-overview-card,
+        .service-overview-links,
+        .service-overview-link,
+        .service-overview-hero,
+        .service-overview-stats {
+            display: grid;
+            gap: 12px;
+        }
+
+        .service-overview-hero {
+            grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.95fr);
+            align-items: stretch;
+        }
+
+        .service-overview-summary {
+            display: grid;
+            gap: 14px;
+            padding: 20px 22px;
+            border: 1px solid #dde6f1;
+            border-radius: 8px;
+            background:
+                radial-gradient(circle at top right, rgba(244, 193, 93, 0.18), transparent 30%),
+                linear-gradient(135deg, #081d42, #12396e 74%, #1a4e8c);
+            color: #ffffff;
+            box-shadow: 0 12px 30px rgba(5, 18, 42, 0.14);
+        }
+
+        .service-overview-summary h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 930;
+            line-height: 1.05;
+            text-transform: uppercase;
+        }
+
+        .service-overview-summary p {
+            margin: 0;
+            color: #dfeafa;
+            font-size: 14px;
+            font-weight: 650;
+        }
+
+        .service-overview-stats {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .service-overview-stat {
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .service-overview-stat span {
+            display: block;
+            color: #dce7f7;
+            font-size: 11px;
+            font-weight: 780;
+            text-transform: uppercase;
+        }
+
+        .service-overview-stat strong {
+            display: block;
+            margin-top: 6px;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 930;
+            line-height: 1;
+        }
+
+        .service-overview-groups {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .service-overview-card,
+        .service-overview-highlights {
+            padding: 18px;
+            border: 1px solid #dde6f1;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 8px 22px rgba(5, 18, 42, 0.06);
+        }
+
+        .service-overview-card h3,
+        .service-overview-highlights h3 {
+            margin: 0;
+            color: #0b2149;
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+        .service-overview-card p,
+        .service-overview-highlights p {
+            margin: 0;
+            color: #5b6d84;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .service-overview-link {
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            padding: 13px 14px;
+            border: 1px solid #e4ebf4;
+            border-radius: 8px;
+            background: #f9fbfe;
+        }
+
+        .service-overview-link strong {
+            display: block;
+            color: #0b2149;
+            font-size: 13px;
+            font-weight: 860;
+        }
+
+        .service-overview-link span {
+            display: block;
+            margin-top: 4px;
+            color: #607087;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .service-overview-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 116px;
+            min-height: 34px;
+            padding: 8px 12px;
+            border-radius: 7px;
+            background: #0d2a62;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 820;
+        }
+
+        .service-overview-highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 2px;
+        }
+
+        .service-overview-highlight {
+            display: grid;
+            gap: 4px;
+            padding: 14px;
+            border: 1px solid #dde6f1;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 8px 22px rgba(5, 18, 42, 0.05);
+        }
+
+        .service-overview-highlight strong {
+            color: #0b2149;
+            font-size: 13px;
+            font-weight: 860;
+        }
+
+        .service-overview-highlight span {
+            color: #607087;
+            font-size: 11px;
+            font-weight: 700;
+        }
 
         .sidebar-quick-actions {
             display: grid;
@@ -2372,17 +2835,17 @@
         }
 
         .community-icon-btn {
-            display: grid;
-            width: 30px;
-            height: 30px;
-            place-items: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
             border: 1px solid #dce4ef;
-            border-radius: 7px;
+            border-radius: 10px;
             background: #ffffff;
             color: #0d2a62;
             cursor: pointer;
-            font-size: 12px;
-            font-weight: 900;
+            transition: transform .18s ease, border-color .18s ease, background-color .18s ease, box-shadow .18s ease, color .18s ease;
         }
 
         .community-icon-btn.gold { background: #fff5df; color: #8b5d09; }
@@ -2647,10 +3110,9 @@
         }
 
         .billing-row-actions {
-            color: #12294d;
-            font-size: 11px;
-            font-weight: 760;
-            white-space: nowrap;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .billing-link {
@@ -3424,10 +3886,11 @@
         }
 
         .package-kebab {
-            display: grid;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             width: 34px;
             height: 34px;
-            place-items: center;
             border: 1px solid #dbe4ef;
             border-radius: 8px;
             background: #ffffff;
@@ -3661,6 +4124,377 @@
             padding-top: 2px;
         }
 
+        .security-content .top-title h1 {
+            letter-spacing: 0;
+        }
+
+        .security-page {
+            display: grid;
+            gap: 18px;
+        }
+
+        .security-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 4px 2px 2px;
+        }
+
+        .security-hero h2 {
+            margin: 0;
+            color: #0b2149;
+            font-size: clamp(30px, 4vw, 40px);
+            font-weight: 950;
+        }
+
+        .security-hero p {
+            margin: 10px 0 0;
+            color: #5a6c83;
+            font-size: 16px;
+            font-weight: 620;
+        }
+
+        .security-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 2px 0 8px;
+            scrollbar-width: thin;
+        }
+
+        .security-tab {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0 16px;
+            border: 1px solid #d7e0ec;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #40536e;
+            font-size: 13px;
+            font-weight: 760;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+        }
+
+        .security-tab:hover,
+        .security-tab:focus-visible {
+            border-color: #b9c7da;
+            color: #0b2149;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(15, 35, 71, 0.08);
+        }
+
+        .security-tab.active {
+            border-color: #0c275d;
+            background: linear-gradient(135deg, #0d2a62, #133d88);
+            color: #ffffff;
+            box-shadow: 0 14px 28px rgba(13, 42, 98, 0.2);
+        }
+
+        .security-toolbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .security-toolbar h3 {
+            margin: 0;
+            color: #0b2149;
+            font-size: 30px;
+            font-weight: 920;
+        }
+
+        .security-toolbar p {
+            margin: 8px 0 0;
+            color: #61728a;
+            font-size: 14px;
+            font-weight: 620;
+        }
+
+        .security-toolbar-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .security-metrics,
+        .security-lite-metrics {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .security-lite-metrics {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .security-metric,
+        .security-lite-card {
+            display: grid;
+            gap: 10px;
+            padding: 18px;
+            border: 1px solid #e2e9f2;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 14px 34px rgba(12, 34, 68, 0.05);
+        }
+
+        .security-metric {
+            grid-template-columns: 52px minmax(0, 1fr);
+            align-items: center;
+        }
+
+        .security-metric-icon {
+            display: grid;
+            width: 52px;
+            height: 52px;
+            place-items: center;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #eff4fb, #dce8f8);
+        }
+
+        .security-metric.blue .security-metric-icon { background: linear-gradient(180deg, #dbeafe, #bfdbfe); }
+        .security-metric.green .security-metric-icon { background: linear-gradient(180deg, #dcfce7, #bbf7d0); }
+        .security-metric.gold .security-metric-icon { background: linear-gradient(180deg, #fef3c7, #fde68a); }
+        .security-metric.red .security-metric-icon { background: linear-gradient(180deg, #fee2e2, #fecaca); }
+
+        .security-metric span,
+        .security-lite-card span {
+            color: #66768d;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .security-metric strong,
+        .security-lite-card strong {
+            color: #0b2149;
+            font-size: 34px;
+            font-weight: 950;
+            line-height: 1;
+        }
+
+        .security-metric small {
+            color: #5f728b;
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        .security-workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1.9fr) minmax(280px, 0.72fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .security-main,
+        .security-side {
+            display: grid;
+            gap: 18px;
+        }
+
+        .security-filter-row {
+            display: grid;
+            grid-template-columns: minmax(220px, 1.35fr) repeat(3, minmax(150px, 0.7fr)) minmax(145px, 0.6fr) auto;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .security-filter-row label {
+            display: block;
+        }
+
+        .security-filter-row input,
+        .security-filter-row select {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid #d6e0ec;
+            border-radius: 10px;
+            background: #fbfdff;
+            color: #10264a;
+            font: inherit;
+            padding: 0 14px;
+        }
+
+        .security-chip {
+            display: inline-flex;
+            width: fit-content;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .security-chip.blue {
+            background: #e1edff;
+            color: #2351a4;
+        }
+
+        .security-chip.purple {
+            background: #efe5ff;
+            color: #7446b1;
+        }
+
+        .security-chip.red {
+            background: #ffe5e5;
+            color: #cc4040;
+        }
+
+        .badge.status-blue {
+            background: #e0ebff;
+            color: #2c5ec3;
+        }
+
+        .security-officer-cell {
+            display: grid;
+            grid-template-columns: 38px minmax(0, 1fr);
+            gap: 10px;
+            align-items: center;
+        }
+
+        .security-officer-avatar {
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #f2f6fc, #dde7f5);
+            color: #163366;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .security-progress {
+            width: 92px;
+            height: 8px;
+            margin-top: 8px;
+            border-radius: 999px;
+            background: #e6ebf2;
+            overflow: hidden;
+        }
+
+        .security-progress span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #1f9d52, #34c86a);
+        }
+
+        .security-map-preview {
+            position: relative;
+            min-height: 220px;
+            border-radius: 14px;
+            background:
+                linear-gradient(rgba(14, 28, 58, 0.18), rgba(14, 28, 58, 0.18)),
+                linear-gradient(145deg, #53637b, #253957 62%, #101c30);
+            overflow: hidden;
+        }
+
+        .security-map-preview::before {
+            content: "";
+            position: absolute;
+            inset: 22px;
+            border: 3px solid #4f8dff;
+            border-radius: 18px;
+            clip-path: polygon(6% 72%, 12% 24%, 36% 14%, 56% 28%, 79% 18%, 88% 42%, 80% 80%, 48% 86%, 18% 78%);
+        }
+
+        .security-map-preview::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px) 0 0/52px 52px,
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px) 0 0/52px 52px;
+        }
+
+        .security-map-point {
+            position: absolute;
+            z-index: 1;
+            display: grid;
+            width: 32px;
+            height: 32px;
+            place-items: center;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #24385a;
+            font-size: 13px;
+            font-weight: 900;
+            box-shadow: 0 12px 26px rgba(3, 15, 40, 0.28);
+        }
+
+        .security-map-point.p1 { left: 18%; bottom: 18%; }
+        .security-map-point.p2 { left: 8%; top: 40%; }
+        .security-map-point.p3 { right: 14%; top: 24%; }
+        .security-map-point.p4 { left: 44%; top: 18%; }
+        .security-map-point.p5 { left: 52%; bottom: 24%; }
+
+        .security-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .security-summary-grid div {
+            padding: 14px;
+            border: 1px solid #e3eaf3;
+            border-radius: 10px;
+            background: #fbfdff;
+        }
+
+        .security-summary-grid span {
+            display: block;
+            color: #6b7b92;
+            font-size: 12px;
+            font-weight: 760;
+        }
+
+        .security-summary-grid strong {
+            display: block;
+            margin-top: 8px;
+            color: #10264a;
+            font-size: 25px;
+            font-weight: 920;
+        }
+
+        .security-benefits {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #071832, #102c60);
+            color: #f8fbff;
+            overflow: hidden;
+        }
+
+        .security-benefit {
+            display: grid;
+            gap: 8px;
+            padding: 22px 18px;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .security-benefit:last-child {
+            border-right: 0;
+        }
+
+        .security-benefit strong {
+            font-size: 14px;
+            font-weight: 860;
+        }
+
+        .security-benefit span {
+            color: rgba(240, 246, 255, 0.8);
+            font-size: 12px;
+            font-weight: 620;
+        }
+
         body.is-modal-open { overflow: hidden; }
 
         .visitor-modal {
@@ -3823,6 +4657,9 @@
             .resident-modal-fields { grid-template-columns: 1fr; }
             .visitor-toolbar { align-items: stretch; flex-direction: column; }
             .visitor-toolbar-actions, .visitor-stat-strip, .visitor-action-buttons { justify-content: flex-start; }
+            .visitor-overview-hero,
+            .visitor-overview-groups { grid-template-columns: 1fr; }
+            .visitor-overview-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .visitor-chip { width: 100%; justify-content: center; }
             .visitor-tabs { width: 100%; }
             .visitor-tab { flex: 1 1 140px; }
@@ -3834,6 +4671,9 @@
             .visitor-info-row { grid-template-columns: 1fr; gap: 3px; }
             .visitor-table-toolbar { align-items: stretch; flex-direction: column; }
             .visitor-table-filters, .visitor-table-filters select, .visitor-table-filters input { width: 100%; }
+            .service-overview-hero,
+            .service-overview-groups { grid-template-columns: 1fr; }
+            .service-overview-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .service-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .service-widget-grid { grid-template-columns: 1fr; }
             .service-attachment-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -3849,6 +4689,15 @@
             .community-event-row { grid-template-columns: 62px minmax(0, 1fr); }
             .community-event-row .community-thumb { display: none; }
             .community-donut-panel { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+            .security-toolbar { align-items: stretch; flex-direction: column; }
+            .security-toolbar-actions { justify-content: flex-start; }
+            .security-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .security-lite-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .security-workspace { grid-template-columns: 1fr; }
+            .security-filter-row { grid-template-columns: 1fr; }
+            .security-benefits { grid-template-columns: 1fr; }
+            .security-benefit { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+            .security-benefit:last-child { border-bottom: 0; }
             .tenant-workspace { grid-template-columns: 1fr; }
             .tenant-titlebar { align-items: stretch; flex-direction: column; }
             .tenant-actions { justify-content: flex-start; }
@@ -3889,7 +4738,12 @@
             .resident-benefit { grid-template-columns: 38px minmax(0, 1fr); padding: 12px; }
             .resident-benefit-icon { width: 34px; height: 34px; }
             .visitor-content { padding: 12px; }
+            .visitor-overview-stats,
+            .visitor-overview-chip-grid { grid-template-columns: 1fr; }
             .service-content { padding: 12px; }
+            .service-overview-stats,
+            .service-overview-highlight-grid { grid-template-columns: 1fr; }
+            .security-content { padding: 12px; }
             .billing-content { padding: 12px; }
             .community-content { padding: 12px; }
             .tenant-content { padding: 12px; }
@@ -3906,6 +4760,12 @@
             .service-metrics { grid-template-columns: 1fr; }
             .service-metric { min-height: 64px; }
             .service-photo-pair, .service-attachment-row { grid-template-columns: 1fr; }
+            .security-hero h2 { font-size: 24px; }
+            .security-tabs { padding-bottom: 4px; }
+            .security-tab { min-height: 40px; padding-inline: 14px; }
+            .security-metrics,
+            .security-lite-metrics { grid-template-columns: 1fr; }
+            .security-summary-grid { grid-template-columns: 1fr; }
             .community-card-row { grid-template-columns: 1fr; }
             .community-row { grid-template-columns: 46px minmax(0, 1fr); }
             .community-row > .visitor-action-buttons { grid-column: 1 / -1; justify-content: flex-start; }
@@ -3945,6 +4805,7 @@
         $canResidentRead = $authUser?->canAccessModule('resident-management', 'read');
         $canVisitorRead = $authUser?->canAccessModule('visitor-management', 'read');
         $canServiceRead = $authUser?->canAccessModule('service-request', 'read');
+        $canSecurityRead = $authUser?->canAccessModule('security-management', 'read');
         $canCommunityRead = $authUser?->canAccessModule('community-management', 'read');
         $canTenantRead = $authUser?->canAccessModule('tenant-marketplace', 'read');
         $canPackageRead = $authUser?->canAccessModule('package-center', 'read');
@@ -3952,7 +4813,13 @@
     @endphp
 
     <div class="sidebar-overlay" data-sidebar-close></div>
-
+    <div class="page-loader" id="pageLoader" aria-hidden="true" role="status" aria-live="polite">
+        <div class="page-loader-card">
+            <div class="page-loader-spinner" aria-hidden="true"></div>
+            <div class="page-loader-title">Loading Workspace</div>
+            <div class="page-loader-copy">Menyiapkan halaman yang kamu tuju...</div>
+        </div>
+    </div>
     <div class="ops-shell" id="opsShell">
         <aside class="ops-sidebar">
             <div class="brand-block">
@@ -4013,49 +4880,30 @@
                     @endif
 
                     @if ($canVisitorRead)
-                        <div @class(['side-section', 'is-open' => request()->routeIs('visitor-management.*')])>
-                            <button type="button" title="Visitor Management" data-sidebar-toggle @class(['side-parent', 'active' => request()->routeIs('visitor-management.*')]) aria-expanded="{{ request()->routeIs('visitor-management.*') ? 'true' : 'false' }}">
-                                <span class="side-icon">
-                                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2M8 8a4 4 0 1 0 8 0" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </span>
-                                <span>Visitor Management</span>
-                                <span class="side-caret">v</span>
-                            </button>
-                            <div class="side-sub">
-                                <a href="{{ route('visitor-management.registration') }}" @class(['active' => request()->routeIs('visitor-management.registration')])>Visitor Registration</a>
-                                <a href="{{ route('visitor-management.pending-approval') }}" @class(['active' => request()->routeIs('visitor-management.pending-approval')])>Pending Approval</a>
-                                <a href="{{ route('visitor-management.expected-visitors') }}" @class(['active' => request()->routeIs('visitor-management.expected-visitors')])>Expected Visitors</a>
-                                <a href="{{ route('visitor-management.check-in-out') }}" @class(['active' => request()->routeIs('visitor-management.check-in-out')])>Check-In / Check-Out</a>
-                                <a href="{{ route('visitor-management.history') }}" @class(['active' => request()->routeIs('visitor-management.history')])>Visitor History</a>
-                                <a href="{{ route('visitor-management.vehicles') }}" @class(['active' => request()->routeIs('visitor-management.vehicles')])>Vehicle Visitor</a>
-                                <a href="{{ route('visitor-management.blacklist') }}" @class(['active' => request()->routeIs('visitor-management.blacklist')])>Blacklist Management</a>
-                                <a href="{{ route('visitor-management.reports') }}" @class(['active' => request()->routeIs('visitor-management.reports')])>Reports</a>
-                            </div>
-                        </div>
+                        <a href="{{ route('visitor-management.index') }}" title="Visitor Management" @class(['side-link', 'active' => request()->routeIs('visitor-management.*')])>
+                            <span class="side-icon">
+                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2M8 8a4 4 0 1 0 8 0" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>Visitor Management</span>
+                        </a>
                     @endif
 
                     @if ($canServiceRead)
-                        <div @class(['side-section', 'is-open' => request()->routeIs('service-request.*')])>
-                            <button type="button" title="Service Request" data-sidebar-toggle @class(['side-parent', 'active' => request()->routeIs('service-request.*')]) aria-expanded="{{ request()->routeIs('service-request.*') ? 'true' : 'false' }}">
-                                <span class="side-icon">
-                                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11h6M9 15h6M8 3h8l2 3h2v15H4V6h2l2-3Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </span>
-                                <span>Service Request</span>
-                                <span class="side-caret">v</span>
-                            </button>
-                            <div class="side-sub">
-                                <a href="{{ route('service-request.ticket-queue') }}" @class(['active' => request()->routeIs('service-request.ticket-queue')])>Ticket Queue</a>
-                                <a href="{{ route('service-request.new-request') }}" @class(['active' => request()->routeIs('service-request.new-request')])>New Request</a>
-                                <a href="{{ route('service-request.assignment-board') }}" @class(['active' => request()->routeIs('service-request.assignment-board')])>Assignment Board</a>
-                                <a href="{{ route('service-request.work-orders') }}" @class(['active' => request()->routeIs('service-request.work-orders')])>Work Orders</a>
-                                <a href="{{ route('service-request.technician-schedule') }}" @class(['active' => request()->routeIs('service-request.technician-schedule')])>Technician Schedule</a>
-                                <a href="{{ route('service-request.work-in-progress') }}" @class(['active' => request()->routeIs('service-request.work-in-progress')])>Work In Progress</a>
-                                <a href="{{ route('service-request.completed-requests') }}" @class(['active' => request()->routeIs('service-request.completed-requests')])>Completed Requests</a>
-                                <a href="{{ route('service-request.sla-monitoring') }}" @class(['active' => request()->routeIs('service-request.sla-monitoring')])>SLA Monitoring</a>
-                                <a href="{{ route('service-request.service-history') }}" @class(['active' => request()->routeIs('service-request.service-history')])>Service History</a>
-                                <a href="{{ route('service-request.settings') }}" @class(['active' => request()->routeIs('service-request.settings')])>Settings</a>
-                            </div>
-                        </div>
+                        <a href="{{ route('service-request.index') }}" title="Service Request" @class(['side-link', 'active' => request()->routeIs('service-request.*')])>
+                            <span class="side-icon">
+                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11h6M9 15h6M8 3h8l2 3h2v15H4V6h2l2-3Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>Service Request</span>
+                        </a>
+                    @endif
+
+                    @if ($canSecurityRead)
+                        <a href="{{ route('security-management.index') }}" title="Security Management" @class(['side-link', 'active' => request()->routeIs('security-management.*')])>
+                            <span class="side-icon">
+                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 5 6v6c0 4.9 2.9 7.9 7 9 4.1-1.1 7-4.1 7-9V6l-7-3Z"/><path d="M9.5 12.5 11 14l3.5-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>Security Management</span>
+                        </a>
                     @endif
 
                     @foreach ([
@@ -4103,19 +4951,12 @@
                     @endif
 
                     @if ($canTenantRead)
-                        <div @class(['side-section', 'is-open' => request()->routeIs('tenant-marketplace.*')])>
-                            <button type="button" title="Tenant Marketplace" data-sidebar-toggle @class(['side-parent', 'active' => request()->routeIs('tenant-marketplace.*')]) aria-expanded="{{ request()->routeIs('tenant-marketplace.*') ? 'true' : 'false' }}">
-                                <span class="side-icon">
-                                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9h14l-1 11H6L5 9ZM8 9a4 4 0 0 1 8 0M8 13h.01M12 13h.01M16 13h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </span>
-                                <span>Tenant Marketplace</span>
-                                <span class="side-caret">v</span>
-                            </button>
-                            <div class="side-sub">
-                                <a href="{{ route('tenant-marketplace.directory') }}" @class(['active' => request()->routeIs('tenant-marketplace.directory')])>Tenant Directory</a>
-                                <a href="{{ route('tenant-marketplace.add-input') }}" @class(['active' => request()->routeIs('tenant-marketplace.add-input')])>Add / Input Tenant</a>
-                            </div>
-                        </div>
+                        <a href="{{ route('tenant-marketplace.index') }}" title="Tenant Marketplace" @class(['side-link', 'active' => request()->routeIs('tenant-marketplace.*')])>
+                            <span class="side-icon">
+                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9h14l-1 11H6L5 9ZM8 9a4 4 0 0 1 8 0M8 13h.01M12 13h.01M16 13h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>Tenant Marketplace</span>
+                        </a>
                     @endif
 
                     @foreach ([
@@ -4164,6 +5005,38 @@
                             <span>+</span><span>Auto Billing</span>
                         </a>
                     </div>
+                @elseif ($canVisitorRead && request()->routeIs('visitor-management.*'))
+                    <div class="sidebar-quick-actions" aria-label="Visitor management quick actions">
+                        <div class="sidebar-quick-title">Quick Actions</div>
+                        <a class="sidebar-quick-link" href="{{ route('visitor-management.index') }}">
+                            <span>#</span><span>Visitor Registration</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('visitor-management.registration') }}">
+                            <span>+</span><span>Register Visitor</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('visitor-management.check-in-out') }}">
+                            <span>&gt;</span><span>Check-In / Out</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('visitor-management.reports') }}">
+                            <span>*</span><span>Visitor Reports</span>
+                        </a>
+                    </div>
+                @elseif ($canSecurityRead && request()->routeIs('security-management.*'))
+                    <div class="sidebar-quick-actions" aria-label="Security management quick actions">
+                        <div class="sidebar-quick-title">Quick Actions</div>
+                        <a class="sidebar-quick-link" href="{{ route('security-management.index') }}">
+                            <span>#</span><span>Open Task Assignment</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('security-management.task-assignment') }}">
+                            <span>+</span><span>Create Task</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('security-management.incidents') }}">
+                            <span>!</span><span>Incident Log</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('security-management.schedule') }}">
+                            <span>&gt;</span><span>Patrol Schedule</span>
+                        </a>
+                    </div>
                 @elseif ($canPackageRead && request()->routeIs('package-center.*'))
                     <div class="sidebar-quick-actions" aria-label="Package center quick actions">
                         <div class="sidebar-quick-title">Quick Actions</div>
@@ -4203,17 +5076,20 @@
                             <span>#</span><span>Create Polling</span>
                         </a>
                     </div>
-                @elseif ($canServiceRead)
+                @elseif ($canServiceRead && request()->routeIs('service-request.*'))
                     <div class="sidebar-quick-actions" aria-label="Service request quick actions">
                         <div class="sidebar-quick-title">Quick Actions</div>
+                        <a class="sidebar-quick-link" href="{{ route('service-request.index') }}">
+                            <span>#</span><span>Ticket Queue</span>
+                        </a>
                         <a class="sidebar-quick-link" href="{{ route('service-request.new-request') }}">
                             <span>+</span><span>Create New Request</span>
                         </a>
                         <a class="sidebar-quick-link" href="{{ route('service-request.assignment-board') }}">
                             <span>&gt;</span><span>Assign Technician</span>
                         </a>
-                        <a class="sidebar-quick-link" href="{{ route('service-request.service-history') }}">
-                            <span>#</span><span>Generate Report</span>
+                        <a class="sidebar-quick-link" href="{{ route('service-request.sla-monitoring') }}">
+                            <span>!</span><span>SLA Monitoring</span>
                         </a>
                     </div>
                 @endif
@@ -4307,6 +5183,7 @@
                 'billing-content' => request()->routeIs('billing-finance.*'),
                 'visitor-content' => request()->routeIs('visitor-management.*'),
                 'service-content' => request()->routeIs('service-request.*'),
+                'security-content' => request()->routeIs('security-management.*'),
                 'community-content' => request()->routeIs('community-management.*'),
                 'tenant-content' => request()->routeIs('tenant-marketplace.*'),
                 'package-content' => request()->routeIs('package-center.*'),
@@ -4334,6 +5211,27 @@
             const sidebarButton = document.querySelector('[data-shell-toggle]');
             const sidebarCloseTargets = document.querySelectorAll('[data-sidebar-close]');
             const desktopQuery = window.matchMedia('(min-width: 981px)');
+            const pageLoader = document.getElementById('pageLoader');
+            let loaderTimer = null;
+
+            const showPageLoader = (copy = 'Menyiapkan halaman yang kamu tuju...') => {
+                if (!pageLoader) return;
+
+                pageLoader.querySelector('.page-loader-copy')?.replaceChildren(copy);
+                pageLoader.classList.add('is-active');
+                pageLoader.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('is-modal-open');
+            };
+
+            const hidePageLoader = () => {
+                if (!pageLoader) return;
+
+                pageLoader.classList.remove('is-active');
+                pageLoader.setAttribute('aria-hidden', 'true');
+                if (!document.querySelector('.visitor-modal.is-open')) {
+                    document.body.classList.remove('is-modal-open');
+                }
+            };
 
             const closeMobileSidebar = () => {
                 document.body.classList.remove('is-mobile-sidebar-open');
@@ -4407,6 +5305,48 @@
                 });
             });
 
+            const datasetKeyForSlot = (slot) => `modal${slot.replace(/(^|-)([a-z])/g, (_, __, char) => char.toUpperCase())}`;
+
+            const fillModalFromTrigger = (modal, trigger) => {
+                if (!modal || !trigger) return;
+
+                modal.querySelectorAll('[data-modal-slot]').forEach((node) => {
+                    const slot = node.dataset.modalSlot;
+                    const value = trigger.dataset[datasetKeyForSlot(slot)];
+
+                    if (slot === 'confirm-variant') {
+                        const confirmButton = modal.querySelector('[data-modal-slot="confirm-label"]');
+                        if (!confirmButton) return;
+
+                        confirmButton.classList.remove('secondary', 'success', 'danger');
+                        if (value && value !== 'primary') {
+                            confirmButton.classList.add(value);
+                        }
+
+                        return;
+                    }
+
+                    if (slot === 'accent') {
+                        const accentTarget = modal.querySelector('[data-modal-accent]');
+                        if (!accentTarget) return;
+
+                        accentTarget.className = accentTarget.dataset.modalAccent;
+                        if (value) {
+                            accentTarget.classList.add(value);
+                        }
+
+                        return;
+                    }
+
+                    if (value) {
+                        node.textContent = value;
+                        node.removeAttribute('hidden');
+                    } else if (node.hasAttribute('data-modal-optional')) {
+                        node.setAttribute('hidden', 'hidden');
+                    }
+                });
+            };
+
             const closeModals = () => {
                 document.querySelectorAll('.visitor-modal.is-open').forEach((modal) => {
                     modal.classList.remove('is-open');
@@ -4421,6 +5361,7 @@
                     if (!modal) return;
 
                     closeModals();
+                    fillModalFromTrigger(modal, button);
                     modal.classList.add('is-open');
                     modal.setAttribute('aria-hidden', 'false');
                     document.body.classList.add('is-modal-open');
@@ -4437,6 +5378,38 @@
                     if (event.target === modal || event.target?.hasAttribute?.('data-modal-close')) {
                         closeModals();
                     }
+                });
+            });
+
+            window.addEventListener('pageshow', hidePageLoader);
+            window.addEventListener('load', hidePageLoader);
+
+            document.querySelectorAll('a[href]').forEach((link) => {
+                link.addEventListener('click', (event) => {
+                    if (event.defaultPrevented) return;
+                    if (link.hasAttribute('data-modal-open')) return;
+                    if (link.getAttribute('href')?.startsWith('#')) return;
+                    if (link.target && link.target !== '_self') return;
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+                    const href = link.href;
+                    if (!href) return;
+
+                    const url = new URL(href, window.location.href);
+                    if (url.origin !== window.location.origin) return;
+                    if (url.href === window.location.href) return;
+
+                    clearTimeout(loaderTimer);
+                    loaderTimer = window.setTimeout(() => showPageLoader('Membuka halaman berikutnya...'), 60);
+                });
+            });
+
+            document.querySelectorAll('form').forEach((form) => {
+                form.addEventListener('submit', (event) => {
+                    if (event.defaultPrevented) return;
+
+                    clearTimeout(loaderTimer);
+                    loaderTimer = window.setTimeout(() => showPageLoader('Memproses permintaan...'), 40);
                 });
             });
 

@@ -42,14 +42,15 @@ class DynamicAccessControlTest extends TestCase
             ['name' => 'Resident Management', 'slug' => 'resident-management', 'sort_order' => 10],
             ['name' => 'Visitor Management', 'slug' => 'visitor-management', 'sort_order' => 20],
             ['name' => 'Service Request', 'slug' => 'service-request', 'sort_order' => 30],
-            ['name' => 'Community Management', 'slug' => 'community-management', 'sort_order' => 40],
-            ['name' => 'Tenant Marketplace', 'slug' => 'tenant-marketplace', 'sort_order' => 50],
-            ['name' => 'Package Center', 'slug' => 'package-center', 'sort_order' => 60],
-            ['name' => 'Billing & Finance', 'slug' => 'billing-finance', 'sort_order' => 70],
-            ['name' => 'Users', 'slug' => 'users', 'sort_order' => 80],
-            ['name' => 'Modules', 'slug' => 'modules', 'sort_order' => 90],
-            ['name' => 'Access', 'slug' => 'access', 'sort_order' => 100],
-            ['name' => 'Roles', 'slug' => 'roles', 'sort_order' => 110],
+            ['name' => 'Security Management', 'slug' => 'security-management', 'sort_order' => 40],
+            ['name' => 'Community Management', 'slug' => 'community-management', 'sort_order' => 50],
+            ['name' => 'Tenant Marketplace', 'slug' => 'tenant-marketplace', 'sort_order' => 60],
+            ['name' => 'Package Center', 'slug' => 'package-center', 'sort_order' => 70],
+            ['name' => 'Billing & Finance', 'slug' => 'billing-finance', 'sort_order' => 80],
+            ['name' => 'Users', 'slug' => 'users', 'sort_order' => 90],
+            ['name' => 'Modules', 'slug' => 'modules', 'sort_order' => 100],
+            ['name' => 'Access', 'slug' => 'access', 'sort_order' => 110],
+            ['name' => 'Roles', 'slug' => 'roles', 'sort_order' => 120],
         ])->map(fn (array $module) => Module::query()->create($module + ['is_active' => true]));
     }
 
@@ -96,6 +97,8 @@ class DynamicAccessControlTest extends TestCase
         $this->get(route('visitor-management.registration'))->assertRedirect(route('login'));
         $this->get(route('service-request.index'))->assertRedirect(route('login'));
         $this->get(route('service-request.ticket-queue'))->assertRedirect(route('login'));
+        $this->get(route('security-management.index'))->assertRedirect(route('login'));
+        $this->get(route('security-management.task-assignment'))->assertRedirect(route('login'));
         $this->get(route('community-management.index'))->assertRedirect(route('login'));
         $this->get(route('community-management.announcements'))->assertRedirect(route('login'));
         $this->get(route('tenant-marketplace.index'))->assertRedirect(route('login'));
@@ -165,7 +168,11 @@ class DynamicAccessControlTest extends TestCase
 
         $this->actingAs($admin)
             ->get(route('visitor-management.index'))
-            ->assertRedirect(route('visitor-management.registration'));
+            ->assertOk()
+            ->assertSee('Visitor Registration')
+            ->assertSee('All Visitor Registration')
+            ->assertSee('Pending Approval')
+            ->assertSee('Blacklist');
 
         foreach ($this->visitorRoutes() as $routeName => $expectedText) {
             $this->actingAs($admin)
@@ -184,7 +191,11 @@ class DynamicAccessControlTest extends TestCase
 
         $this->actingAs($admin)
             ->get(route('service-request.index'))
-            ->assertRedirect(route('service-request.ticket-queue'));
+            ->assertOk()
+            ->assertSee('Ticket Queue')
+            ->assertSee('Ticket Queue')
+            ->assertSee('Ticket Queue')
+            ->assertSee('SLA Monitoring');
 
         foreach ($this->serviceRoutes() as $routeName => $expectedText) {
             $this->actingAs($admin)
@@ -192,6 +203,31 @@ class DynamicAccessControlTest extends TestCase
                 ->assertOk()
                 ->assertSee('Service Request')
                 ->assertSee($expectedText);
+        }
+    }
+
+    public function test_admin_can_access_security_management_pages_without_permission_rows(): void
+    {
+        $admin = $this->makeUser($this->adminRole, [
+            'username' => 'admin',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('security-management.index'))
+            ->assertOk()
+            ->assertSee('Security Operations Center')
+            ->assertSee('Task Assignment')
+            ->assertSee('Create Task')
+            ->assertSee('Export');
+
+        foreach ($this->securityRoutes() as $routeName => $expectedText) {
+            $response = $this->actingAs($admin)
+                ->get(route($routeName))
+                ->assertOk()
+                ->assertSee('Security Management')
+                ->assertSee($expectedText);
+
+            $response->assertSee('href="'.route($routeName).'"', false);
         }
     }
 
@@ -206,11 +242,13 @@ class DynamicAccessControlTest extends TestCase
             ->assertRedirect(route('community-management.announcements'));
 
         foreach ($this->communityRoutes() as $routeName => $expectedText) {
-            $this->actingAs($admin)
+            $response = $this->actingAs($admin)
                 ->get(route($routeName))
                 ->assertOk()
                 ->assertSee('Community Management')
                 ->assertSee($expectedText);
+
+            $response->assertSee('data-modal-open="community-action-modal"', false);
         }
     }
 
@@ -222,14 +260,17 @@ class DynamicAccessControlTest extends TestCase
 
         $this->actingAs($admin)
             ->get(route('tenant-marketplace.index'))
-            ->assertRedirect(route('tenant-marketplace.directory'));
+            ->assertOk()
+            ->assertSee('Tenant Directory');
 
         foreach ($this->tenantRoutes() as $routeName => $expectedText) {
-            $this->actingAs($admin)
+            $response = $this->actingAs($admin)
                 ->get(route($routeName))
                 ->assertOk()
                 ->assertSee('Tenant Marketplace')
                 ->assertSee($expectedText);
+
+            $response->assertSee('data-modal-open="tenant-action-modal"', false);
         }
     }
 
@@ -325,6 +366,21 @@ class DynamicAccessControlTest extends TestCase
         }
     }
 
+    public function test_security_management_uses_workspace_routes(): void
+    {
+        $securityRouteNames = collect(Route::getRoutes())
+            ->map(fn ($route) => $route->getName())
+            ->filter(fn (?string $name) => str_starts_with($name ?? '', 'security-management.'))
+            ->values()
+            ->all();
+
+        $this->assertContains('security-management.index', $securityRouteNames);
+
+        foreach (array_keys($this->securityRoutes()) as $routeName) {
+            $this->assertContains($routeName, $securityRouteNames);
+        }
+    }
+
     public function test_package_center_uses_single_real_route(): void
     {
         $packageRouteNames = collect(Route::getRoutes())
@@ -370,6 +426,14 @@ class DynamicAccessControlTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('service-request.ticket-queue'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->get(route('security-management.index'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->get(route('security-management.task-assignment'))
             ->assertForbidden();
 
         $this->actingAs($user)
@@ -440,7 +504,9 @@ class DynamicAccessControlTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('visitor-management.index'))
-            ->assertRedirect(route('visitor-management.registration'));
+            ->assertOk()
+            ->assertSee('Visitor Registration')
+            ->assertSee('All Visitor Registration');
 
         foreach ($this->visitorRoutes() as $routeName => $expectedText) {
             $this->actingAs($user)
@@ -460,9 +526,31 @@ class DynamicAccessControlTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('service-request.index'))
-            ->assertRedirect(route('service-request.ticket-queue'));
+            ->assertOk()
+            ->assertSee('Ticket Queue');
 
         foreach ($this->serviceRoutes() as $routeName => $expectedText) {
+            $this->actingAs($user)
+                ->get(route($routeName))
+                ->assertOk()
+                ->assertSee($expectedText);
+        }
+    }
+
+    public function test_non_admin_can_access_security_management_pages_with_read_permission(): void
+    {
+        $user = $this->makeUser($this->staffRole);
+
+        $this->grant($user, 'security-management', [
+            'can_read' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('security-management.index'))
+            ->assertOk()
+            ->assertSee('Task Assignment');
+
+        foreach ($this->securityRoutes() as $routeName => $expectedText) {
             $this->actingAs($user)
                 ->get(route($routeName))
                 ->assertOk()
@@ -483,10 +571,12 @@ class DynamicAccessControlTest extends TestCase
             ->assertRedirect(route('community-management.announcements'));
 
         foreach ($this->communityRoutes() as $routeName => $expectedText) {
-            $this->actingAs($user)
+            $response = $this->actingAs($user)
                 ->get(route($routeName))
                 ->assertOk()
                 ->assertSee($expectedText);
+
+            $response->assertSee('data-modal-open="community-action-modal"', false);
         }
     }
 
@@ -500,13 +590,16 @@ class DynamicAccessControlTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('tenant-marketplace.index'))
-            ->assertRedirect(route('tenant-marketplace.directory'));
+            ->assertOk()
+            ->assertSee('Tenant Directory');
 
         foreach ($this->tenantRoutes() as $routeName => $expectedText) {
-            $this->actingAs($user)
+            $response = $this->actingAs($user)
                 ->get(route($routeName))
                 ->assertOk()
                 ->assertSee($expectedText);
+
+            $response->assertSee('data-modal-open="tenant-action-modal"', false);
         }
     }
 
@@ -662,11 +755,26 @@ class DynamicAccessControlTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('Visitor Management')
-            ->assertSee('Check-In / Check-Out')
-            ->assertDontSee('<a href="#" class="side-link" title="Visitor Management">', false);
+            ->assertSee('href="'.route('visitor-management.index').'"', false)
+            ->assertDontSee('href="'.route('visitor-management.registration').'"', false)
+            ->assertDontSee('href="'.route('visitor-management.pending-approval').'"', false)
+            ->assertDontSee('href="'.route('visitor-management.expected-visitors').'"', false)
+            ->assertDontSee('href="'.route('visitor-management.check-in-out').'"', false)
+            ->assertDontSee('href="'.route('visitor-management.history').'"', false)
+            ->assertDontSee('href="'.route('visitor-management.vehicles').'"', false)
+            ->assertDontSee('href="'.route('visitor-management.blacklist').'"', false)
+            ->assertDontSee('href="'.route('visitor-management.reports').'"', false);
+
+        $hub = $this->actingAs($admin)
+            ->get(route('visitor-management.index'))
+            ->assertOk()
+            ->assertSee('Visitor Registration')
+            ->assertSee('Register Visitor')
+            ->assertSee('Check-In / Out')
+            ->assertSee('All Visitor Registration');
 
         foreach (array_keys($this->visitorRoutes()) as $routeName) {
-            $response->assertSee('href="'.route($routeName).'"', false);
+            $hub->assertSee('href="'.route($routeName).'"', false);
         }
     }
 
@@ -678,14 +786,65 @@ class DynamicAccessControlTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('Service Request')
+            ->assertSee('href="'.route('service-request.index').'"', false)
+            ->assertDontSee('href="'.route('service-request.ticket-queue').'"', false)
+            ->assertDontSee('href="'.route('service-request.new-request').'"', false)
+            ->assertDontSee('href="'.route('service-request.assignment-board').'"', false)
+            ->assertDontSee('href="'.route('service-request.work-orders').'"', false)
+            ->assertDontSee('href="'.route('service-request.technician-schedule').'"', false)
+            ->assertDontSee('href="'.route('service-request.work-in-progress').'"', false)
+            ->assertDontSee('href="'.route('service-request.completed-requests').'"', false)
+            ->assertDontSee('href="'.route('service-request.sla-monitoring').'"', false)
+            ->assertDontSee('href="'.route('service-request.service-history').'"', false)
+            ->assertDontSee('href="'.route('service-request.settings').'"', false);
+
+        $hub = $this->actingAs($admin)
+            ->get(route('service-request.index'))
+            ->assertOk()
             ->assertSee('Ticket Queue')
             ->assertSee('Create New Request')
-            ->assertSee('Assign Technician')
-            ->assertSee('Generate Report')
-            ->assertDontSee('<a href="#" class="side-link" title="Service Request">', false);
+            ->assertSee('SLA Monitoring')
+            ->assertSee('Assignment Board');
 
         foreach (array_keys($this->serviceRoutes()) as $routeName) {
-            $response->assertSee('href="'.route($routeName).'"', false);
+            $hub->assertSee('href="'.route($routeName).'"', false);
+        }
+    }
+
+    public function test_security_management_sidebar_uses_single_real_link(): void
+    {
+        $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
+
+        $response = $this->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Security Management')
+            ->assertSee('href="'.route('security-management.index').'"', false)
+            ->assertDontSee('href="'.route('security-management.live-monitoring').'"', false)
+            ->assertDontSee('href="'.route('security-management.patrol-monitoring').'"', false)
+            ->assertDontSee('href="'.route('security-management.task-assignment').'"', false)
+            ->assertDontSee('href="'.route('security-management.officers').'"', false)
+            ->assertDontSee('href="'.route('security-management.schedule').'"', false)
+            ->assertDontSee('href="'.route('security-management.incidents').'"', false)
+            ->assertDontSee('href="'.route('security-management.devices').'"', false)
+            ->assertDontSee('href="'.route('security-management.reports').'"', false)
+            ->assertDontSee('href="'.route('security-management.settings').'"', false);
+
+        $workspace = $this->actingAs($admin)
+            ->get(route('security-management.index'))
+            ->assertOk()
+            ->assertSee('Security Operations Center')
+            ->assertSee('Task Assignment')
+            ->assertSee('Create Task')
+            ->assertSee('Export')
+            ->assertSee('data-modal-open="security-task-modal"', false)
+            ->assertSee('data-modal-open="security-route-modal"', false)
+            ->assertSee('Open Task Assignment')
+            ->assertSee('Incident Log')
+            ->assertSee('Patrol Schedule');
+
+        foreach (array_keys($this->securityRoutes()) as $routeName) {
+            $workspace->assertSee('href="'.route($routeName).'"', false);
         }
     }
 
@@ -724,13 +883,17 @@ class DynamicAccessControlTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('Tenant Marketplace')
-            ->assertSee('Tenant Directory')
-            ->assertSee('Add / Input Tenant')
+            ->assertSee('href="'.route('tenant-marketplace.index').'"', false)
+            ->assertDontSee('href="'.route('tenant-marketplace.directory').'"', false)
+            ->assertDontSee('href="'.route('tenant-marketplace.add-input').'"', false)
             ->assertDontSee('<a href="#" class="side-link" title="Tenant Marketplace">', false);
 
-        foreach (array_keys($this->tenantRoutes()) as $routeName) {
-            $response->assertSee('href="'.route($routeName).'"', false);
-        }
+        $this->actingAs($admin)
+            ->get(route('tenant-marketplace.index'))
+            ->assertOk()
+            ->assertSee('Tenant Directory')
+            ->assertSee('Add / Input Tenant')
+            ->assertSee('Generate Report');
 
         $this->actingAs($admin)
             ->get(route('tenant-marketplace.directory'))
@@ -766,6 +929,7 @@ class DynamicAccessControlTest extends TestCase
         $residentModule = $this->module('resident-management');
         $visitorModule = $this->module('visitor-management');
         $serviceModule = $this->module('service-request');
+        $securityModule = $this->module('security-management');
         $communityModule = $this->module('community-management');
         $tenantModule = $this->module('tenant-marketplace');
         $packageModule = $this->module('package-center');
@@ -867,10 +1031,26 @@ class DynamicAccessControlTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->put(route('modules.update', $securityModule), [
+                'name' => 'Security Operations',
+                'slug' => 'security-ops',
+                'sort_order' => 5,
+                'is_active' => '0',
+            ])
+            ->assertRedirect(route('modules.index'));
+
+        $this->assertDatabaseHas('modules', [
+            'id' => $securityModule->id,
+            'name' => 'Security Operations',
+            'slug' => 'security-management',
+            'is_active' => 1,
+        ]);
+
+        $this->actingAs($admin)
             ->put(route('modules.update', $communityModule), [
                 'name' => 'Community Operations',
                 'slug' => 'community-ops',
-                'sort_order' => 5,
+                'sort_order' => 6,
                 'is_active' => '0',
             ])
             ->assertRedirect(route('modules.index'));
@@ -886,7 +1066,7 @@ class DynamicAccessControlTest extends TestCase
             ->put(route('modules.update', $tenantModule), [
                 'name' => 'Tenant Operations',
                 'slug' => 'tenant-ops',
-                'sort_order' => 6,
+                'sort_order' => 7,
                 'is_active' => '0',
             ])
             ->assertRedirect(route('modules.index'));
@@ -902,7 +1082,7 @@ class DynamicAccessControlTest extends TestCase
             ->put(route('modules.update', $packageModule), [
                 'name' => 'Package Operations',
                 'slug' => 'package-ops',
-                'sort_order' => 7,
+                'sort_order' => 8,
                 'is_active' => '0',
             ])
             ->assertRedirect(route('modules.index'));
@@ -918,7 +1098,7 @@ class DynamicAccessControlTest extends TestCase
             ->put(route('modules.update', $billingModule), [
                 'name' => 'Billing Operations',
                 'slug' => 'billing-ops',
-                'sort_order' => 8,
+                'sort_order' => 9,
                 'is_active' => '0',
             ])
             ->assertRedirect(route('modules.index'));
@@ -1033,6 +1213,26 @@ class DynamicAccessControlTest extends TestCase
             'service-request.sla-monitoring' => 'SLA Performance Dashboard',
             'service-request.service-history' => 'Service Request History Log',
             'service-request.settings' => 'Suite Settings Configuration',
+        ];
+    }
+
+    /**
+     * Get security management route names and their page-specific text.
+     *
+     * @return array<string, string>
+     */
+    private function securityRoutes(): array
+    {
+        return [
+            'security-management.live-monitoring' => 'Live Monitoring',
+            'security-management.patrol-monitoring' => 'Patrol Monitoring',
+            'security-management.task-assignment' => 'Task Assignment',
+            'security-management.officers' => 'Security Officer',
+            'security-management.schedule' => 'Security Schedule',
+            'security-management.incidents' => 'Incident Management',
+            'security-management.devices' => 'Device Management',
+            'security-management.reports' => 'Reports & Analytics',
+            'security-management.settings' => 'Security Settings',
         ];
     }
 

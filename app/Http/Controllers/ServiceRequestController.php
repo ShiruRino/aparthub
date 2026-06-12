@@ -6,6 +6,11 @@ use Illuminate\View\View;
 
 class ServiceRequestController extends Controller
 {
+    public function index(): View
+    {
+        return $this->page('ticket-queue');
+    }
+
     public function ticketQueue(): View
     {
         return $this->page('ticket-queue');

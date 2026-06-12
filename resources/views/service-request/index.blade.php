@@ -1,22 +1,28 @@
 @extends('layouts.app')
 
 @php
-    $navItems = [
-        'ticket-queue' => ['number' => 1, 'label' => 'Ticket Queue', 'route' => 'service-request.ticket-queue'],
-        'new-request' => ['number' => 2, 'label' => 'New Request', 'route' => 'service-request.new-request'],
-        'assignment-board' => ['number' => 3, 'label' => 'Assignment Board', 'route' => 'service-request.assignment-board'],
-        'work-orders' => ['number' => 4, 'label' => 'Work Orders', 'route' => 'service-request.work-orders'],
-        'technician-schedule' => ['number' => 5, 'label' => 'Technician Schedule', 'route' => 'service-request.technician-schedule'],
-        'work-in-progress' => ['number' => 6, 'label' => 'Work In Progress', 'route' => 'service-request.work-in-progress'],
-        'completed-requests' => ['number' => 7, 'label' => 'Completed Requests', 'route' => 'service-request.completed-requests'],
-        'sla-monitoring' => ['number' => 8, 'label' => 'SLA Monitoring', 'route' => 'service-request.sla-monitoring'],
-        'service-history' => ['number' => 9, 'label' => 'Service History', 'route' => 'service-request.service-history'],
-        'settings' => ['number' => 10, 'label' => 'Settings', 'route' => 'service-request.settings'],
-    ];
-
     $pageKey = $pageKey ?? 'ticket-queue';
 
+    $navTabs = [
+        ['label' => 'Ticket Queue', 'route' => 'service-request.ticket-queue', 'active' => ['service-request.index', 'service-request.ticket-queue']],
+        ['label' => 'New Request', 'route' => 'service-request.new-request', 'active' => ['service-request.new-request']],
+        ['label' => 'Assignment Board', 'route' => 'service-request.assignment-board', 'active' => ['service-request.assignment-board']],
+        ['label' => 'Work Orders', 'route' => 'service-request.work-orders', 'active' => ['service-request.work-orders']],
+        ['label' => 'Technician Schedule', 'route' => 'service-request.technician-schedule', 'active' => ['service-request.technician-schedule']],
+        ['label' => 'Work In Progress', 'route' => 'service-request.work-in-progress', 'active' => ['service-request.work-in-progress']],
+        ['label' => 'Completed Requests', 'route' => 'service-request.completed-requests', 'active' => ['service-request.completed-requests']],
+        ['label' => 'SLA Monitoring', 'route' => 'service-request.sla-monitoring', 'active' => ['service-request.sla-monitoring']],
+        ['label' => 'Service History', 'route' => 'service-request.service-history', 'active' => ['service-request.service-history']],
+        ['label' => 'Settings', 'route' => 'service-request.settings', 'active' => ['service-request.settings']],
+    ];
+
     $pages = [
+        'overview' => [
+            'label' => 'Overview',
+            'title' => 'Service Request Hub',
+            'subtitle' => 'Arahkan operator ke queue, assignment, execution, dan monitoring service request dari satu landing workspace.',
+            'metrics' => [],
+        ],
         'ticket-queue' => [
             'label' => 'Ticket Queue',
             'title' => 'Ticket Queue',
@@ -124,6 +130,44 @@
 
     $page = $pages[$pageKey] ?? $pages['ticket-queue'];
 
+    $hubGroups = [
+        [
+            'title' => 'Intake & Dispatch',
+            'summary' => 'Mulai dari ticket intake lalu teruskan ke assignment board untuk distribusi kerja.',
+            'links' => [
+                ['title' => 'Ticket Queue', 'route' => 'service-request.ticket-queue', 'count' => '18 ticket baru', 'meta' => 'Incoming queue & source tracking'],
+                ['title' => 'New Request', 'route' => 'service-request.new-request', 'count' => 'Front office intake', 'meta' => 'Manual request entry form'],
+                ['title' => 'Assignment Board', 'route' => 'service-request.assignment-board', 'count' => '24 assignment aktif', 'meta' => 'Dispatcher board & schedule fit'],
+            ],
+        ],
+        [
+            'title' => 'Execution Control',
+            'summary' => 'Pantau pelaksanaan, work order, dan jadwal teknisi dari satu kelompok operasional.',
+            'links' => [
+                ['title' => 'Work Orders', 'route' => 'service-request.work-orders', 'count' => '12 work order siap jalan', 'meta' => 'Assigned jobs & materials'],
+                ['title' => 'Technician Schedule', 'route' => 'service-request.technician-schedule', 'count' => '16 task terjadwal', 'meta' => 'Daily timeline & load view'],
+                ['title' => 'Work In Progress', 'route' => 'service-request.work-in-progress', 'count' => '18 pekerjaan aktif', 'meta' => 'Live execution & activity log'],
+            ],
+        ],
+        [
+            'title' => 'Quality & Monitoring',
+            'summary' => 'Lihat hasil akhir, kepatuhan SLA, histori request, dan konfigurasi suite.',
+            'links' => [
+                ['title' => 'Completed Requests', 'route' => 'service-request.completed-requests', 'count' => '8 selesai hari ini', 'meta' => 'Sign-off & resident feedback'],
+                ['title' => 'SLA Monitoring', 'route' => 'service-request.sla-monitoring', 'count' => '5 delayed task', 'meta' => 'Breach, compliance, and resolution'],
+                ['title' => 'Service History', 'route' => 'service-request.service-history', 'count' => '1,250 history YTD', 'meta' => 'Historical analysis & trends'],
+                ['title' => 'Settings', 'route' => 'service-request.settings', 'count' => '10 kategori layanan', 'meta' => 'Technician, vendor, SLA, and notifications'],
+            ],
+        ],
+    ];
+
+    $hubHighlights = [
+        ['title' => 'Fast Dispatch', 'copy' => 'Queue dan assignment dipusatkan agar supervisor cepat ambil tindakan.', 'tone' => 'status-approved'],
+        ['title' => 'Execution Visibility', 'copy' => 'Work order, schedule, dan progress aktif tetap terhubung.', 'tone' => 'status-pending'],
+        ['title' => 'SLA Control', 'copy' => 'Monitoring breach dan completed requests tetap gampang dijangkau.', 'tone' => 'status-rejected'],
+        ['title' => 'Cleaner Navigation', 'copy' => 'Sidebar cukup satu entry, detail akses pindah ke hub service.', 'tone' => 'status-expired'],
+    ];
+
     $ticketRows = [
         ['ticket' => 'SR-2026-001', 'resident' => 'Ahmad Rizky', 'unit' => 'A-1808', 'category' => 'Plumbing', 'priority' => 'High', 'status' => 'New', 'source' => 'Mobile App', 'assigned' => '-', 'created' => '07 Jun 2026 - 09:15 AM', 'badge' => 'status-pending'],
         ['ticket' => 'SR-2026-002', 'resident' => 'Sarah Lim', 'unit' => 'B-1205', 'category' => 'AC', 'priority' => 'Medium', 'status' => 'Assigned', 'source' => 'Mobile App', 'assigned' => 'John Technical', 'created' => '07 Jun 2026 - 09:30 AM', 'badge' => 'status-approved'],
@@ -182,7 +226,7 @@
     <div class="service-page">
         <section class="visitor-toolbar">
             <div class="visitor-heading">
-                <span class="visitor-step">{{ $navItems[$pageKey]['number'] ?? 1 }}</span>
+                <span class="visitor-step">OPS</span>
                 <div>
                     <h2>{{ $page['title'] }}</h2>
                     <p>{{ $page['subtitle'] }}</p>
@@ -190,17 +234,87 @@
             </div>
 
             <div class="visitor-toolbar-actions">
-                @if ($pageKey !== 'new-request')
-                    <a class="btn secondary" href="{{ route('service-request.service-history') }}">Download History</a>
+                @if ($pageKey === 'overview')
+                    <a class="btn secondary" href="{{ route('service-request.sla-monitoring') }}">Open SLA Monitoring</a>
+                    <a class="btn" href="{{ route('service-request.new-request') }}">Create New Request</a>
+                @elseif ($pageKey !== 'new-request')
+                    <button class="btn secondary" type="button" data-modal-open="service-action-modal">Download History</button>
                     <a class="btn" href="{{ route('service-request.new-request') }}">Create New Request</a>
                 @else
-                    <button class="btn secondary" type="button">Save Draft</button>
-                    <button class="btn" type="button">Submit Request</button>
+                    <button class="btn secondary" type="button" data-modal-open="service-request-modal">Save Draft</button>
+                    <button class="btn" type="button" data-modal-open="service-request-modal">Submit Request</button>
                 @endif
             </div>
         </section>
 
-        @if (! empty($page['metrics']))
+        <nav class="visitor-tabs" aria-label="Service request navigation">
+            @foreach ($navTabs as $tab)
+                <a href="{{ route($tab['route']) }}" @class(['visitor-tab', 'active' => request()->routeIs(...$tab['active'])])>
+                    {{ $tab['label'] }}
+                </a>
+            @endforeach
+        </nav>
+
+        @if ($pageKey === 'overview')
+            <div class="service-overview">
+                <section class="service-overview-hero">
+                    <div class="service-overview-summary">
+                        <h2>Service Operations Hub</h2>
+                        <p>Satu pintu untuk intake, dispatch, eksekusi teknisi, sampai monitoring SLA. Detail workspace tetap ada, tapi navigasi utamanya sekarang lebih rapi.</p>
+                        <div class="service-overview-stats">
+                            <div class="service-overview-stat">
+                                <span>New Tickets</span>
+                                <strong>18</strong>
+                            </div>
+                            <div class="service-overview-stat">
+                                <span>Assigned</span>
+                                <strong>24</strong>
+                            </div>
+                            <div class="service-overview-stat">
+                                <span>In Progress</span>
+                                <strong>16</strong>
+                            </div>
+                            <div class="service-overview-stat">
+                                <span>Over SLA</span>
+                                <strong>5</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="service-overview-highlights">
+                        <h3>Daily Focus</h3>
+                        <p>Quick highlights untuk supervisor operasional sebelum masuk ke workspace detail.</p>
+                        <div class="service-overview-highlight-grid">
+                            @foreach ($hubHighlights as $highlight)
+                                <div class="service-overview-highlight">
+                                    <span class="badge {{ $highlight['tone'] }}">{{ $highlight['title'] }}</span>
+                                    <strong>{{ $highlight['copy'] }}</strong>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </section>
+
+                <section class="service-overview-groups">
+                    @foreach ($hubGroups as $group)
+                        <article class="service-overview-card">
+                            <h3>{{ $group['title'] }}</h3>
+                            <p>{{ $group['summary'] }}</p>
+                            <div class="service-overview-links">
+                                @foreach ($group['links'] as $link)
+                                    <div class="service-overview-link">
+                                        <div>
+                                            <strong>{{ $link['title'] }}</strong>
+                                            <span>{{ $link['count'] }} | {{ $link['meta'] }}</span>
+                                        </div>
+                                        <a class="service-overview-cta" href="{{ route($link['route']) }}">Open Page</a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </article>
+                    @endforeach
+                </section>
+            </div>
+        @elseif (! empty($page['metrics']))
             <section class="service-metrics" aria-label="Service request metrics">
                 @foreach ($page['metrics'] as $metric)
                     <div class="service-metric">
@@ -254,7 +368,12 @@
                                         <td>{{ $row['source'] }}</td>
                                         <td>{{ $row['assigned'] }}</td>
                                         <td>{{ $row['created'] }}</td>
-                                        <td><button class="btn compact secondary" type="button">View Details</button></td>
+                                        <td>
+                                            <div class="visitor-action-buttons">
+                                                @include('partials.icon-action-button', ['label' => 'View Ticket Detail', 'icon' => 'eye', 'modal' => 'service-ticket-modal'])
+                                                @include('partials.icon-action-button', ['label' => 'Assign Ticket', 'icon' => 'access', 'modal' => 'service-ticket-modal', 'variant' => 'info'])
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -262,39 +381,6 @@
                     </div>
                     <div class="pagination muted">Showing 1 to 6 of 42 entries</div>
                 </section>
-
-                <aside class="visitor-panel visitor-span-3">
-                    <div class="visitor-panel-head">
-                        <h2 class="visitor-panel-title">Ticket Detail</h2>
-                        <span class="muted">x</span>
-                    </div>
-                    <div class="visitor-panel-body">
-                        <div class="visitor-detail-top">
-                            <div class="visitor-detail-avatar">SR</div>
-                            <div>
-                                <span class="visitor-detail-name">SR-2026-001 <span class="badge status-pending">New</span></span>
-                                <small class="muted">Ahmad Rizky - A-1808</small>
-                            </div>
-                        </div>
-                        <div class="visitor-detail-section">
-                            <h3>Request</h3>
-                            <div class="visitor-info-row"><span>Category</span><strong>Plumbing</strong></div>
-                            <div class="visitor-info-row"><span>Priority</span><strong>High</strong></div>
-                            <div class="visitor-info-row"><span>Description</span><strong>Kran air kamar mandi bocor dan tidak bisa ditutup.</strong></div>
-                            <div class="visitor-info-row"><span>Location</span><strong>Bathroom (Master)</strong></div>
-                        </div>
-                        <div class="service-photo-pair">
-                            <div class="service-detail-photo"></div>
-                            <div class="service-detail-photo"></div>
-                        </div>
-                        <div class="visitor-detail-section">
-                            <h3>Assignment</h3>
-                            <select><option>Select Technician / Team</option><option>John Technical</option></select>
-                            <input type="text" value="07 Jun 2026 - 10:00 AM">
-                            <button class="btn" type="button">Assign Ticket</button>
-                        </div>
-                    </div>
-                </aside>
             </div>
 
             @include('service-request.partials.widgets')
@@ -332,9 +418,9 @@
                             <div class="field full"><label for="location-detail">Location Detail</label><textarea id="location-detail">Bathroom (Master)</textarea></div>
                         </form>
                         <div class="visitor-form-actions">
-                            <button class="btn secondary" type="button">Cancel</button>
-                            <button class="btn secondary" type="button">Save Draft</button>
-                            <button class="btn" type="button">Submit Request</button>
+                            <button class="btn secondary" type="button" data-modal-open="service-request-modal">Cancel</button>
+                            <button class="btn secondary" type="button" data-modal-open="service-request-modal">Save Draft</button>
+                            <button class="btn" type="button" data-modal-open="service-request-modal">Submit Request</button>
                         </div>
                     </div>
                 </section>
@@ -365,6 +451,7 @@
                             <span>Plumbing - Faucet Leaking</span>
                             <span class="badge status-rejected">High Priority</span>
                             <div class="service-photo-pair"><div class="service-detail-photo"></div><div class="service-detail-photo"></div></div>
+                            <div class="visitor-form-actions"><button class="btn" type="button" data-modal-open="service-technician-modal">View Technician</button></div>
                         </div>
                     </div>
                 </section>
@@ -397,22 +484,6 @@
                     </div>
                 </section>
 
-                <aside class="visitor-panel">
-                    <div class="visitor-panel-head"><h2 class="visitor-panel-title">Technician Details</h2></div>
-                    <div class="visitor-panel-body">
-                        <div class="visitor-detail-top">
-                            <div class="visitor-detail-avatar">M</div>
-                            <div><span class="visitor-detail-name">Michael</span><small class="muted">Plumbing</small></div>
-                        </div>
-                        <div class="visitor-detail-section">
-                            <h3>Certifications</h3>
-                            <div class="visitor-info-row"><span>Status</span><strong>Green / Available</strong></div>
-                            <div class="visitor-info-row"><span>Skill</span><strong>Faucet Repair Certified</strong></div>
-                            <div class="visitor-info-row"><span>Phone</span><strong>0812-3456-7890</strong></div>
-                        </div>
-                        <button class="btn" type="button">Assign Technician</button>
-                    </div>
-                </aside>
             </div>
         @elseif ($pageKey === 'work-orders')
             <div class="visitor-grid">
@@ -439,7 +510,12 @@
                                         <td>{{ $row['scheduled'] }}</td>
                                         <td>{{ $row['due'] }}</td>
                                         <td><span class="badge status-pending">{{ $row['status'] }}</span></td>
-                                        <td><button class="btn compact secondary" type="button">Start Work</button></td>
+                                        <td>
+                                            <div class="visitor-action-buttons">
+                                                @include('partials.icon-action-button', ['label' => 'View Work Order Detail', 'icon' => 'eye', 'modal' => 'service-work-order-modal'])
+                                                @include('partials.icon-action-button', ['label' => 'Start Work Order', 'icon' => 'check', 'modal' => 'service-work-order-modal', 'variant' => 'success'])
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -467,6 +543,7 @@
                                 <div class="service-timeline-row"><span class="service-tech-name">Housekeeping Team</span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><div class="service-task-pill gold" style="left: 34%; width: 150px;">Electrical Check<br>SR-2026-003</div><div class="service-task-pill red" style="left: 58%; width: 150px;">Housebring Fix<br>SR-2026-005</div></div>
                             </div>
                         </div>
+                        <div class="visitor-form-actions"><button class="btn secondary" type="button" data-modal-open="service-active-task-modal">Open Selected Task</button></div>
                     </div>
                 </section>
 
@@ -491,7 +568,12 @@
                                         <td>{{ $row['start'] }}</td>
                                         <td><span class="badge status-approved">{{ $row['phase'] }}</span></td>
                                         <td>{{ $row['timer'] }}</td>
-                                        <td><button class="btn compact secondary" type="button">View Details / Update</button></td>
+                                        <td>
+                                            <div class="visitor-action-buttons">
+                                                @include('partials.icon-action-button', ['label' => 'View Active Task Detail', 'icon' => 'eye', 'modal' => 'service-active-task-modal'])
+                                                @include('partials.icon-action-button', ['label' => 'Update Active Task', 'icon' => 'edit', 'modal' => 'service-active-task-modal', 'variant' => 'gold'])
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -527,21 +609,6 @@
                     </div>
                 </section>
 
-                <aside class="visitor-panel visitor-span-3">
-                    <div class="visitor-panel-head"><h2 class="visitor-panel-title">Completed Task Detail</h2></div>
-                    <div class="visitor-panel-body">
-                        <div class="visitor-detail-top"><div class="visitor-detail-avatar">AR</div><div><span class="visitor-detail-name">SR-2026-013</span><small class="muted">Ahmad Rizky</small></div></div>
-                        <div class="visitor-detail-section">
-                            <h3>Status</h3>
-                            <span class="badge status-approved">Completed - Signed Off</span>
-                            <div class="visitor-info-row"><span>Completed</span><strong>07 Jun 2026, 11:30 AM</strong></div>
-                            <div class="visitor-info-row"><span>Resolution</span><strong>AC compressor replaced and operational.</strong></div>
-                            <div class="visitor-info-row"><span>Resident Feedback</span><strong>Very happy with the repair.</strong></div>
-                        </div>
-                        <div class="service-photo-pair"><div class="service-detail-photo"></div><div class="service-detail-photo"></div></div>
-                        <div class="service-signature">John Technical</div>
-                    </div>
-                </aside>
             </div>
 
             @include('service-request.partials.widgets')
@@ -588,15 +655,13 @@
                         </table>
                     </div>
                 </section>
-                <aside class="visitor-panel visitor-span-3">
-                    <div class="visitor-panel-head"><h2 class="visitor-panel-title">SLA Breach Detail</h2></div>
+                <section class="visitor-panel visitor-span-3">
+                    <div class="visitor-panel-head"><h2 class="visitor-panel-title">SLA Breach</h2></div>
                     <div class="visitor-panel-body">
-                        <div class="visitor-detail-top"><div class="visitor-detail-avatar">AC</div><div><span class="visitor-detail-name">SR-2026-003</span><small class="muted">AC Service - High Priority</small></div></div>
-                        <span class="badge status-rejected">Breached</span>
-                        <div class="service-detail-photo"></div>
-                        <div class="visitor-info-row"><span>Log</span><strong>SLA deadline missed by 45 minutes. Awaiting resolution.</strong></div>
+                        <div class="visitor-info-row"><span>Highlighted Case</span><strong>SR-2026-003</strong></div>
+                        <button class="btn secondary" type="button" data-modal-open="service-sla-modal">Open Breach Detail</button>
                     </div>
-                </aside>
+                </section>
             </div>
 
             @include('service-request.partials.widgets')
@@ -625,21 +690,13 @@
                     </div>
                 </section>
 
-                <aside class="visitor-panel visitor-span-3">
-                    <div class="visitor-panel-head"><h2 class="visitor-panel-title">Historical Ticket Detail</h2></div>
+                <section class="visitor-panel visitor-span-3">
+                    <div class="visitor-panel-head"><h2 class="visitor-panel-title">Historical Detail</h2></div>
                     <div class="visitor-panel-body">
-                        <div class="visitor-detail-top"><div class="visitor-detail-avatar">AC</div><div><span class="visitor-detail-name">SR-2026-003</span><small class="muted">AC Service - High Priority</small></div></div>
-                        <span class="badge status-approved">Completed</span>
-                        <div class="service-photo-pair"><div class="service-detail-photo"></div><div class="service-detail-photo"></div></div>
-                        <div class="visitor-detail-section">
-                            <h3>Log</h3>
-                            <div class="visitor-info-row"><span>1</span><strong>Water issue reported.</strong></div>
-                            <div class="visitor-info-row"><span>2</span><strong>Pipe replaced.</strong></div>
-                            <div class="visitor-info-row"><span>3</span><strong>System tested.</strong></div>
-                        </div>
-                        <div class="service-signature">Resident Sign</div>
+                        <div class="visitor-info-row"><span>Selected Ticket</span><strong>SR-2026-003</strong></div>
+                        <button class="btn secondary" type="button" data-modal-open="service-history-modal">Open History Detail</button>
                     </div>
-                </aside>
+                </section>
             </div>
 
             <div class="service-widget-grid">
@@ -655,9 +712,9 @@
                         <div class="visitor-report-grid">
                             <div class="service-widget">
                                 <h3>Technician Profiles</h3>
-                                <div class="visitor-list-row"><div class="visitor-avatar">J</div><strong>John Hennen</strong><span>AC Expert</span><button class="btn compact secondary" type="button">Edit</button></div>
-                                <div class="visitor-list-row"><div class="visitor-avatar">M</div><strong>Michael Eng.</strong><span>Plumbing Tech</span><button class="btn compact secondary" type="button">Edit</button></div>
-                                <div class="visitor-list-row"><div class="visitor-avatar">H</div><strong>Housekeeping</strong><span>Cleaning Team</span><button class="btn compact secondary" type="button">Edit</button></div>
+                                <div class="visitor-list-row"><div class="visitor-avatar">J</div><strong>John Hennen</strong><span>AC Expert</span>@include('partials.icon-action-button', ['label' => 'Edit Technician Profile', 'icon' => 'edit', 'modal' => 'service-settings-modal', 'variant' => 'gold'])</div>
+                                <div class="visitor-list-row"><div class="visitor-avatar">M</div><strong>Michael Eng.</strong><span>Plumbing Tech</span>@include('partials.icon-action-button', ['label' => 'Edit Technician Profile', 'icon' => 'edit', 'modal' => 'service-settings-modal', 'variant' => 'gold'])</div>
+                                <div class="visitor-list-row"><div class="visitor-avatar">H</div><strong>Housekeeping</strong><span>Cleaning Team</span>@include('partials.icon-action-button', ['label' => 'Edit Technician Profile', 'icon' => 'edit', 'modal' => 'service-settings-modal', 'variant' => 'gold'])</div>
                             </div>
                             <div class="service-widget">
                                 <h3>Vendor Profiles</h3>
@@ -705,5 +762,93 @@
                 </aside>
             </div>
         @endif
+
+        @include('partials.action-preview-modal', [
+            'id' => 'service-ticket-modal',
+            'title' => 'Ticket Detail',
+            'summary' => 'SR-2026-001',
+            'subtitle' => 'Ahmad Rizky - A-1808',
+            'avatar' => 'TD',
+            'rows' => [
+                ['Category', 'Plumbing'],
+                ['Priority', 'High'],
+                ['Description', 'Kran air kamar mandi bocor dan tidak bisa ditutup.'],
+                ['Location', 'Bathroom (Master)'],
+                ['Assignment', 'John Technical / 07 Jun 2026 - 10:00 AM'],
+            ],
+            'confirmLabel' => 'Assign Ticket',
+        ])
+
+        @include('partials.action-preview-modal', [
+            'id' => 'service-request-modal',
+            'title' => 'Create New Service Request',
+            'summary' => 'Front Office Intake',
+            'subtitle' => 'Preview popup untuk draft dan submit request. Form tetap dummy.',
+            'avatar' => 'NR',
+            'rows' => [
+                ['Resident', 'Ahmad Rizky / A-1808'],
+                ['Category', 'Plumbing'],
+                ['Priority', 'High'],
+                ['Preferred Date', '07 Jun 2026'],
+                ['Location', 'Bathroom (Master)'],
+            ],
+            'confirmLabel' => 'Submit Request',
+        ])
+
+        @include('partials.action-preview-modal', [
+            'id' => 'service-technician-modal',
+            'title' => 'Technician Details',
+            'summary' => 'Michael',
+            'subtitle' => 'Plumbing / Available',
+            'avatar' => 'TE',
+            'rows' => [
+                ['Status', 'Green / Available'],
+                ['Skill', 'Faucet Repair Certified'],
+                ['Phone', '0812-3456-7890'],
+            ],
+            'confirmLabel' => 'Assign Technician',
+        ])
+
+        @include('partials.action-preview-modal', [
+            'id' => 'service-sla-modal',
+            'title' => 'SLA Breach Detail',
+            'summary' => 'SR-2026-003',
+            'subtitle' => 'AC Service - High Priority',
+            'avatar' => 'SL',
+            'rows' => [
+                ['Status', 'Breached'],
+                ['Delay', '45 minutes over SLA'],
+                ['Reason', 'Awaiting resolution'],
+            ],
+            'confirmLabel' => 'Acknowledge',
+        ])
+
+        @include('partials.action-preview-modal', [
+            'id' => 'service-history-modal',
+            'title' => 'Historical Ticket Detail',
+            'summary' => 'SR-2026-003',
+            'subtitle' => 'Completed record',
+            'avatar' => 'HS',
+            'rows' => [
+                ['Log 1', 'Water issue reported.'],
+                ['Log 2', 'Pipe replaced.'],
+                ['Log 3', 'System tested.'],
+            ],
+            'confirmLabel' => 'Close Record',
+        ])
+
+        @include('partials.action-preview-modal', [
+            'id' => 'service-settings-modal',
+            'title' => 'Service Settings Preview',
+            'summary' => 'Technician Profile',
+            'subtitle' => 'Static configuration preview.',
+            'avatar' => 'ST',
+            'rows' => [
+                ['Module', 'Service Request'],
+                ['Mode', 'Settings Preview'],
+                ['Backend Save', 'Belum aktif'],
+            ],
+            'confirmLabel' => 'Save Preview',
+        ])
     </div>
 @endsection

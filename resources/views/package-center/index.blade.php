@@ -121,10 +121,18 @@
                                     <td><span class="package-status {{ $package['statusClass'] }}">{{ $package['status'] }}</span></td>
                                     <td>
                                         <div class="package-table-actions">
-                                            <button class="btn compact secondary" type="button" data-modal-open="{{ $package['action'] === 'pickup' ? 'package-pickup-modal' : 'package-register-modal' }}">
-                                                {{ $package['action'] === 'pickup' ? 'Pickup Status' : 'Detail Paket' }}
-                                            </button>
-                                            <button class="package-kebab" type="button" data-modal-open="{{ $package['action'] === 'pickup' ? 'package-pickup-modal' : 'package-register-modal' }}" aria-label="Opsi paket">:</button>
+                                            @include('partials.icon-action-button', [
+                                                'label' => $package['action'] === 'pickup' ? 'Open Pickup Status' : 'Open Package Detail',
+                                                'icon' => $package['action'] === 'pickup' ? 'check' : 'eye',
+                                                'modal' => $package['action'] === 'pickup' ? 'package-pickup-modal' : 'package-register-modal',
+                                            ])
+                                            @include('partials.icon-action-button', [
+                                                'label' => 'More Package Options',
+                                                'icon' => 'document',
+                                                'modal' => $package['action'] === 'pickup' ? 'package-pickup-modal' : 'package-register-modal',
+                                                'variant' => 'gold',
+                                                'class' => 'package-kebab',
+                                            ])
                                         </div>
                                     </td>
                                 </tr>

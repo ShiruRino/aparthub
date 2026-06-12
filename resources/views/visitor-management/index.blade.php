@@ -1,18 +1,18 @@
 @extends('layouts.app')
 
 @php
-    $navItems = [
-        'registration' => ['number' => 1, 'label' => 'Visitor Registration', 'route' => 'visitor-management.registration'],
-        'pending-approval' => ['number' => 2, 'label' => 'Pending Approval', 'route' => 'visitor-management.pending-approval'],
-        'expected-visitors' => ['number' => 3, 'label' => 'Expected Visitors', 'route' => 'visitor-management.expected-visitors'],
-        'check-in-out' => ['number' => 4, 'label' => 'Check-In / Check-Out', 'route' => 'visitor-management.check-in-out'],
-        'history' => ['number' => 5, 'label' => 'Visitor History', 'route' => 'visitor-management.history'],
-        'vehicles' => ['number' => 6, 'label' => 'Vehicle Visitor', 'route' => 'visitor-management.vehicles'],
-        'blacklist' => ['number' => 7, 'label' => 'Blacklist Management', 'route' => 'visitor-management.blacklist'],
-        'reports' => ['number' => 8, 'label' => 'Reports', 'route' => 'visitor-management.reports'],
-    ];
-
     $pageKey = $pageKey ?? 'registration';
+
+    $navTabs = [
+        ['label' => 'Registration', 'route' => 'visitor-management.registration', 'active' => ['visitor-management.index', 'visitor-management.registration']],
+        ['label' => 'Pending Approval', 'route' => 'visitor-management.pending-approval', 'active' => ['visitor-management.pending-approval']],
+        ['label' => 'Expected Visitors', 'route' => 'visitor-management.expected-visitors', 'active' => ['visitor-management.expected-visitors']],
+        ['label' => 'Check-In / Out', 'route' => 'visitor-management.check-in-out', 'active' => ['visitor-management.check-in-out']],
+        ['label' => 'History', 'route' => 'visitor-management.history', 'active' => ['visitor-management.history']],
+        ['label' => 'Vehicles', 'route' => 'visitor-management.vehicles', 'active' => ['visitor-management.vehicles']],
+        ['label' => 'Blacklist', 'route' => 'visitor-management.blacklist', 'active' => ['visitor-management.blacklist']],
+        ['label' => 'Reports', 'route' => 'visitor-management.reports', 'active' => ['visitor-management.reports']],
+    ];
 
     $visitors = [
         ['name' => 'John Doe', 'unit' => 'A-1808', 'resident' => 'Ahmad Rizky', 'time' => '10:00 AM', 'purpose' => 'Meeting', 'vehicle' => 'B 1234 ABC', 'status' => 'Pending', 'statusClass' => 'status-pending'],
@@ -117,7 +117,7 @@
             'label' => 'Visitor Registration',
             'title' => 'Visitor Registration',
             'subtitle' => 'Input data visitor atau walk-in visitor oleh front office / security.',
-            'stats' => [],
+            'stats' => ['Today Registrations: 42', 'Pending Approvals: 7', 'Visitors Inside: 18'],
         ],
         'pending-approval' => [
             'label' => 'Pending Approval',
@@ -213,7 +213,7 @@
     <div class="visitor-page">
         <section class="visitor-toolbar">
             <div class="visitor-heading">
-                <span class="visitor-step">{{ $navItems[$pageKey]['number'] ?? 1 }}</span>
+                <span class="visitor-step">OPS</span>
                 <div>
                     <h2>{{ $page['title'] }}</h2>
                     <p>{{ $page['subtitle'] }}</p>
@@ -228,83 +228,30 @@
                         @endforeach
                     </div>
                 @endif
-                <button class="btn secondary" type="button">{{ $pageKey === 'reports' ? 'Download Report' : 'Download Template' }}</button>
-                <button class="btn" type="button">Register Walk-In Visitor</button>
+                <button class="btn secondary" type="button" data-modal-open="visitor-registration-modal">{{ $pageKey === 'reports' ? 'Download Report' : 'Download Template' }}</button>
+                <button class="btn" type="button" data-modal-open="visitor-registration-modal">Register Walk-In Visitor</button>
             </div>
         </section>
 
+        <nav class="visitor-tabs" aria-label="Visitor management navigation">
+            @foreach ($navTabs as $tab)
+                <a href="{{ route($tab['route']) }}" @class(['visitor-tab', 'active' => request()->routeIs(...$tab['active'])])>
+                    {{ $tab['label'] }}
+                </a>
+            @endforeach
+        </nav>
+
         @if ($pageKey === 'registration')
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-5">
-                    <div class="visitor-panel-head">
-                        <h2 class="visitor-panel-title">Register Visitor</h2>
-                        <span class="badge">Front Office</span>
-                    </div>
-                    <div class="visitor-panel-body">
-                        <form class="visitor-form-grid">
-                            <div class="field"><label for="visitor-kind">Visitor Type</label><select id="visitor-kind"><option>Guest</option><option>Contractor</option><option>Delivery</option></select></div>
-                            <div class="field"><label for="visit-type">Visit Type</label><select id="visit-type"><option>Personal Visit</option><option>Family Visit</option><option>Maintenance</option></select></div>
-                            <div class="field"><label for="visitor-name">Visitor Name</label><input id="visitor-name" type="text" value="John Doe"></div>
-                            <div class="field"><label for="visitor-mobile">Mobile Number</label><input id="visitor-mobile" type="text" value="0812 3456 7890"></div>
-                            <div class="field"><label for="visitor-email">Email</label><input id="visitor-email" type="text" value="johndoe@email.com"></div>
-                            <div class="field"><label for="visitor-id-type">ID Type</label><select id="visitor-id-type"><option>KTP</option><option>Passport</option><option>SIM</option></select></div>
-                            <div class="field"><label for="visitor-id-number">ID Number</label><input id="visitor-id-number" type="text" value="3171 8806 9000 0001"></div>
-                            <div class="field"><label for="visitor-date">Visit Date</label><input id="visitor-date" type="text" value="07 Jun 2026"></div>
-                            <div class="field"><label for="visitor-time">Visit Time</label><input id="visitor-time" type="text" value="10:00 AM"></div>
-                            <div class="field"><label for="visitor-purpose">Purpose</label><select id="visitor-purpose"><option>Meeting</option><option>Delivery</option><option>Family Visit</option></select></div>
-                            <div class="field"><label for="visitor-unit">To Unit / Resident</label><select id="visitor-unit"><option>A-1808 - Ahmad Rizky</option><option>B-1205 - Sarah Lim</option></select></div>
-                            <div class="field"><label for="visitor-vehicle-number">Vehicle Number</label><input id="visitor-vehicle-number" type="text" value="B 1234 ABC"></div>
-                            <div class="field"><label for="visitor-vehicle-type">Vehicle Type</label><select id="visitor-vehicle-type"><option>Car</option><option>Motorcycle</option><option>None</option></select></div>
-                            <div class="field full"><label for="visitor-notes">Notes</label><input id="visitor-notes" type="text" value="Meeting with unit owner."></div>
-                        </form>
 
-                        <div class="visitor-form-actions">
-                            <button class="btn secondary" type="button">Reset</button>
-                            <button class="btn" type="button">Submit Registration</button>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="visitor-panel visitor-span-4">
-                    <div class="visitor-panel-head">
-                        <h2 class="visitor-panel-title">Recently Registered</h2>
-                        <a class="btn secondary" href="{{ route('visitor-management.history') }}">View All</a>
-                    </div>
-                    <div class="visitor-panel-body">
-                        <div class="visitor-list">
-                            @foreach ($visitors as $visitor)
-                                <div class="visitor-list-row">
-                                    <div class="visitor-avatar">{{ strtoupper(substr($visitor['name'], 0, 1)) }}</div>
-                                    <div>
-                                        <strong>{{ $visitor['name'] }}</strong>
-                                        <small>To Unit {{ $visitor['unit'] }} - {{ $visitor['resident'] }}</small>
-                                        <small>07 Jun 2026 - {{ $visitor['time'] }}</small>
-                                    </div>
-                                    <span class="badge {{ $visitor['statusClass'] }}">{{ $visitor['status'] }}</span>
-                                    <span></span>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </section>
-
-                @include('visitor-management.partials.detail', [
-                    'panelClass' => 'visitor-span-3',
-                    'title' => 'Visitor Detail',
-                    'status' => ['John Doe', 'Pending', 'status-pending'],
-                    'actionsTitle' => 'Visitor Actions',
-                    'actions' => [['Edit', 'secondary'], ['Cancel Registration', 'danger']],
-                ])
-
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head">
                         <h2 class="visitor-panel-title">All Visitor Registration</h2>
                         @include('visitor-management.partials.filters', ['search' => 'Search visitor, unit, resident...'])
                     </div>
-                    @include('visitor-management.partials.table', ['columns' => $queueColumns, 'rows' => $visitors])
+                    @include('visitor-management.partials.table', ['columns' => $queueColumns, 'rows' => $visitors, 'modalId' => 'visitor-action-modal'])
                 </section>
 
-                @include('visitor-management.partials.integration', ['panelClass' => 'visitor-span-3'])
             </div>
         @elseif ($pageKey === 'check-in-out')
             <div class="visitor-tabs" aria-label="Check-in and check-out mode">
@@ -316,30 +263,21 @@
                 <section class="visitor-panel visitor-span-9">
                     <div class="visitor-panel-head">
                         <h2 class="visitor-panel-title">Visitor Check-In Queue</h2>
-                        <button class="btn success" type="button">Check-In Selected</button>
+                        <button class="btn success" type="button" data-modal-open="visitor-action-modal">Check-In Selected</button>
                     </div>
                     @include('visitor-management.partials.filters', ['search' => 'Search expected, unit, resident...'])
-                    @include('visitor-management.partials.table', ['columns' => $queueColumns, 'rows' => $rows['check-in']])
+                    @include('visitor-management.partials.table', ['columns' => $queueColumns, 'rows' => $rows['check-in'], 'modalId' => 'visitor-action-modal'])
                 </section>
 
-                @include('visitor-management.partials.detail', [
-                    'panelClass' => 'visitor-span-3',
-                    'title' => $page['detailTitle'],
-                    'status' => $page['detailStatus'],
-                    'actionsTitle' => 'Check-In / Check-Out Actions',
-                    'actions' => [['Confirm Check-In', 'success'], ['Confirm Check-Out', 'danger']],
-                ])
-
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head">
                         <h2 class="visitor-panel-title">Visitor Check-Out Queue</h2>
-                        <button class="btn danger" type="button">Check-Out Selected</button>
+                        <button class="btn danger" type="button" data-modal-open="visitor-action-modal">Check-Out Selected</button>
                     </div>
                     @include('visitor-management.partials.filters', ['search' => 'Search currently inside...'])
-                    @include('visitor-management.partials.table', ['columns' => $queueColumns, 'rows' => $rows['check-out']])
+                    @include('visitor-management.partials.table', ['columns' => $queueColumns, 'rows' => $rows['check-out'], 'modalId' => 'visitor-action-modal'])
                 </section>
 
-                @include('visitor-management.partials.integration', ['panelClass' => 'visitor-span-3'])
             </div>
         @elseif ($pageKey === 'reports')
             <div class="visitor-grid">
@@ -356,14 +294,6 @@
                         </div>
                     </div>
                 </section>
-
-                @include('visitor-management.partials.detail', [
-                    'panelClass' => 'visitor-span-3',
-                    'title' => 'Report Summary & Options',
-                    'status' => ['Monthly Report', 'Ready', 'status-approved'],
-                    'actionsTitle' => 'Report Actions',
-                    'actions' => [['Export as PDF', 'gold'], ['Schedule Email Report', 'info'], ['Print Report', 'info']],
-                ])
 
                 <section class="visitor-panel visitor-span-9">
                     <div class="visitor-report-grid visitor-panel-body">
@@ -392,31 +322,54 @@
             </div>
         @else
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head">
                         <h2 class="visitor-panel-title">{{ $page['tableTitle'] }}</h2>
                         @if ($pageKey === 'pending-approval')
-                            <button class="btn success" type="button">Approve Selected</button>
+                            <button class="btn success" type="button" data-modal-open="visitor-action-modal">Approve Selected</button>
                         @elseif ($pageKey === 'expected-visitors')
-                            <button class="btn success" type="button">Confirm Arrival Selected</button>
+                            <button class="btn success" type="button" data-modal-open="visitor-action-modal">Confirm Arrival Selected</button>
                         @endif
                     </div>
                     @include('visitor-management.partials.filters', ['search' => $pageKey === 'vehicles' ? 'Search by plate number / type' : 'Search visitor, unit, resident...'])
-                    @include('visitor-management.partials.table', ['columns' => $page['columns'], 'rows' => $page['rows']])
+                    @include('visitor-management.partials.table', ['columns' => $page['columns'], 'rows' => $page['rows'], 'modalId' => 'visitor-action-modal'])
                 </section>
 
-                @include('visitor-management.partials.detail', [
-                    'panelClass' => 'visitor-span-3',
-                    'title' => $page['detailTitle'],
-                    'status' => $page['detailStatus'],
-                    'actionsTitle' => $page['detailActionsTitle'],
-                    'actions' => $page['detailActions'],
-                ])
-
-                @if (in_array($pageKey, ['pending-approval', 'expected-visitors'], true))
-                    @include('visitor-management.partials.integration', ['panelClass' => 'visitor-span-3'])
-                @endif
             </div>
         @endif
+
+        @include('partials.action-preview-modal', [
+            'id' => 'visitor-registration-modal',
+            'title' => 'Visitor Registration Form',
+            'summary' => 'Walk-In Visitor Registration',
+            'subtitle' => 'Popup form preview untuk registrasi visitor baru. Belum tersimpan ke backend.',
+            'avatar' => 'VR',
+            'rows' => [
+                ['Visitor Type', 'Guest / Personal Visit'],
+                ['Visitor Name', 'John Doe'],
+                ['Resident', 'A-1808 - Ahmad Rizky'],
+                ['Visit Date', '07 Jun 2026 - 10:00 AM'],
+                ['Vehicle', 'B 1234 ABC'],
+                ['Notes', 'Meeting with unit owner.'],
+            ],
+            'confirmLabel' => 'Submit Registration',
+        ])
+
+        @include('visitor-management.partials.detail', [
+            'modalId' => 'visitor-action-modal',
+            'title' => $pageKey === 'reports' ? 'Report Summary & Options' : ($page['detailTitle'] ?? 'Visitor Detail'),
+            'status' => $pageKey === 'reports'
+                ? ['Monthly Report', 'Ready', 'status-approved']
+                : ($page['detailStatus'] ?? ['John Doe', 'Pending', 'status-pending']),
+            'actionsTitle' => $pageKey === 'check-in-out'
+                ? 'Check-In / Check-Out Actions'
+                : ($page['detailActionsTitle'] ?? 'Visitor Actions'),
+            'actions' => $pageKey === 'reports'
+                ? [['Export as PDF', 'gold'], ['Schedule Email Report', 'info'], ['Print Report', 'info']]
+                : ($pageKey === 'check-in-out'
+                    ? [['Confirm Check-In', 'success'], ['Confirm Check-Out', 'danger']]
+                    : ($page['detailActions'] ?? [['Edit', 'secondary'], ['Cancel Registration', 'danger']])),
+            'subtext' => $pageKey === 'reports' ? 'Monthly analytics summary' : 'Guest - Personal Visit',
+        ])
     </div>
 @endsection

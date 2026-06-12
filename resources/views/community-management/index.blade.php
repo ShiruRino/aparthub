@@ -279,7 +279,21 @@
                 </button>
                 <div class="dropdown-menu">
                     @foreach ($createOptions[$pageKey] ?? $createOptions['announcements'] as $option)
-                        <button type="button" data-modal-open="community-action-modal">{{ $option }}</button>
+                        <button
+                            type="button"
+                            data-modal-open="community-action-modal"
+                            data-modal-title="{{ $option }}"
+                            data-modal-headline="{{ $option }}"
+                            data-modal-summary="Create action community management dibuka sebagai popup dummy agar workspace tetap fokus ke daftar operasional."
+                            data-modal-section-title="Create Action Context"
+                            data-modal-workspace="{{ $page['label'] }}"
+                            data-modal-entity="Aether Residences Community"
+                            data-modal-status="Create Preview"
+                            data-modal-next-step="Lanjutkan pembuatan item saat backend form dan submit sudah tersedia."
+                            data-modal-copy="Belum ada penyimpanan backend. Dropdown create ini sekarang memberi feedback interaksi yang lebih jelas dan halus."
+                            data-modal-confirm-label="Open Create Preview"
+                            data-modal-accent="blue"
+                        >{{ $option }}</button>
                     @endforeach
                 </div>
             </div>
@@ -322,7 +336,24 @@
                                                 </div>
                                             </div>
                                             <div class="visitor-action-buttons">
-                                                <button class="community-icon-btn" type="button" data-modal-open="community-action-modal">View</button>
+                                                @include('partials.icon-action-button', [
+                                                    'label' => 'View Announcement',
+                                                    'icon' => 'eye',
+                                                    'modal' => 'community-action-modal',
+                                                    'data' => [
+                                                        'data-modal-title' => 'Announcement Detail',
+                                                        'data-modal-headline' => $announcement['title'],
+                                                        'data-modal-summary' => $announcement['body'],
+                                                        'data-modal-section-title' => 'Announcement Context',
+                                                        'data-modal-workspace' => 'Announcement Center',
+                                                        'data-modal-entity' => '07 Jun 2026 - All Residents',
+                                                        'data-modal-status' => $announcement['status'],
+                                                        'data-modal-next-step' => 'Review announcement visibility, audience, dan engagement sebelum publish action nyata.',
+                                                        'data-modal-copy' => 'Views: ' . $announcement['views'] . '. Aksi ini masih berupa preview popup.',
+                                                        'data-modal-confirm-label' => 'Close Preview',
+                                                        'data-modal-accent' => 'purple',
+                                                    ],
+                                                ])
                                                 <span>{{ $announcement['views'] }}</span>
                                             </div>
                                         </article>
@@ -483,9 +514,62 @@
                                                             <div class="community-progress-line"><span style="width: {{ $participant[2] ?? 0 }}%"></span></div>
                                                         @elseif ($key === 'actions')
                                                             <div class="community-action-icons">
-                                                                <button class="community-icon-btn" type="button" data-modal-open="community-action-modal">View</button>
-                                                                <button class="community-icon-btn gold" type="button" data-modal-open="community-action-modal">Edit</button>
-                                                                <button class="community-icon-btn green" type="button" data-modal-open="community-action-modal">Pin</button>
+                                                                @include('partials.icon-action-button', [
+                                                                    'label' => 'View Community Item',
+                                                                    'icon' => 'eye',
+                                                                    'modal' => 'community-action-modal',
+                                                                    'data' => [
+                                                                        'data-modal-title' => 'Community Item Detail',
+                                                                        'data-modal-headline' => strip_tags(str_replace("\n", ' - ', $row['name'] ?? $row['title'] ?? 'Community Item')),
+                                                                        'data-modal-summary' => 'Detail item komunitas dibuka sebagai popup agar table workspace tetap compact.',
+                                                                        'data-modal-section-title' => 'Community Item Context',
+                                                                        'data-modal-workspace' => $page['label'],
+                                                                        'data-modal-entity' => $row['organizer'] ?? $row['creator'] ?? $row['sender'] ?? ($row['category'][0] ?? $row['category'] ?? 'Community Item'),
+                                                                        'data-modal-status' => is_array($row['status'] ?? null) ? $row['status'][0] : 'Preview Only',
+                                                                        'data-modal-next-step' => 'Tinjau data item, audience, dan status sebelum aksi lanjutan.',
+                                                                        'data-modal-copy' => 'Popup ini menggantikan aksi detail statis agar interaksi terasa lebih smooth.',
+                                                                        'data-modal-confirm-label' => 'Close Preview',
+                                                                        'data-modal-accent' => 'blue',
+                                                                    ],
+                                                                ])
+                                                                @include('partials.icon-action-button', [
+                                                                    'label' => 'Edit Community Item',
+                                                                    'icon' => 'edit',
+                                                                    'modal' => 'community-action-modal',
+                                                                    'variant' => 'gold',
+                                                                    'data' => [
+                                                                        'data-modal-title' => 'Edit Community Item',
+                                                                        'data-modal-headline' => 'Update ' . strip_tags(str_replace("\n", ' - ', $row['name'] ?? $row['title'] ?? 'Community Item')),
+                                                                        'data-modal-summary' => 'Edit action community dibuka sebagai popup dummy untuk menjaga workspace tetap rapi.',
+                                                                        'data-modal-section-title' => 'Edit Context',
+                                                                        'data-modal-workspace' => $page['label'],
+                                                                        'data-modal-entity' => $row['organizer'] ?? $row['creator'] ?? $row['sender'] ?? 'Community Team',
+                                                                        'data-modal-status' => 'Edit Draft',
+                                                                        'data-modal-next-step' => 'Lanjutkan penyesuaian konten, schedule, atau audience saat backend edit aktif.',
+                                                                        'data-modal-copy' => 'Belum ada submit backend. Ini hanya preview alur edit item community.',
+                                                                        'data-modal-confirm-label' => 'Open Edit Preview',
+                                                                        'data-modal-accent' => 'gold',
+                                                                    ],
+                                                                ])
+                                                                @include('partials.icon-action-button', [
+                                                                    'label' => 'Pin Community Item',
+                                                                    'icon' => 'pin',
+                                                                    'modal' => 'community-action-modal',
+                                                                    'variant' => 'success',
+                                                                    'data' => [
+                                                                        'data-modal-title' => 'Pin Community Item',
+                                                                        'data-modal-headline' => 'Highlight ' . strip_tags(str_replace("\n", ' - ', $row['name'] ?? $row['title'] ?? 'Community Item')),
+                                                                        'data-modal-summary' => 'Pin action membantu menonjolkan item penting tanpa mengganggu workspace utama.',
+                                                                        'data-modal-section-title' => 'Highlight Context',
+                                                                        'data-modal-workspace' => $page['label'],
+                                                                        'data-modal-entity' => $row['organizer'] ?? $row['creator'] ?? $row['sender'] ?? 'Community Feed',
+                                                                        'data-modal-status' => 'Pin Preview',
+                                                                        'data-modal-next-step' => 'Tandai item prioritas untuk resident feed atau dashboard community.',
+                                                                        'data-modal-copy' => 'Belum ada perubahan status pin nyata. Popup ini hanya preview interaksinya.',
+                                                                        'data-modal-confirm-label' => 'Confirm Pin Preview',
+                                                                        'data-modal-accent' => 'green',
+                                                                    ],
+                                                                ])
                                                             </div>
                                                         @elseif ($key === 'organizer')
                                                             {{ $row['organizer'] ?? $row['creator'] ?? $row['sender'] ?? '-' }}
@@ -630,13 +714,52 @@
                                                     <td>{{ $row['date'] }}</td>
                                                     <td>{{ $row['author'] }}</td>
                                                     <td>{{ $row['category'] }}</td>
-                                                    <td><button class="btn compact secondary" type="button" data-modal-open="community-action-modal">View</button></td>
+                                                    <td>
+                                                        @include('partials.icon-action-button', [
+                                                            'label' => 'View Community Archive',
+                                                            'icon' => 'eye',
+                                                            'modal' => 'community-action-modal',
+                                                            'data' => [
+                                                                'data-modal-title' => 'Archive Detail',
+                                                                'data-modal-headline' => $row['title'],
+                                                                'data-modal-summary' => 'Konten arsip dibuka sebagai popup preview agar halaman arsip tetap fokus ke daftar.',
+                                                                'data-modal-section-title' => 'Archive Context',
+                                                                'data-modal-workspace' => 'Community Archive',
+                                                                'data-modal-entity' => $row['type'] . ' - ' . $row['category'],
+                                                                'data-modal-status' => 'Archive Preview',
+                                                                'data-modal-next-step' => 'Tinjau histori konten dan action pelaporan bila diperlukan.',
+                                                                'data-modal-copy' => 'Penulis: ' . $row['author'] . '. Tanggal: ' . $row['date'] . '.',
+                                                                'data-modal-confirm-label' => 'Close Preview',
+                                                                'data-modal-accent' => 'purple',
+                                                            ],
+                                                        ])
+                                                    </td>
                                                 @else
                                                     <td><span class="community-tile-icon" style="width:30px;height:30px;font-size:12px;">{{ $row['icon'] }}</span></td>
                                                     <td>{{ $row['name'] }}</td>
                                                     <td>{{ $row['description'] }}</td>
                                                     <td><span @class(['community-setting-toggle', 'off' => $row['status'] === 'off'])></span></td>
-                                                    <td><button class="btn compact secondary" type="button" data-modal-open="community-action-modal">{{ $row['status'] === 'config' ? 'Konfigurasi' : 'Edit' }}</button></td>
+                                                    <td>
+                                                        @include('partials.icon-action-button', [
+                                                            'label' => $row['status'] === 'config' ? 'Konfigurasi Community Setting' : 'Edit Community Setting',
+                                                            'icon' => $row['status'] === 'config' ? 'access' : 'edit',
+                                                            'modal' => 'community-action-modal',
+                                                            'variant' => $row['status'] === 'config' ? 'info' : 'gold',
+                                                            'data' => [
+                                                                'data-modal-title' => $row['status'] === 'config' ? 'Configure Community Setting' : 'Edit Community Setting',
+                                                                'data-modal-headline' => $row['name'],
+                                                                'data-modal-summary' => $row['description'],
+                                                                'data-modal-section-title' => 'Setting Context',
+                                                                'data-modal-workspace' => 'Community Settings',
+                                                                'data-modal-entity' => $row['name'],
+                                                                'data-modal-status' => $row['status'] === 'config' ? 'Configuration' : 'Edit Mode',
+                                                                'data-modal-next-step' => 'Atur status fitur, role access, atau integrasi saat backend konfigurasi tersedia.',
+                                                                'data-modal-copy' => 'Saat ini perubahan setting masih berupa preview popup tanpa persist backend.',
+                                                                'data-modal-confirm-label' => $row['status'] === 'config' ? 'Open Config Preview' : 'Open Edit Preview',
+                                                                'data-modal-accent' => $row['status'] === 'config' ? 'blue' : 'gold',
+                                                            ],
+                                                        ])
+                                                    </td>
                                                 @endif
                                             </tr>
                                         @endforeach

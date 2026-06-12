@@ -9,6 +9,7 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PackageCenterController;
 use App\Http\Controllers\ResidentManagementController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SecurityManagementController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TenantMarketplaceController;
 use App\Http\Controllers\UserController;
@@ -57,7 +58,7 @@ Route::middleware('auth')->group(function () {
         ->name('visitor-management.')
         ->middleware('module.access:visitor-management,read')
         ->group(function () {
-            Route::redirect('/', '/visitor-management/registration')->name('index');
+            Route::get('/', [VisitorManagementController::class, 'index'])->name('index');
             Route::get('/registration', [VisitorManagementController::class, 'registration'])->name('registration');
             Route::get('/pending-approval', [VisitorManagementController::class, 'pendingApproval'])->name('pending-approval');
             Route::get('/expected-visitors', [VisitorManagementController::class, 'expectedVisitors'])->name('expected-visitors');
@@ -72,7 +73,7 @@ Route::middleware('auth')->group(function () {
         ->name('service-request.')
         ->middleware('module.access:service-request,read')
         ->group(function () {
-            Route::redirect('/', '/service-request/ticket-queue')->name('index');
+            Route::get('/', [ServiceRequestController::class, 'index'])->name('index');
             Route::get('/ticket-queue', [ServiceRequestController::class, 'ticketQueue'])->name('ticket-queue');
             Route::get('/new-request', [ServiceRequestController::class, 'newRequest'])->name('new-request');
             Route::get('/assignment-board', [ServiceRequestController::class, 'assignmentBoard'])->name('assignment-board');
@@ -83,6 +84,22 @@ Route::middleware('auth')->group(function () {
             Route::get('/sla-monitoring', [ServiceRequestController::class, 'slaMonitoring'])->name('sla-monitoring');
             Route::get('/service-history', [ServiceRequestController::class, 'serviceHistory'])->name('service-history');
             Route::get('/settings', [ServiceRequestController::class, 'settings'])->name('settings');
+        });
+
+    Route::prefix('security-management')
+        ->name('security-management.')
+        ->middleware('module.access:security-management,read')
+        ->group(function () {
+            Route::get('/', [SecurityManagementController::class, 'index'])->name('index');
+            Route::get('/live-monitoring', [SecurityManagementController::class, 'liveMonitoring'])->name('live-monitoring');
+            Route::get('/patrol-monitoring', [SecurityManagementController::class, 'patrolMonitoring'])->name('patrol-monitoring');
+            Route::get('/task-assignment', [SecurityManagementController::class, 'taskAssignment'])->name('task-assignment');
+            Route::get('/officers', [SecurityManagementController::class, 'officers'])->name('officers');
+            Route::get('/schedule', [SecurityManagementController::class, 'schedule'])->name('schedule');
+            Route::get('/incidents', [SecurityManagementController::class, 'incidents'])->name('incidents');
+            Route::get('/devices', [SecurityManagementController::class, 'devices'])->name('devices');
+            Route::get('/reports', [SecurityManagementController::class, 'reports'])->name('reports');
+            Route::get('/settings', [SecurityManagementController::class, 'settings'])->name('settings');
         });
 
     Route::prefix('community-management')
@@ -106,7 +123,7 @@ Route::middleware('auth')->group(function () {
         ->name('tenant-marketplace.')
         ->middleware('module.access:tenant-marketplace,read')
         ->group(function () {
-            Route::redirect('/', '/tenant-marketplace/directory')->name('index');
+            Route::get('/', [TenantMarketplaceController::class, 'index'])->name('index');
             Route::get('/directory', [TenantMarketplaceController::class, 'directory'])->name('directory');
             Route::get('/add-input', [TenantMarketplaceController::class, 'addInput'])->name('add-input');
         });

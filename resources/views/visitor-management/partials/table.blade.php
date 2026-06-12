@@ -1,3 +1,27 @@
+@php
+    $actionIcons = [
+        'View' => 'eye',
+        'View Details' => 'eye',
+        'Approve' => 'check',
+        'Reject' => 'x',
+        'Arrive' => 'check',
+        'Cancel' => 'x',
+        'Check-In' => 'check',
+        'Check-Out' => 'x',
+        'Manage Access' => 'access',
+        'Verify Plate' => 'car',
+        'Review Record' => 'document',
+    ];
+
+    $actionVariants = [
+        'success' => 'success',
+        'danger' => 'danger',
+        'gold' => 'gold',
+        'info' => 'info',
+        'secondary' => 'neutral',
+    ];
+@endphp
+
 <div class="table-wrap">
     <table>
         <thead>
@@ -26,7 +50,12 @@
                             @elseif ($key === 'action')
                                 <div class="visitor-action-buttons">
                                     @foreach ($row['actions'] ?? [['View', 'info']] as [$label, $variant])
-                                        <button class="btn compact {{ $variant }}" type="button">{{ $label }}</button>
+                                        @include('partials.icon-action-button', [
+                                            'label' => $label,
+                                            'icon' => $actionIcons[$label] ?? 'eye',
+                                            'variant' => $actionVariants[$variant] ?? 'neutral',
+                                            'modal' => $modalId ?? 'visitor-action-modal',
+                                        ])
                                     @endforeach
                                 </div>
                             @else

@@ -36,7 +36,22 @@
                 <span class="field-label">Message</span>
                 <textarea placeholder="Type your message..."></textarea>
             </label>
-            <button class="btn" type="button" data-modal-open="community-action-modal">Send Broadcast</button>
+            <button
+                class="btn"
+                type="button"
+                data-modal-open="community-action-modal"
+                data-modal-title="Send Broadcast"
+                data-modal-headline="Quick Broadcast Preview"
+                data-modal-summary="Broadcast dari panel samping dibuka sebagai popup dummy agar aksi sekunder tetap terasa ringan."
+                data-modal-section-title="Broadcast Context"
+                data-modal-workspace="Community Side Widget"
+                data-modal-entity="All Residents"
+                data-modal-status="Broadcast Preview"
+                data-modal-next-step="Review target audience dan isi pesan sebelum broadcast backend tersedia."
+                data-modal-copy="Belum ada pengiriman notifikasi sungguhan. Popup ini memberi feedback yang lebih jelas dibanding tombol diam."
+                data-modal-confirm-label="Preview Broadcast"
+                data-modal-accent="blue"
+            >Send Broadcast</button>
         </div>
     </section>
 
