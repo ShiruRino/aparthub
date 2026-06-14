@@ -1,15 +1,5 @@
 @extends('layouts.app')
 
-@php
-    $rows = [
-        ['no' => 1, 'plate' => 'Plat B 1234 ABC', 'unit' => 'Unit A-1808', 'kind' => 'Ikon Mobil', 'owner' => 'Ahmad Rizky', 'model' => 'Toyota Fortuner', 'status' => 'Aktif', 'statusClass' => 'active', 'icon' => 'M5 16h14M7 16l1-5h8l1 5M7 16v2M17 16v2M6 18h.01M18 18h.01M9 11l1.2-3h3.6L15 11'],
-        ['no' => 2, 'plate' => 'Plat B 5678 DEF', 'unit' => 'Unit A-1808', 'kind' => 'Ikon Mobil', 'owner' => 'Sarah Lim', 'model' => 'Honda HR-V', 'status' => 'Aktif', 'statusClass' => 'active', 'icon' => 'M5 16h14M7 16l1-5h8l1 5M7 16v2M17 16v2M6 18h.01M18 18h.01M9 11l1.2-3h3.6L15 11'],
-        ['no' => 3, 'plate' => 'Plat B 9012 GHI', 'unit' => 'Unit B-2001', 'kind' => 'Ikon Mobil', 'owner' => 'John Doe', 'model' => 'BMW 3 Series', 'status' => 'Aktif', 'statusClass' => 'active', 'icon' => 'M5 16h14M7 16l1-5h8l1 5M7 16v2M17 16v2M6 18h.01M18 18h.01M9 11l1.2-3h3.6L15 11'],
-        ['no' => 4, 'plate' => 'Plat B 3456 JKL', 'unit' => 'Unit A-2002', 'kind' => 'Ikon Mobil', 'owner' => 'Mark Wang', 'model' => 'Nissan X-Trail', 'status' => 'Aktif', 'statusClass' => 'active', 'icon' => 'M5 16h14M7 16l1-5h8l1 5M7 16v2M17 16v2M6 18h.01M18 18h.01M9 11l1.2-3h3.6L15 11'],
-        ['no' => 5, 'plate' => 'Plat B 7890 MNOP', 'unit' => 'Unit A-0503', 'kind' => 'Ikon Motor', 'owner' => '[Contoh Nama]', 'model' => 'Yamaha NMax', 'status' => 'Menunggu Approval', 'statusClass' => 'pending', 'icon' => 'M5 16h8l3-5h3M8 16a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM21 16a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM10 11h4l2 5M13 8h3'],
-    ];
-@endphp
-
 @section('title', 'Vehicle Management')
 @section('topbar_context', 'Resident Management Flow')
 @section('topbar_subtitle', 'Complete Resident Lifecycle Management from Move-In to Move-Out')
@@ -18,24 +8,24 @@
     <div class="resident-list-page">
         <header class="resident-page-head">
             <h2>Daftar Kendaraan Penghuni Aether Residences</h2>
-            <button class="btn" type="button" data-modal-open="resident-vehicles-modal">Tambah Kendaraan Baru</button>
+            <button class="btn" type="button" data-modal-open="resident-vehicle-form-modal" data-form-mode="create" data-form-title="Tambah Kendaraan Baru" data-form-action="{{ route('resident-management.vehicles.store') }}">Tambah Kendaraan Baru</button>
         </header>
 
-        <section class="resident-filter-panel" aria-label="Filter kendaraan penghuni">
+        <form class="resident-filter-panel" method="GET" action="{{ route('resident-management.vehicles') }}" aria-label="Filter kendaraan penghuni">
             <div class="resident-filter-field">
                 <label for="vehicle-search">Search</label>
                 <div class="resident-search">
-                    <input id="vehicle-search" type="search" placeholder="Search">
-                    <button type="button" aria-label="Search">
+                    <input id="vehicle-search" name="search" type="search" placeholder="Search" value="{{ $filters['search'] ?? '' }}">
+                    <button type="submit" aria-label="Search">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/></svg>
                     </button>
                 </div>
             </div>
-            <div class="resident-filter-field"><label for="vehicle-tower">Tower</label><select id="vehicle-tower"><option>Tower A</option><option>Tower B</option></select></div>
-            <div class="resident-filter-field"><label for="vehicle-floor">Lantai</label><select id="vehicle-floor"><option>01-10</option><option>11-20</option></select></div>
-            <div class="resident-filter-field"><label for="vehicle-kind">Jenis Kendaraan</label><select id="vehicle-kind"><option>Semua, Mobil, Motor, dll.</option><option>Mobil</option></select></div>
-            <div class="resident-filter-field"><label for="vehicle-status">Status Parkir</label><select id="vehicle-status"><option>Aktif, Menunggu Approval, dll.</option><option>Aktif</option></select></div>
-        </section>
+            <div class="resident-filter-field"><label for="vehicle-tower">Tower</label><select id="vehicle-tower" name="tower"><option value="">Semua Tower</option>@foreach ($towers as $tower)<option value="{{ $tower }}" @selected(($filters['tower'] ?? '') === $tower)>{{ $tower }}</option>@endforeach</select></div>
+            <div class="resident-filter-field"><label for="vehicle-floor">Lantai</label><select id="vehicle-floor" name="floor_band"><option value="">Semua Lantai</option>@foreach ($floorBands as $band)<option value="{{ $band }}" @selected(($filters['floor_band'] ?? '') === $band)>{{ $band }}</option>@endforeach</select></div>
+            <div class="resident-filter-field"><label for="vehicle-kind">Jenis Kendaraan</label><select id="vehicle-kind" name="vehicle_type"><option value="">Semua Kendaraan</option>@foreach ($vehicleTypes as $vehicleType)<option value="{{ $vehicleType }}" @selected(($filters['vehicle_type'] ?? '') === $vehicleType)>{{ $vehicleType }}</option>@endforeach</select></div>
+            <div class="resident-filter-field"><label for="vehicle-status">Status Parkir</label><select id="vehicle-status" name="parking_status"><option value="">Semua Status</option>@foreach ($parkingStatuses as $parkingStatus)<option value="{{ $parkingStatus }}" @selected(($filters['parking_status'] ?? '') === $parkingStatus)>{{ $parkingStatus }}</option>@endforeach</select></div>
+        </form>
 
         <section class="resident-table-panel">
             <div class="table-wrap">
@@ -54,14 +44,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($rows as $row)
+                        @forelse ($rows as $row)
                             <tr>
                                 <td><input class="resident-check" type="checkbox" aria-label="Select {{ $row['plate'] }}"></td>
                                 <td>{{ $row['no'] }}</td>
                                 <td>{{ $row['plate'] }}</td>
                                 <td>{{ $row['unit'] }}</td>
                                 <td>
-                                    <button class="resident-action-btn" type="button" data-modal-open="resident-vehicles-modal">
+                                    <button class="resident-action-btn" type="button" data-modal-open="resident-vehicle-form-modal" data-form-mode="edit" data-form-title="Detail Kendaraan" data-form-action="{{ route('resident-management.vehicles.update', $row['id']) }}" data-vehicle-plate-number="{{ $row['plate_number'] }}" data-vehicle-resident-id="{{ $row['resident_id'] ?? '' }}" data-vehicle-unit-id="{{ $row['unit_id'] ?? '' }}" data-vehicle-type="{{ $row['vehicle_type'] }}" data-vehicle-owner-name="{{ $row['owner'] }}" data-vehicle-make-model="{{ $row['model'] }}" data-vehicle-status="{{ $row['status'] }}" data-vehicle-slot-label="{{ $row['slot_label'] ?? '' }}">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="{{ $row['icon'] }}"/></svg>
                                         <span>{{ $row['kind'] }}</span>
                                     </button>
@@ -71,47 +61,82 @@
                                 <td><span class="resident-status {{ $row['statusClass'] }}">{{ $row['status'] }}</span></td>
                                 <td>
                                     <div class="resident-action-row">
-                                        @if ($row['statusClass'] === 'pending')
-                                            @include('resident-management.partials.action-button', ['label' => 'Approve', 'icon' => 'check', 'variant' => 'success', 'modal' => 'resident-vehicles-modal'])
-                                            @include('resident-management.partials.action-button', ['label' => 'Reject', 'icon' => 'x', 'variant' => 'danger', 'modal' => 'resident-vehicles-modal'])
-                                        @else
-                                            @include('resident-management.partials.action-button', ['label' => 'Detail', 'icon' => 'eye', 'modal' => 'resident-vehicles-modal'])
-                                            @include('resident-management.partials.action-button', ['label' => 'Edit', 'icon' => 'edit', 'modal' => 'resident-vehicles-modal'])
-                                        @endif
-                                        @include('resident-management.partials.action-button', ['label' => 'Manage Slot', 'icon' => 'slot', 'modal' => 'resident-vehicles-modal'])
+                                        @include('resident-management.partials.action-button', ['label' => 'Detail Kendaraan', 'icon' => 'eye', 'modal' => 'resident-vehicle-form-modal', 'data' => ['data-form-mode' => 'edit', 'data-form-title' => 'Detail Kendaraan', 'data-form-action' => route('resident-management.vehicles.update', $row['id']), 'data-vehicle-plate-number' => $row['plate_number'], 'data-vehicle-resident-id' => $row['resident_id'] ?? '', 'data-vehicle-unit-id' => $row['unit_id'] ?? '', 'data-vehicle-type' => $row['vehicle_type'], 'data-vehicle-owner-name' => $row['owner'], 'data-vehicle-make-model' => $row['model'], 'data-vehicle-status' => $row['status'], 'data-vehicle-slot-label' => $row['slot_label'] ?? '']])
+                                        @include('resident-management.partials.action-button', ['label' => 'Edit Kendaraan', 'icon' => 'edit', 'modal' => 'resident-vehicle-form-modal', 'data' => ['data-form-mode' => 'edit', 'data-form-title' => 'Edit Kendaraan', 'data-form-action' => route('resident-management.vehicles.update', $row['id']), 'data-vehicle-plate-number' => $row['plate_number'], 'data-vehicle-resident-id' => $row['resident_id'] ?? '', 'data-vehicle-unit-id' => $row['unit_id'] ?? '', 'data-vehicle-type' => $row['vehicle_type'], 'data-vehicle-owner-name' => $row['owner'], 'data-vehicle-make-model' => $row['model'], 'data-vehicle-status' => $row['status'], 'data-vehicle-slot-label' => $row['slot_label'] ?? '']])
+                                        <form method="POST" action="{{ route('resident-management.vehicles.destroy', $row['id']) }}" onsubmit="return confirm('Hapus data kendaraan ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="icon-action-btn resident-action-btn danger" type="submit" title="Hapus Kendaraan" aria-label="Hapus Kendaraan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h6l1-14"/></svg></button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr><td colspan="9">Belum ada data kendaraan penghuni.</td></tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="resident-pagination">
-                <span class="resident-page-btn">&lt;</span>
-                <span class="resident-page-btn active">1</span>
-                <span class="resident-page-btn">2</span>
-                <span class="resident-page-btn">3</span>
-                <span class="resident-page-btn">&gt;</span>
-                <span>Showing 1-10 of 500</span>
-            </div>
+            @include('resident-management.partials.pagination', ['paginator' => $vehicles])
         </section>
 
         @include('resident-management.partials.benefits')
     </div>
 
-    @include('resident-management.partials.action-modal', [
-        'id' => 'resident-vehicles-modal',
-        'title' => 'Vehicle Management Preview',
-        'name' => 'Plat B 1234 ABC',
-        'initials' => 'VH',
-        'subtitle' => 'Dummy modal untuk tambah kendaraan, detail, edit, approve/reject, dan manage slot.',
-        'rows' => [
-            ['Unit', 'Unit A-1808'],
-            ['Jenis Kendaraan', 'Mobil'],
-            ['Pemilik', 'Ahmad Rizky'],
-            ['Merk & Model', 'Toyota Fortuner'],
-            ['Status Parkir', 'Aktif'],
-            ['Mode', 'Static preview only'],
-        ],
-    ])
+    <div class="visitor-modal resident-modal" id="resident-vehicle-form-modal" aria-hidden="true">
+        <button class="visitor-modal-backdrop" type="button" data-modal-close aria-label="Close modal"></button>
+        <div class="visitor-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="resident-vehicle-form-title">
+            <div class="visitor-modal-head"><h2 class="visitor-modal-title" id="resident-vehicle-form-title">Tambah Kendaraan Baru</h2><button class="visitor-modal-close" type="button" data-modal-close aria-label="Close modal">x</button></div>
+            <form class="visitor-modal-body" id="residentVehicleForm" method="POST" action="{{ route('resident-management.vehicles.store') }}">
+                @csrf
+                <input id="residentVehicleFormMethod" type="hidden" name="_method" value="POST">
+                <div class="visitor-form-grid">
+                    <label class="resident-filter-field"><span>Plat Nomor</span><input id="vehiclePlateNumber" name="plate_number" type="text" value="{{ old('plate_number') }}" required></label>
+                    <label class="resident-filter-field"><span>Pemilik</span><input id="vehicleOwnerName" name="owner_name" type="text" value="{{ old('owner_name') }}" required></label>
+                    <label class="resident-filter-field"><span>Resident</span><select id="vehicleResidentId" name="resident_id">@foreach ($residentOptions as $residentOption)<option value="{{ $residentOption->id }}">{{ $residentOption->name }}</option>@endforeach</select></label>
+                    <label class="resident-filter-field"><span>Unit</span><select id="vehicleUnitId" name="unit_id">@foreach ($unitOptions as $unitOption)<option value="{{ $unitOption->id }}">{{ $unitOption->code }} - {{ $unitOption->tower }}</option>@endforeach</select></label>
+                    <label class="resident-filter-field"><span>Jenis Kendaraan</span><select id="vehicleType" name="vehicle_type">@foreach ($vehicleTypes as $vehicleType)<option value="{{ $vehicleType }}">{{ $vehicleType }}</option>@endforeach</select></label>
+                    <label class="resident-filter-field"><span>Merk & Model</span><input id="vehicleMakeModel" name="make_model" type="text" value="{{ old('make_model') }}" required></label>
+                    <label class="resident-filter-field"><span>Status Parkir</span><select id="vehicleStatus" name="parking_status">@foreach ($parkingStatuses as $parkingStatus)<option value="{{ $parkingStatus }}">{{ $parkingStatus }}</option>@endforeach</select></label>
+                    <label class="resident-filter-field"><span>Slot Parkir</span><input id="vehicleSlotLabel" name="slot_label" type="text" value="{{ old('slot_label') }}"></label>
+                </div>
+                <div class="visitor-form-actions"><button class="btn secondary" type="button" data-modal-close>Batal</button><button class="btn" type="submit">Simpan Kendaraan</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            const form = document.getElementById('residentVehicleForm');
+            if (!form) return;
+            const methodInput = document.getElementById('residentVehicleFormMethod');
+            const title = document.getElementById('resident-vehicle-form-title');
+            const fields = {
+                plateNumber: document.getElementById('vehiclePlateNumber'),
+                ownerName: document.getElementById('vehicleOwnerName'),
+                residentId: document.getElementById('vehicleResidentId'),
+                unitId: document.getElementById('vehicleUnitId'),
+                type: document.getElementById('vehicleType'),
+                makeModel: document.getElementById('vehicleMakeModel'),
+                status: document.getElementById('vehicleStatus'),
+                slotLabel: document.getElementById('vehicleSlotLabel'),
+            };
+            document.querySelectorAll('[data-modal-open="resident-vehicle-form-modal"]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const isEdit = button.dataset.formMode === 'edit';
+                    title.textContent = button.dataset.formTitle || 'Tambah Kendaraan Baru';
+                    form.action = button.dataset.formAction || '{{ route('resident-management.vehicles.store') }}';
+                    methodInput.value = isEdit ? 'PUT' : 'POST';
+                    fields.plateNumber.value = button.dataset.vehiclePlateNumber || '';
+                    fields.ownerName.value = button.dataset.vehicleOwnerName || '';
+                    fields.residentId.value = button.dataset.vehicleResidentId || '';
+                    fields.unitId.value = button.dataset.vehicleUnitId || '';
+                    fields.type.value = button.dataset.vehicleType || 'Mobil';
+                    fields.makeModel.value = button.dataset.vehicleMakeModel || '';
+                    fields.status.value = button.dataset.vehicleStatus || 'Aktif';
+                    fields.slotLabel.value = button.dataset.vehicleSlotLabel || '';
+                });
+            });
+        })();
+    </script>
 @endsection

@@ -24,6 +24,7 @@
         'pin' => 'M12 17v5m0-5 6-6a4 4 0 0 0-5.7-5.6L12 6l-.3-.3A4 4 0 0 0 6 11l6 6Z',
         'chart' => 'M4 19h16M7 16V8m5 8V5m5 11v-6',
         'plus' => 'M12 5v14M5 12h14',
+        'trash' => 'M3 6h18M8 6V4h8v2m-9 0 1 14h6l1-14',
     ];
 
     $attributes = array_merge($modal ? ['data-modal-open' => $modal] : [], $data ?? []);

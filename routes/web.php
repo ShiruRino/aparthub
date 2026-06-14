@@ -34,13 +34,71 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('resident-management')
         ->name('resident-management.')
-        ->middleware('module.access:resident-management,read')
         ->group(function () {
-            Route::get('/residents', [ResidentManagementController::class, 'residents'])->name('residents');
-            Route::get('/units', [ResidentManagementController::class, 'units'])->name('units');
-            Route::get('/move-in-out', [ResidentManagementController::class, 'moveInOut'])->name('move-in-out');
-            Route::get('/family-members', [ResidentManagementController::class, 'familyMembers'])->name('family-members');
-            Route::get('/vehicles', [ResidentManagementController::class, 'vehicles'])->name('vehicles');
+            Route::get('/residents', [ResidentManagementController::class, 'residents'])
+                ->middleware('module.access:resident-management,read')
+                ->name('residents');
+            Route::post('/residents', [ResidentManagementController::class, 'storeResident'])
+                ->middleware('module.access:resident-management,create')
+                ->name('residents.store');
+            Route::put('/residents/{resident}', [ResidentManagementController::class, 'updateResident'])
+                ->middleware('module.access:resident-management,update')
+                ->name('residents.update');
+            Route::delete('/residents/{resident}', [ResidentManagementController::class, 'destroyResident'])
+                ->middleware('module.access:resident-management,delete')
+                ->name('residents.destroy');
+
+            Route::get('/units', [ResidentManagementController::class, 'units'])
+                ->middleware('module.access:resident-management,read')
+                ->name('units');
+            Route::post('/units', [ResidentManagementController::class, 'storeUnit'])
+                ->middleware('module.access:resident-management,create')
+                ->name('units.store');
+            Route::put('/units/{unit}', [ResidentManagementController::class, 'updateUnit'])
+                ->middleware('module.access:resident-management,update')
+                ->name('units.update');
+            Route::delete('/units/{unit}', [ResidentManagementController::class, 'destroyUnit'])
+                ->middleware('module.access:resident-management,delete')
+                ->name('units.destroy');
+
+            Route::get('/move-in-out', [ResidentManagementController::class, 'moveInOut'])
+                ->middleware('module.access:resident-management,read')
+                ->name('move-in-out');
+            Route::post('/move-in-out', [ResidentManagementController::class, 'storeMoveRequest'])
+                ->middleware('module.access:resident-management,create')
+                ->name('move-in-out.store');
+            Route::put('/move-in-out/{moveRequest}', [ResidentManagementController::class, 'updateMoveRequest'])
+                ->middleware('module.access:resident-management,update')
+                ->name('move-in-out.update');
+            Route::delete('/move-in-out/{moveRequest}', [ResidentManagementController::class, 'destroyMoveRequest'])
+                ->middleware('module.access:resident-management,delete')
+                ->name('move-in-out.destroy');
+
+            Route::get('/family-members', [ResidentManagementController::class, 'familyMembers'])
+                ->middleware('module.access:resident-management,read')
+                ->name('family-members');
+            Route::post('/family-members', [ResidentManagementController::class, 'storeFamilyMember'])
+                ->middleware('module.access:resident-management,create')
+                ->name('family-members.store');
+            Route::put('/family-members/{familyMember}', [ResidentManagementController::class, 'updateFamilyMember'])
+                ->middleware('module.access:resident-management,update')
+                ->name('family-members.update');
+            Route::delete('/family-members/{familyMember}', [ResidentManagementController::class, 'destroyFamilyMember'])
+                ->middleware('module.access:resident-management,delete')
+                ->name('family-members.destroy');
+
+            Route::get('/vehicles', [ResidentManagementController::class, 'vehicles'])
+                ->middleware('module.access:resident-management,read')
+                ->name('vehicles');
+            Route::post('/vehicles', [ResidentManagementController::class, 'storeVehicle'])
+                ->middleware('module.access:resident-management,create')
+                ->name('vehicles.store');
+            Route::put('/vehicles/{vehicle}', [ResidentManagementController::class, 'updateVehicle'])
+                ->middleware('module.access:resident-management,update')
+                ->name('vehicles.update');
+            Route::delete('/vehicles/{vehicle}', [ResidentManagementController::class, 'destroyVehicle'])
+                ->middleware('module.access:resident-management,delete')
+                ->name('vehicles.destroy');
         });
 
     Route::prefix('billing-finance')

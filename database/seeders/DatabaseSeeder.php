@@ -56,5 +56,7 @@ class DatabaseSeeder extends Seeder
             'can_update' => true,
             'can_delete' => true,
         ]));
+
+        $this->call(ResidentManagementSeeder::class);
     }
 }
