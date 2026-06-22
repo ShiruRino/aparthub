@@ -145,7 +145,7 @@
     <main class="login">
         <div class="brand">
             <span class="brand-mark">A</span>
-            <span>Apartw</span>
+            <span>Aparthub</span>
         </div>
 
         <h1>Login Admin</h1>

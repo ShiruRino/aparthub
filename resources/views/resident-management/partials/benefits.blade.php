@@ -1,4 +1,4 @@
-<section class="resident-benefit-bar" aria-label="Resident management benefits">
+<!-- <section class="resident-benefit-bar" aria-label="Resident management benefits">
     @foreach ([
         ['Centralized Resident Data Management', 'Semua data penghuni terpusat dan terintegrasi.', 'M7 20a5 5 0 0 1 10 0M9 8a3 3 0 1 0 6 0 3 3 0 0 0-6 0M3 18a4 4 0 0 1 5-3.8M16 14.2A4 4 0 0 1 21 18'],
         ['Secure & Compliant', 'Dokumen tersimpan aman dan sesuai regulasi.', 'M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4ZM9 12l2 2 4-5'],
@@ -18,4 +18,4 @@
             </div>
         </div>
     @endforeach
-</section>
+</section> -->

@@ -395,6 +395,10 @@
             height: 42px;
             place-items: center;
             color: #ffffff;
+            background-color: var(--navy-900);
+        }
+        .bell:hover{
+            background-color: var(--navy-700);
         }
 
         .bell-count {

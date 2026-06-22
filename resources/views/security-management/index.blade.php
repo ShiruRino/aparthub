@@ -216,7 +216,7 @@
                 @endforeach
             </section>
 
-            <div class="security-workspace">
+            <div>
                 <main class="security-main">
                     <section class="visitor-panel">
                         <div class="security-filter-row">
@@ -299,7 +299,7 @@
                     </section>
                 </main>
 
-                <aside class="security-side">
+                <!-- <aside class="security-side">
                     <section class="visitor-panel">
                         <div class="visitor-panel-head">
                             <h3 class="visitor-panel-title">Peta Route Patrol</h3>
@@ -343,7 +343,7 @@
                             <div><span>Critical</span><strong>1</strong></div>
                         </div>
                     </section>
-                </aside>
+                </aside> -->
             </div>
 
             <section class="security-benefits">

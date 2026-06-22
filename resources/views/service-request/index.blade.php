@@ -330,7 +330,7 @@
 
         @if ($pageKey === 'ticket-queue')
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head">
                         <h2 class="visitor-panel-title">Ticket Queue</h2>
                         <span class="badge">Showing 1-6 of 42 entries</span>
@@ -386,7 +386,7 @@
             @include('service-request.partials.widgets')
         @elseif ($pageKey === 'new-request')
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head">
                         <h2 class="visitor-panel-title">Reporter Information</h2>
                     </div>
@@ -487,7 +487,7 @@
             </div>
         @elseif ($pageKey === 'work-orders')
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head"><h2 class="visitor-panel-title">Current Work Orders</h2></div>
                     <div class="table-wrap">
                         <table>
@@ -527,7 +527,7 @@
             </div>
         @elseif ($pageKey === 'technician-schedule')
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head">
                         <h2 class="visitor-panel-title">Technician Schedule - Daily View (07 Jun 2026)</h2>
                         <div class="visitor-tabs"><button class="visitor-tab active" type="button">Day</button><button class="visitor-tab" type="button">Week</button><button class="visitor-tab" type="button">Month</button></div>
@@ -553,7 +553,7 @@
             @include('service-request.partials.widgets')
         @elseif ($pageKey === 'work-in-progress')
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head"><h2 class="visitor-panel-title">Active Work In Progress: Live Status (11:00 AM)</h2></div>
                     <div class="table-wrap">
                         <table>
@@ -587,7 +587,7 @@
             @include('service-request.partials.widgets')
         @elseif ($pageKey === 'completed-requests')
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head"><h2 class="visitor-panel-title">Recently Completed Requests</h2></div>
                     <div class="table-wrap">
                         <table>
@@ -614,7 +614,7 @@
             @include('service-request.partials.widgets')
         @elseif ($pageKey === 'sla-monitoring')
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-6">
+                <section class="visitor-panel visitor-span-4">
                     <div class="visitor-panel-head"><h2 class="visitor-panel-title">Daily SLA Performance Summary</h2></div>
                     <div class="visitor-panel-body">
                         <div class="visitor-donut-wrap">
@@ -627,7 +627,7 @@
                         </div>
                     </div>
                 </section>
-                <section class="visitor-panel visitor-span-6">
+                <section class="visitor-panel visitor-span-4">
                     <div class="visitor-panel-head"><h2 class="visitor-panel-title">SLA Miss Count by Priority</h2></div>
                     <div class="visitor-panel-body">
                         <div class="service-bars">
@@ -640,7 +640,7 @@
                         </div>
                     </div>
                 </section>
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head"><h2 class="visitor-panel-title">Detailed SLA Performance by Request Category & Priority</h2></div>
                     <div class="table-wrap">
                         <table>
@@ -667,7 +667,7 @@
             @include('service-request.partials.widgets')
         @elseif ($pageKey === 'service-history')
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head"><h2 class="visitor-panel-title">Complete Service History Log</h2></div>
                     <div class="visitor-table-filters">
                         <input type="text" value="Date scope of 2026">
@@ -706,7 +706,7 @@
             </div>
         @elseif ($pageKey === 'settings')
             <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-9">
+                <section class="visitor-panel visitor-span-12">
                     <div class="visitor-panel-head"><h2 class="visitor-panel-title">Suite Settings Configuration</h2></div>
                     <div class="visitor-panel-body">
                         <div class="visitor-report-grid">
