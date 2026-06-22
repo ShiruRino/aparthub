@@ -52,27 +52,11 @@ class VisitorManagementController extends Controller
     }
 
     /**
-     * Show visitor vehicle management.
-     */
-    public function vehicles(): View
-    {
-        return $this->page('vehicles');
-    }
-
-    /**
      * Show visitor blacklist management.
      */
     public function blacklist(): View
     {
         return $this->page('blacklist');
-    }
-
-    /**
-     * Show visitor reports.
-     */
-    public function reports(): View
-    {
-        return $this->page('reports');
     }
 
     /**

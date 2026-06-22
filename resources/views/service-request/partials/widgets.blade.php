@@ -18,7 +18,7 @@
     </div>
 
     <div class="service-widget">
-        <h3>SLA Monitoring</h3>
+        <h3>SLA Snapshot</h3>
         <div class="visitor-donut-wrap">
             <div class="service-donut" data-value="92%"></div>
             <div class="legend">

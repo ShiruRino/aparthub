@@ -46,9 +46,9 @@
             </div>
             <div>
                 <div class="stat-label">Open Requests</div>
-                <div class="stat-value">18</div>
+                <div class="stat-value">{{ $serviceSummary['open'] ?? 18 }}</div>
                 <div class="stat-sub">Total Open Tickets</div>
-                <div class="trend-warn">+ 5</div>
+                <div class="trend-warn">Emergency {{ $serviceSummary['emergency'] ?? 0 }}</div>
             </div>
         </article>
 
@@ -165,11 +165,25 @@
             <div class="panel-body donut-row">
                 <div class="donut" aria-hidden="true"></div>
                 <div class="legend">
-                    <div class="legend-row"><span class="dot red"></span><span>Open</span><strong>18 (14%)</strong></div>
-                    <div class="legend-row"><span class="dot gold"></span><span>In Progress</span><strong>24 (18%)</strong></div>
-                    <div class="legend-row"><span class="dot green"></span><span>Resolved</span><strong>82 (62%)</strong></div>
-                    <div class="legend-row"><span></span><span>Total</span><strong>124</strong></div>
+                    <div class="legend-row"><span class="dot red"></span><span>Open</span><strong>{{ $serviceSummary['open'] ?? 0 }}</strong></div>
+                    <div class="legend-row"><span class="dot gold"></span><span>Assigned</span><strong>{{ $serviceSummary['assigned'] ?? 0 }}</strong></div>
+                    <div class="legend-row"><span class="dot"></span><span>In Progress</span><strong>{{ $serviceSummary['in_progress'] ?? 0 }}</strong></div>
+                    <div class="legend-row"><span class="dot green"></span><span>Resolved</span><strong>{{ $serviceSummary['resolved'] ?? 0 }}</strong></div>
+                    <div class="legend-row"><span></span><span>Over SLA</span><strong>{{ $serviceSummary['over_sla'] ?? 0 }}</strong></div>
                 </div>
+            </div>
+        </section>
+
+        <section class="ops-panel span-3">
+            <div class="panel-head">
+                <h2 class="panel-title">Service Dispatch</h2>
+                <span class="badge">Live</span>
+            </div>
+            <div class="panel-body metric-list">
+                <div class="metric-row"><span class="dot"></span><span>Assigned Queue</span><strong>{{ $serviceSummary['assigned'] ?? 0 }}</strong></div>
+                <div class="metric-row"><span class="dot gold"></span><span>In Progress</span><strong>{{ $serviceSummary['in_progress'] ?? 0 }}</strong></div>
+                <div class="metric-row"><span class="dot red"></span><span>Over SLA</span><strong>{{ $serviceSummary['over_sla'] ?? 0 }}</strong></div>
+                <div class="metric-row"><span class="dot green"></span><span>Completed</span><strong>{{ $serviceSummary['resolved'] ?? 0 }}</strong></div>
             </div>
         </section>
 
@@ -242,6 +256,17 @@
                         <span class="avatar" style="width:28px;height:28px;flex-basis:28px;font-size:11px">{{ substr($name, 0, 1) }}</span>
                         <div><div class="alert-title">{{ $name }}</div><div class="alert-desc">{{ $activity }}</div></div>
                         <span class="alert-time">{{ $time }}</span>
+                    </div>
+                @endforeach
+
+                @foreach (($recentServiceRequests ?? collect()) as $recentServiceRequest)
+                    <div class="alert-row">
+                        <span class="avatar" style="width:28px;height:28px;flex-basis:28px;font-size:11px">SR</span>
+                        <div>
+                            <div class="alert-title">{{ $recentServiceRequest->ticket_number }}</div>
+                            <div class="alert-desc">{{ $recentServiceRequest->title }} · {{ $recentServiceRequest->priority }}</div>
+                        </div>
+                        <span class="alert-time">{{ $recentServiceRequest->created_at?->diffForHumans() }}</span>
                     </div>
                 @endforeach
             </div>

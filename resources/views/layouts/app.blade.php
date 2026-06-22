@@ -4814,6 +4814,7 @@
         $canTenantRead = $authUser?->canAccessModule('tenant-marketplace', 'read');
         $canPackageRead = $authUser?->canAccessModule('package-center', 'read');
         $canBillingRead = $authUser?->canAccessModule('billing-finance', 'read');
+        $canFacilityRead = $authUser?->canAccessModule('facility-management', 'read');
     @endphp
 
     <div class="sidebar-overlay" data-sidebar-close></div>
@@ -4860,12 +4861,12 @@
                                 <a href="{{ route('resident-management.units') }}" @class(['active' => request()->routeIs('resident-management.units')])>Unit Management</a>
                                 <a href="{{ route('resident-management.move-in-out') }}" @class(['active' => request()->routeIs('resident-management.move-in-out')])>Move In / Out</a>
                                 <a href="{{ route('resident-management.family-members') }}" @class(['active' => request()->routeIs('resident-management.family-members')])>Family Member</a>
-                                <a href="{{ route('resident-management.vehicles') }}" @class(['active' => request()->routeIs('resident-management.vehicles')])>Vehicle Management</a>
+                                <!-- <a href="{{ route('resident-management.vehicles') }}" @class(['active' => request()->routeIs('resident-management.vehicles')])>Vehicle Management</a> -->
                             </div>
                         </div>
                     @endif
 
-                    @if ($canBillingRead)
+                    <!-- @if ($canBillingRead)
                         <div @class(['side-section', 'is-open' => request()->routeIs('billing-finance.*')])>
                         <button type="button" class="side-parent" title="Billing & Finance" data-sidebar-toggle @class(['active' => request()->routeIs('billing-finance.*')]) aria-expanded="{{ request()->routeIs('billing-finance.*') ? 'true' : 'false' }}">
                             <span class="side-icon">
@@ -4881,7 +4882,7 @@
                             <a href="{{ route('billing-finance.history-payment') }}" @class(['active' => request()->routeIs('billing-finance.history-payment')])>History Payment</a>
                         </div>
                     </div>
-                    @endif
+                    @endif -->
 
                     @if ($canVisitorRead)
                         <a href="{{ route('visitor-management.index') }}" title="Visitor Management" @class(['side-link', 'active' => request()->routeIs('visitor-management.*')])>
@@ -4901,34 +4902,32 @@
                         </a>
                     @endif
 
-                    @if ($canSecurityRead)
+                    <!-- @if ($canSecurityRead)
                         <a href="{{ route('security-management.index') }}" title="Security Management" @class(['side-link', 'active' => request()->routeIs('security-management.*')])>
                             <span class="side-icon">
                                 <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 5 6v6c0 4.9 2.9 7.9 7 9 4.1-1.1 7-4.1 7-9V6l-7-3Z"/><path d="M9.5 12.5 11 14l3.5-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </span>
                             <span>Security Management</span>
                         </a>
+                    @endif -->
+
+                    @if ($canFacilityRead)
+                        <a href="{{ route('facility-management.index') }}" title="Facility Management" @class(['side-link', 'active' => request()->routeIs('facility-management.*')])>
+                            <span class="side-icon">
+                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V7l8-4 8 4v14M9 21v-7h6v7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>Facility Management</span>
+                        </a>
                     @endif
 
-                    @foreach ([
-                        ['Facility Management', 'M4 21V7l8-4 8 4v14M9 21v-7h6v7'],
-                    ] as [$label, $path])
-                        <a href="#" class="side-link" title="{{ $label }}">
-                            <span class="side-icon">
-                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="{{ $path }}" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </span>
-                            <span>{{ $label }}</span>
-                        </a>
-                    @endforeach
-
-                    @if ($canPackageRead)
+                    <!-- @if ($canPackageRead)
                         <a href="{{ route('package-center.index') }}" title="Package Center" @class(['side-link', 'active' => request()->routeIs('package-center.*')])>
                             <span class="side-icon">
                                 <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5ZM3 7l9 5 9-5M12 12v10" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </span>
                             <span>Package Center</span>
                         </a>
-                    @endif
+                    @endif -->
 
                     @if ($canCommunityRead)
                         <div @class(['side-section', 'is-open' => request()->routeIs('community-management.*')])>
@@ -4941,7 +4940,7 @@
                             </button>
                             <div class="side-sub">
                                 <a href="{{ route('community-management.announcements') }}" @class(['active' => request()->routeIs('community-management.announcements')])>Announcement Center</a>
-                                <a href="{{ route('community-management.events') }}" @class(['active' => request()->routeIs('community-management.events')])>Event Management</a>
+                                <!-- <a href="{{ route('community-management.events') }}" @class(['active' => request()->routeIs('community-management.events')])>Event Management</a>
                                 <a href="{{ route('community-management.polling-survey') }}" @class(['active' => request()->routeIs('community-management.polling-survey')])>Polling &amp; Survey</a>
                                 <a href="{{ route('community-management.forum') }}" @class(['active' => request()->routeIs('community-management.forum')])>Resident Forum</a>
                                 <a href="{{ route('community-management.broadcasts') }}" @class(['active' => request()->routeIs('community-management.broadcasts')])>Broadcast Notification</a>
@@ -4949,21 +4948,21 @@
                                 <a href="{{ route('community-management.calendar') }}" @class(['active' => request()->routeIs('community-management.calendar')])>Event Calendar</a>
                                 <a href="{{ route('community-management.engagement') }}" @class(['active' => request()->routeIs('community-management.engagement')])>Resident Engagement</a>
                                 <a href="{{ route('community-management.archive') }}" @class(['active' => request()->routeIs('community-management.archive')])>Community Archive</a>
-                                <a href="{{ route('community-management.settings') }}" @class(['active' => request()->routeIs('community-management.settings')])>Community Settings</a>
+                                <a href="{{ route('community-management.settings') }}" @class(['active' => request()->routeIs('community-management.settings')])>Community Settings</a> -->
                             </div>
                         </div>
                     @endif
 
-                    @if ($canTenantRead)
+                    <!-- @if ($canTenantRead)
                         <a href="{{ route('tenant-marketplace.index') }}" title="Tenant Marketplace" @class(['side-link', 'active' => request()->routeIs('tenant-marketplace.*')])>
                             <span class="side-icon">
                                 <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9h14l-1 11H6L5 9ZM8 9a4 4 0 0 1 8 0M8 13h.01M12 13h.01M16 13h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </span>
                             <span>Tenant Marketplace</span>
                         </a>
-                    @endif
+                    @endif -->
 
-                    @foreach ([
+                    <!-- @foreach ([
                         ['Reports & Analytics', 'M4 19V5M8 19v-6M12 19V8M16 19v-9M20 19V4'],
                     ] as [$label, $path])
                         <a href="#" class="side-link" title="{{ $label }}">
@@ -4972,7 +4971,7 @@
                             </span>
                             <span>{{ $label }}</span>
                         </a>
-                    @endforeach
+                    @endforeach -->
 
                     <div @class(['side-section', 'is-open' => request()->routeIs('roles.*') || request()->routeIs('modules.*')])>
                         <button type="button" title="System Settings" data-sidebar-toggle @class(['side-parent', 'active' => request()->routeIs('roles.*') || request()->routeIs('modules.*')]) aria-expanded="{{ request()->routeIs('roles.*') || request()->routeIs('modules.*') ? 'true' : 'false' }}">
@@ -5021,8 +5020,21 @@
                         <a class="sidebar-quick-link" href="{{ route('visitor-management.check-in-out') }}">
                             <span>&gt;</span><span>Check-In / Out</span>
                         </a>
-                        <a class="sidebar-quick-link" href="{{ route('visitor-management.reports') }}">
-                            <span>*</span><span>Visitor Reports</span>
+                        <a class="sidebar-quick-link" href="{{ route('visitor-management.blacklist') }}">
+                            <span>*</span><span>Blacklist Queue</span>
+                        </a>
+                    </div>
+                @elseif ($canFacilityRead && request()->routeIs('facility-management.*'))
+                    <div class="sidebar-quick-actions" aria-label="Facility management quick actions">
+                        <div class="sidebar-quick-title">Quick Actions</div>
+                        <a class="sidebar-quick-link" href="{{ route('facility-management.index') }}">
+                            <span>#</span><span>Facility Workspace</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('facility-management.index') }}">
+                            <span>+</span><span>Create Booking</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('facility-management.index') }}">
+                            <span>&gt;</span><span>Facility Status</span>
                         </a>
                     </div>
                 @elseif ($canSecurityRead && request()->routeIs('security-management.*'))
@@ -5089,11 +5101,11 @@
                         <a class="sidebar-quick-link" href="{{ route('service-request.new-request') }}">
                             <span>+</span><span>Create New Request</span>
                         </a>
-                        <a class="sidebar-quick-link" href="{{ route('service-request.assignment-board') }}">
-                            <span>&gt;</span><span>Assign Technician</span>
+                        <a class="sidebar-quick-link" href="{{ route('dashboard') }}">
+                            <span>&gt;</span><span>Assignment Visibility</span>
                         </a>
-                        <a class="sidebar-quick-link" href="{{ route('service-request.sla-monitoring') }}">
-                            <span>!</span><span>SLA Monitoring</span>
+                        <a class="sidebar-quick-link" href="{{ route('dashboard') }}">
+                            <span>!</span><span>SLA Summary</span>
                         </a>
                     </div>
                 @endif

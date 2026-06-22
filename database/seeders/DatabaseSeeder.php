@@ -30,10 +30,11 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Tenant Marketplace', 'slug' => 'tenant-marketplace', 'description' => 'Kelola direktori tenant marketplace dan input tenant.', 'sort_order' => 60],
             ['name' => 'Package Center', 'slug' => 'package-center', 'description' => 'Kelola paket masuk, pengambilan, dan riwayat paket.', 'sort_order' => 70],
             ['name' => 'Billing & Finance', 'slug' => 'billing-finance', 'description' => 'Kelola invoice, collection, auto billing, dan histori pembayaran.', 'sort_order' => 80],
-            ['name' => 'Users', 'slug' => 'users', 'description' => 'Kelola data user.', 'sort_order' => 90],
-            ['name' => 'Modules', 'slug' => 'modules', 'description' => 'Kelola daftar module aplikasi.', 'sort_order' => 100],
-            ['name' => 'Access', 'slug' => 'access', 'description' => 'Kelola hak akses CRUD per user dan module.', 'sort_order' => 110],
-            ['name' => 'Roles', 'slug' => 'roles', 'description' => 'Kelola role user.', 'sort_order' => 120],
+            ['name' => 'Facility Management', 'slug' => 'facility-management', 'description' => 'Kelola fasilitas dan booking fasilitas penghuni.', 'sort_order' => 90],
+            ['name' => 'Users', 'slug' => 'users', 'description' => 'Kelola data user.', 'sort_order' => 100],
+            ['name' => 'Modules', 'slug' => 'modules', 'description' => 'Kelola daftar module aplikasi.', 'sort_order' => 110],
+            ['name' => 'Access', 'slug' => 'access', 'description' => 'Kelola hak akses CRUD per user dan module.', 'sort_order' => 120],
+            ['name' => 'Roles', 'slug' => 'roles', 'description' => 'Kelola role user.', 'sort_order' => 130],
         ])->map(fn (array $module) => Module::query()->updateOrCreate(
             ['slug' => $module['slug']],
             $module + ['is_active' => true]
@@ -57,6 +58,10 @@ class DatabaseSeeder extends Seeder
             'can_delete' => true,
         ]));
 
-        $this->call(ResidentManagementSeeder::class);
+        $this->call([
+            ResidentManagementSeeder::class,
+            ServiceRequestSeeder::class,
+            FacilityManagementSeeder::class,
+        ]);
     }
 }

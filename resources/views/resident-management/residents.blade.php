@@ -100,19 +100,7 @@
                                         @include('resident-management.partials.action-button', [
                                             'label' => 'Detail Residen',
                                             'icon' => 'eye',
-                                            'modal' => 'resident-resident-form-modal',
-                                            'data' => [
-                                                'data-form-mode' => 'edit',
-                                                'data-form-title' => 'Detail Residen',
-                                                'data-form-action' => route('resident-management.residents.update', $row['id']),
-                                                'data-resident-name' => $row['name'],
-                                                'data-resident-unit-id' => $row['unit_id'] ?? '',
-                                                'data-resident-type' => $row['type'],
-                                                'data-resident-status' => $row['status'],
-                                                'data-resident-move-in-date' => $row['move_in_date'] ?? '',
-                                                'data-resident-move-out-date' => $row['move_out_date'] ?? '',
-                                                'data-resident-avatar-tone' => $row['avatar_tone'] ?? '',
-                                            ],
+                                            'modal' => 'resident-detail-modal-'.$row['id'],
                                         ])
                                         @include('resident-management.partials.action-button', [
                                             'label' => 'Edit Residen',
@@ -156,6 +144,10 @@
 
         @include('resident-management.partials.benefits')
     </div>
+
+    @foreach ($rows as $row)
+        @include('resident-management.partials.resident-detail-modal', ['row' => $row])
+    @endforeach
 
     <div class="visitor-modal resident-modal" id="resident-resident-form-modal" aria-hidden="true">
         <button class="visitor-modal-backdrop" type="button" data-modal-close aria-label="Close modal"></button>

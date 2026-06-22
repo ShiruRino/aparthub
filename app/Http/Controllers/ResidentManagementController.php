@@ -22,7 +22,7 @@ class ResidentManagementController extends Controller
     public function residents(Request $request): View
     {
         $residents = Resident::query()
-            ->with('unit')
+            ->with(['unit.residents', 'familyMembers', 'moveRequests.unit'])
             ->when($request->string('search')->toString(), function (Builder $query, string $search) {
                 $query->where(function (Builder $residentQuery) use ($search) {
                     $residentQuery->where('name', 'like', '%'.$search.'%')
@@ -39,22 +39,57 @@ class ResidentManagementController extends Controller
             ->withQueryString();
 
         $residentPreview = $residents->getCollection()->first();
-        $rows = $residents->getCollection()->map(fn (Resident $resident) => [
-            'id' => $resident->id,
-            'name' => $resident->name,
-            'unit' => $resident->unit?->code ? 'Unit '.$resident->unit->code : '-',
-            'unit_id' => $resident->unit_id,
-            'tower' => $resident->unit ? $resident->unit->tower.' / '.str_pad((string) $resident->unit->floor, 2, '0', STR_PAD_LEFT) : '-',
-            'status' => $resident->status,
-            'statusClass' => $this->residentStatusClass($resident->status),
-            'type' => $resident->resident_type,
-            'date' => optional($resident->move_in_date)->format('d M Y') ?? 'TBD',
-            'move_in_date' => optional($resident->move_in_date)->format('Y-m-d'),
-            'move_out_date' => optional($resident->move_out_date)->format('Y-m-d'),
-            'avatar' => $this->initials($resident->name),
-            'avatarClass' => $resident->avatar_tone,
-            'avatar_tone' => $resident->avatar_tone,
-        ]);
+        $rows = $residents->getCollection()->map(function (Resident $resident) {
+            $owner = $resident->resident_type === 'Penyewa'
+                ? $resident->unit?->residents
+                    ?->first(fn (Resident $unitResident) => $unitResident->resident_type === 'Pemilik' && $unitResident->id !== $resident->id)
+                : null;
+
+            return [
+                'id' => $resident->id,
+                'name' => $resident->name,
+                'unit' => $resident->unit?->code ? 'Unit '.$resident->unit->code : '-',
+                'unit_id' => $resident->unit_id,
+                'tower' => $resident->unit ? $resident->unit->tower.' / '.str_pad((string) $resident->unit->floor, 2, '0', STR_PAD_LEFT) : '-',
+                'status' => $resident->status,
+                'statusClass' => $this->residentStatusClass($resident->status),
+                'type' => $resident->resident_type,
+                'date' => optional($resident->move_in_date)->format('d M Y') ?? 'TBD',
+                'move_in_date' => optional($resident->move_in_date)->format('Y-m-d'),
+                'move_out_date' => optional($resident->move_out_date)->format('Y-m-d'),
+                'avatar' => $this->initials($resident->name),
+                'avatarClass' => $resident->avatar_tone,
+                'avatar_tone' => $resident->avatar_tone,
+                'owner_name' => $owner?->name,
+                'family_members' => $resident->familyMembers
+                    ->sortBy('name')
+                    ->values()
+                    ->map(fn (ResidentFamilyMember $familyMember) => [
+                        'id' => $familyMember->id,
+                        'name' => $familyMember->name,
+                        'relationship' => $familyMember->relationship,
+                        'birth' => optional($familyMember->birth_date)->format('d M Y') ?? '-',
+                        'birth_date' => optional($familyMember->birth_date)->format('Y-m-d'),
+                        'access_status' => $familyMember->access_status,
+                        'status_class' => $this->residentStatusClass($familyMember->access_status),
+                    ])
+                    ->all(),
+                'move_logs' => $resident->moveRequests
+                    ->sortByDesc(fn (ResidentMoveRequest $moveRequest) => $moveRequest->scheduled_date?->timestamp ?? $moveRequest->created_at?->timestamp ?? 0)
+                    ->values()
+                    ->map(fn (ResidentMoveRequest $moveRequest) => [
+                        'id' => $moveRequest->id,
+                        'request_number' => $moveRequest->request_number,
+                        'request_type' => $moveRequest->request_type,
+                        'scheduled_date' => optional($moveRequest->scheduled_date)->format('d M Y') ?? 'Belum dijadwalkan',
+                        'status' => $moveRequest->status,
+                        'status_class' => $this->moveStatusClass($moveRequest->status),
+                        'unit' => $moveRequest->unit?->code ? 'Unit '.$moveRequest->unit->code : '-',
+                        'note' => $moveRequest->status_note,
+                    ])
+                    ->all(),
+            ];
+        });
 
         return view('resident-management.residents', [
             'rows' => $rows,
@@ -415,8 +450,7 @@ class ResidentManagementController extends Controller
     {
         ResidentFamilyMember::query()->create($this->validatedFamilyMember($request));
 
-        return redirect()
-            ->route('resident-management.family-members')
+        return redirect($this->familyMemberRedirectTarget($request))
             ->with('status', 'Anggota keluarga berhasil ditambahkan.');
     }
 
@@ -427,8 +461,7 @@ class ResidentManagementController extends Controller
     {
         $familyMember->update($this->validatedFamilyMember($request));
 
-        return redirect()
-            ->route('resident-management.family-members')
+        return redirect($this->familyMemberRedirectTarget($request))
             ->with('status', 'Anggota keluarga berhasil diperbarui.');
     }
 
@@ -439,8 +472,9 @@ class ResidentManagementController extends Controller
     {
         $familyMember->delete();
 
-        return redirect()
-            ->route('resident-management.family-members')
+        return redirect(request()->input('redirect_to') === 'resident-management.residents'
+            ? route('resident-management.residents')
+            : route('resident-management.family-members'))
             ->with('status', 'Anggota keluarga berhasil dihapus.');
     }
 
@@ -718,6 +752,16 @@ class ResidentManagementController extends Controller
             'parking_status' => ['required', Rule::in(['Aktif', 'Menunggu Approval'])],
             'slot_label' => ['nullable', 'string', 'max:100'],
         ]);
+    }
+
+    /**
+     * Resolve redirect target for family member actions.
+     */
+    private function familyMemberRedirectTarget(Request $request): string
+    {
+        return $request->input('redirect_to') === 'resident-management.residents'
+            ? route('resident-management.residents')
+            : route('resident-management.family-members');
     }
 
     /**

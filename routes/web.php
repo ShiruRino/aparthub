@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillingFinanceController;
 use App\Http\Controllers\CommunityManagementController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FacilityManagementController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PackageCenterController;
 use App\Http\Controllers\ResidentManagementController;
@@ -112,6 +113,32 @@ Route::middleware('auth')->group(function () {
             Route::get('/history-payment', [BillingFinanceController::class, 'historyPayment'])->name('history-payment');
         });
 
+    Route::prefix('facility-management')
+        ->name('facility-management.')
+        ->group(function () {
+            Route::get('/', [FacilityManagementController::class, 'index'])
+                ->middleware('module.access:facility-management,read')
+                ->name('index');
+            Route::post('/facilities', [FacilityManagementController::class, 'storeFacility'])
+                ->middleware('module.access:facility-management,create')
+                ->name('facilities.store');
+            Route::put('/facilities/{facility}', [FacilityManagementController::class, 'updateFacility'])
+                ->middleware('module.access:facility-management,update')
+                ->name('facilities.update');
+            Route::delete('/facilities/{facility}', [FacilityManagementController::class, 'destroyFacility'])
+                ->middleware('module.access:facility-management,delete')
+                ->name('facilities.destroy');
+            Route::post('/bookings', [FacilityManagementController::class, 'storeBooking'])
+                ->middleware('module.access:facility-management,create')
+                ->name('bookings.store');
+            Route::put('/bookings/{booking}', [FacilityManagementController::class, 'updateBooking'])
+                ->middleware('module.access:facility-management,update')
+                ->name('bookings.update');
+            Route::delete('/bookings/{booking}', [FacilityManagementController::class, 'destroyBooking'])
+                ->middleware('module.access:facility-management,delete')
+                ->name('bookings.destroy');
+        });
+
     Route::prefix('visitor-management')
         ->name('visitor-management.')
         ->middleware('module.access:visitor-management,read')
@@ -122,9 +149,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/expected-visitors', [VisitorManagementController::class, 'expectedVisitors'])->name('expected-visitors');
             Route::get('/check-in-out', [VisitorManagementController::class, 'checkInOut'])->name('check-in-out');
             Route::get('/history', [VisitorManagementController::class, 'history'])->name('history');
-            Route::get('/vehicles', [VisitorManagementController::class, 'vehicles'])->name('vehicles');
             Route::get('/blacklist', [VisitorManagementController::class, 'blacklist'])->name('blacklist');
-            Route::get('/reports', [VisitorManagementController::class, 'reports'])->name('reports');
         });
 
     Route::prefix('service-request')
@@ -134,12 +159,16 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [ServiceRequestController::class, 'index'])->name('index');
             Route::get('/ticket-queue', [ServiceRequestController::class, 'ticketQueue'])->name('ticket-queue');
             Route::get('/new-request', [ServiceRequestController::class, 'newRequest'])->name('new-request');
-            Route::get('/assignment-board', [ServiceRequestController::class, 'assignmentBoard'])->name('assignment-board');
             Route::get('/work-orders', [ServiceRequestController::class, 'workOrders'])->name('work-orders');
             Route::get('/technician-schedule', [ServiceRequestController::class, 'technicianSchedule'])->name('technician-schedule');
             Route::get('/work-in-progress', [ServiceRequestController::class, 'workInProgress'])->name('work-in-progress');
             Route::get('/completed-requests', [ServiceRequestController::class, 'completedRequests'])->name('completed-requests');
-            Route::get('/sla-monitoring', [ServiceRequestController::class, 'slaMonitoring'])->name('sla-monitoring');
+            Route::post('/', [ServiceRequestController::class, 'store'])
+                ->middleware('module.access:service-request,create')
+                ->name('store');
+            Route::put('/{serviceRequest}', [ServiceRequestController::class, 'update'])
+                ->middleware('module.access:service-request,update')
+                ->name('update');
             Route::get('/service-history', [ServiceRequestController::class, 'serviceHistory'])->name('service-history');
             Route::get('/settings', [ServiceRequestController::class, 'settings'])->name('settings');
         });

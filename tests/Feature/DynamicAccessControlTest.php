@@ -193,9 +193,10 @@ class DynamicAccessControlTest extends TestCase
             ->get(route('service-request.index'))
             ->assertOk()
             ->assertSee('Ticket Queue')
-            ->assertSee('Ticket Queue')
-            ->assertSee('Ticket Queue')
-            ->assertSee('SLA Monitoring');
+            ->assertSee('Assignment Visibility')
+            ->assertSee('SLA Snapshot')
+            ->assertDontSee('SLA Monitoring')
+            ->assertDontSee('Assignment Board');
 
         foreach ($this->serviceRoutes() as $routeName => $expectedText) {
             $this->actingAs($admin)
@@ -761,9 +762,7 @@ class DynamicAccessControlTest extends TestCase
             ->assertDontSee('href="'.route('visitor-management.expected-visitors').'"', false)
             ->assertDontSee('href="'.route('visitor-management.check-in-out').'"', false)
             ->assertDontSee('href="'.route('visitor-management.history').'"', false)
-            ->assertDontSee('href="'.route('visitor-management.vehicles').'"', false)
-            ->assertDontSee('href="'.route('visitor-management.blacklist').'"', false)
-            ->assertDontSee('href="'.route('visitor-management.reports').'"', false);
+            ->assertDontSee('href="'.route('visitor-management.blacklist').'"', false);
 
         $hub = $this->actingAs($admin)
             ->get(route('visitor-management.index'))
@@ -771,6 +770,7 @@ class DynamicAccessControlTest extends TestCase
             ->assertSee('Visitor Registration')
             ->assertSee('Register Visitor')
             ->assertSee('Check-In / Out')
+            ->assertSee('Blacklist')
             ->assertSee('All Visitor Registration');
 
         foreach (array_keys($this->visitorRoutes()) as $routeName) {
@@ -789,12 +789,10 @@ class DynamicAccessControlTest extends TestCase
             ->assertSee('href="'.route('service-request.index').'"', false)
             ->assertDontSee('href="'.route('service-request.ticket-queue').'"', false)
             ->assertDontSee('href="'.route('service-request.new-request').'"', false)
-            ->assertDontSee('href="'.route('service-request.assignment-board').'"', false)
             ->assertDontSee('href="'.route('service-request.work-orders').'"', false)
             ->assertDontSee('href="'.route('service-request.technician-schedule').'"', false)
             ->assertDontSee('href="'.route('service-request.work-in-progress').'"', false)
             ->assertDontSee('href="'.route('service-request.completed-requests').'"', false)
-            ->assertDontSee('href="'.route('service-request.sla-monitoring').'"', false)
             ->assertDontSee('href="'.route('service-request.service-history').'"', false)
             ->assertDontSee('href="'.route('service-request.settings').'"', false);
 
@@ -803,8 +801,8 @@ class DynamicAccessControlTest extends TestCase
             ->assertOk()
             ->assertSee('Ticket Queue')
             ->assertSee('Create New Request')
-            ->assertSee('SLA Monitoring')
-            ->assertSee('Assignment Board');
+            ->assertSee('Work Orders')
+            ->assertSee('Technician Schedule');
 
         foreach (array_keys($this->serviceRoutes()) as $routeName) {
             $hub->assertSee('href="'.route($routeName).'"', false);
@@ -1189,9 +1187,7 @@ class DynamicAccessControlTest extends TestCase
             'visitor-management.expected-visitors' => 'Expected Visitors',
             'visitor-management.check-in-out' => 'Visitor Check-In / Check-Out',
             'visitor-management.history' => 'Visitor History Log',
-            'visitor-management.vehicles' => 'Visitor Vehicle Management',
             'visitor-management.blacklist' => 'Visitor Blacklist Management',
-            'visitor-management.reports' => 'Visitor Reports & Analytics',
         ];
     }
 
@@ -1205,14 +1201,12 @@ class DynamicAccessControlTest extends TestCase
         return [
             'service-request.ticket-queue' => 'Ticket Queue',
             'service-request.new-request' => 'Create New Service Request',
-            'service-request.assignment-board' => 'Ticket Assignment Board',
             'service-request.work-orders' => 'Work Orders',
             'service-request.technician-schedule' => 'Technician Schedule',
-            'service-request.work-in-progress' => 'Active Work In Progress',
-            'service-request.completed-requests' => 'Recently Completed Requests',
-            'service-request.sla-monitoring' => 'SLA Performance Dashboard',
-            'service-request.service-history' => 'Service Request History Log',
-            'service-request.settings' => 'Suite Settings Configuration',
+            'service-request.work-in-progress' => 'Work In Progress',
+            'service-request.completed-requests' => 'Completed Requests',
+            'service-request.service-history' => 'Service Request History',
+            'service-request.settings' => 'Service Request Settings',
         ];
     }
 

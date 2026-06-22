@@ -9,9 +9,7 @@
         ['label' => 'Expected Visitors', 'route' => 'visitor-management.expected-visitors', 'active' => ['visitor-management.expected-visitors']],
         ['label' => 'Check-In / Out', 'route' => 'visitor-management.check-in-out', 'active' => ['visitor-management.check-in-out']],
         ['label' => 'History', 'route' => 'visitor-management.history', 'active' => ['visitor-management.history']],
-        ['label' => 'Vehicles', 'route' => 'visitor-management.vehicles', 'active' => ['visitor-management.vehicles']],
         ['label' => 'Blacklist', 'route' => 'visitor-management.blacklist', 'active' => ['visitor-management.blacklist']],
-        ['label' => 'Reports', 'route' => 'visitor-management.reports', 'active' => ['visitor-management.reports']],
     ];
 
     $visitors = [
@@ -166,19 +164,6 @@
             'detailActionsTitle' => 'History Actions',
             'detailActions' => [['Re-print Visit Pass', 'info'], ['View Linked Service Report', 'gold']],
         ],
-        'vehicles' => [
-            'label' => 'Vehicle Visitor',
-            'title' => 'Visitor Vehicle Management',
-            'subtitle' => 'Manage visitor vehicles, parking lots, and temporary parking permits.',
-            'stats' => ['Total Visitor Vehicles Currently in Park: 22 / 30'],
-            'tableTitle' => 'Visitor Vehicle Management',
-            'columns' => $vehicleColumns,
-            'rows' => $rows['vehicles'],
-            'detailTitle' => 'Visitor Vehicle Details',
-            'detailStatus' => ['Lisa Adams', 'Vehicle Parked', 'status-approved'],
-            'detailActionsTitle' => 'Vehicle Access Control',
-            'detailActions' => [['Re-allocate Lot', 'info'], ['Log Mis-Parking Violation', 'danger'], ['Extend Visitor Parking Permit', 'gold']],
-        ],
         'blacklist' => [
             'label' => 'Blacklist Management',
             'title' => 'Visitor Blacklist Management',
@@ -191,12 +176,6 @@
             'detailStatus' => ['Mike Thompson', 'Blacklisted', 'status-rejected'],
             'detailActionsTitle' => 'Blacklist Actions',
             'detailActions' => [['Add Incident Report', 'info'], ['Revoke Blacklist', 'gold'], ['Edit Blacklist Record', 'danger']],
-        ],
-        'reports' => [
-            'label' => 'Reports',
-            'title' => 'Visitor Reports & Analytics',
-            'subtitle' => 'Review visitor trends, purposes, and peak check-in hours.',
-            'stats' => ['Total Visits (This Month): 1,250', 'Average Duration of Visit: 45 min'],
         ],
     ];
 
@@ -228,7 +207,7 @@
                         @endforeach
                     </div>
                 @endif
-                <button class="btn secondary" type="button" data-modal-open="visitor-registration-modal">{{ $pageKey === 'reports' ? 'Download Report' : 'Download Template' }}</button>
+                <button class="btn secondary" type="button" data-modal-open="visitor-registration-modal">Download Template</button>
                 <button class="btn" type="button" data-modal-open="visitor-registration-modal">Register Walk-In Visitor</button>
             </div>
         </section>
@@ -279,47 +258,6 @@
                 </section>
 
             </div>
-        @elseif ($pageKey === 'reports')
-            <div class="visitor-grid">
-                <section class="visitor-panel visitor-span-9">
-                    <div class="visitor-panel-head">
-                        <h2 class="visitor-panel-title">Visitor Reports & Analytics</h2>
-                        @include('visitor-management.partials.filters', ['search' => 'All visit purposes'])
-                    </div>
-                    <div class="visitor-chart">
-                        <h3 style="margin:0 0 14px;color:#0b2149;">Visits Over Time</h3>
-                        <div class="visitor-line-chart" aria-label="Visits over time chart"></div>
-                        <div class="visitor-chart-labels">
-                            <span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span><span>Week 5</span><span>Week 6</span><span>Week 7</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="visitor-panel visitor-span-9">
-                    <div class="visitor-report-grid visitor-panel-body">
-                        <div>
-                            <h3 class="visitor-panel-title">Visit Purpose Breakdown</h3>
-                            <div class="visitor-donut-wrap">
-                                <div class="visitor-donut-purpose"></div>
-                                <div class="legend">
-                                    <div class="legend-row"><span class="dot"></span><span>Business</span><strong>30%</strong></div>
-                                    <div class="legend-row"><span class="dot green"></span><span>Maintenance</span><strong>27%</strong></div>
-                                    <div class="legend-row"><span class="dot red"></span><span>Social</span><strong>16%</strong></div>
-                                    <div class="legend-row"><span class="dot gold"></span><span>Delivery</span><strong>20%</strong></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="visitor-panel-title">Peak Check-In Hours</h3>
-                            <div class="visitor-bars-chart" aria-label="Peak check-in hours chart">
-                                @foreach ([18, 16, 38, 74, 92, 100, 90, 76, 49, 34] as $height)
-                                    <span @class(['visitor-bar', 'hot' => $height >= 90]) style="height: {{ $height }}%;"></span>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
         @else
             <div class="visitor-grid">
                 <section class="visitor-panel visitor-span-12">
@@ -357,19 +295,15 @@
 
         @include('visitor-management.partials.detail', [
             'modalId' => 'visitor-action-modal',
-            'title' => $pageKey === 'reports' ? 'Report Summary & Options' : ($page['detailTitle'] ?? 'Visitor Detail'),
-            'status' => $pageKey === 'reports'
-                ? ['Monthly Report', 'Ready', 'status-approved']
-                : ($page['detailStatus'] ?? ['John Doe', 'Pending', 'status-pending']),
+            'title' => $page['detailTitle'] ?? 'Visitor Detail',
+            'status' => $page['detailStatus'] ?? ['John Doe', 'Pending', 'status-pending'],
             'actionsTitle' => $pageKey === 'check-in-out'
                 ? 'Check-In / Check-Out Actions'
                 : ($page['detailActionsTitle'] ?? 'Visitor Actions'),
-            'actions' => $pageKey === 'reports'
-                ? [['Export as PDF', 'gold'], ['Schedule Email Report', 'info'], ['Print Report', 'info']]
-                : ($pageKey === 'check-in-out'
-                    ? [['Confirm Check-In', 'success'], ['Confirm Check-Out', 'danger']]
-                    : ($page['detailActions'] ?? [['Edit', 'secondary'], ['Cancel Registration', 'danger']])),
-            'subtext' => $pageKey === 'reports' ? 'Monthly analytics summary' : 'Guest - Personal Visit',
+            'actions' => $pageKey === 'check-in-out'
+                ? [['Confirm Check-In', 'success'], ['Confirm Check-Out', 'danger']]
+                : ($page['detailActions'] ?? [['Edit', 'secondary'], ['Cancel Registration', 'danger']]),
+            'subtext' => 'Guest - Personal Visit',
         ])
     </div>
 @endsection

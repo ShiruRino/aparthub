@@ -67,4 +67,12 @@ class Resident extends Model
     {
         return $this->hasMany(ResidentVehicle::class);
     }
+
+    /**
+     * Facility bookings linked to the resident.
+     */
+    public function facilityBookings(): HasMany
+    {
+        return $this->hasMany(FacilityBooking::class);
+    }
 }
