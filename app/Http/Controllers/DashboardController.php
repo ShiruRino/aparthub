@@ -13,16 +13,18 @@ class DashboardController extends Controller
     public function __invoke(): View
     {
         $serviceSummary = [
-            'open' => ServiceRequest::query()->whereIn('status', ['New', 'Pending', 'Assigned', 'In Progress', 'Over SLA'])->count(),
-            'assigned' => ServiceRequest::query()->where('status', 'Assigned')->count(),
-            'in_progress' => ServiceRequest::query()->where('status', 'In Progress')->count(),
-            'resolved' => ServiceRequest::query()->where('status', 'Completed')->count(),
-            'over_sla' => ServiceRequest::query()->where('status', 'Over SLA')->count(),
-            'emergency' => ServiceRequest::query()->where('priority', 'Emergency')->count(),
+            'submitted' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_SUBMITTED)->count(),
+            'open' => ServiceRequest::query()->whereNotIn('status', [ServiceRequest::STATUS_COMPLETED, ServiceRequest::STATUS_CANCELLED])->count(),
+            'assigned' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_ASSIGNED)->count(),
+            'in_progress' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_IN_PROGRESS)->count(),
+            'resolved' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_COMPLETED)->count(),
+            'completed_today' => ServiceRequest::query()->whereDate('completed_at', today())->count(),
+            'over_sla' => ServiceRequest::query()->overSla()->count(),
+            'emergency' => ServiceRequest::query()->where('priority', ServiceRequest::PRIORITY_EMERGENCY)->count(),
         ];
 
         $recentServiceRequests = ServiceRequest::query()
-            ->with('resident.unit')
+            ->with(['resident.unit', 'subcategory', 'attachments'])
             ->latest()
             ->take(5)
             ->get();

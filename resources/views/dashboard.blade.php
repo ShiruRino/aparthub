@@ -4,7 +4,29 @@
 
 @section('content')
     <div class="dash-grid">
-        <article class="stat-card">
+        <section class="ops-panel span-12">
+            <div class="panel-head">
+                <h2 class="panel-title">Service Request Snapshot</h2>
+                <span class="badge">Live DB</span>
+            </div>
+            <div class="panel-body" style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;">
+                @foreach ([
+                    ['Submitted', $serviceSummary['submitted'] ?? 0],
+                    ['Assigned', $serviceSummary['assigned'] ?? 0],
+                    ['In Progress', $serviceSummary['in_progress'] ?? 0],
+                    ['Completed Today', $serviceSummary['completed_today'] ?? 0],
+                    ['Over SLA', $serviceSummary['over_sla'] ?? 0],
+                    ['Emergency', $serviceSummary['emergency'] ?? 0],
+                ] as [$label, $value])
+                    <div style="border:1px solid #dce4ef;border-radius:14px;padding:14px 12px;background:#f8fbff;">
+                        <div class="stat-label" style="color: #000;">{{ $label }}</div>
+                        <div class="stat-value" style="font-size:28px; color: #000;">{{ $value }}</div>
+                    </div>
+                @endforeach
+            </div>
+        </section>
+
+        <!-- <article class="stat-card">
             <div class="stat-icon">
                 <span class="tiny-donut" aria-hidden="true"></span>
             </div>
@@ -38,7 +60,7 @@
                 <div class="stat-sub">Total Outstanding</div>
                 <div class="trend-down">- 1.2%</div>
             </div>
-        </article>
+        </article> -->
 
         <article class="stat-card">
             <div class="stat-icon">
@@ -64,7 +86,7 @@
             </div>
         </article>
 
-        <article class="stat-card">
+        <!-- <article class="stat-card">
             <div class="stat-icon">
                 <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="M3 7v10l9 5 9-5V7M12 12v10"/></svg>
             </div>
@@ -74,9 +96,9 @@
                 <div class="stat-sub">Incoming Packages</div>
                 <div class="trend-up">+ 8%</div>
             </div>
-        </article>
+        </article> -->
 
-        <section class="ops-panel span-4">
+        <!-- <section class="ops-panel span-4">
             <div class="panel-head">
                 <h2 class="panel-title">Building Overview</h2>
             </div>
@@ -108,9 +130,9 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
-        <section class="ops-panel span-4">
+        <!-- <section class="ops-panel span-4">
             <div class="panel-head">
                 <h2 class="panel-title">Collection Trend</h2>
                 <span class="badge">This Year</span>
@@ -131,9 +153,9 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
-        <section class="ops-panel span-2">
+        <section class="ops-panel span-3">
             <div class="panel-head">
                 <h2 class="panel-title">Resident Activity</h2>
             </div>
@@ -145,7 +167,7 @@
             </div>
         </section>
 
-        <section class="ops-panel span-2">
+        <section class="ops-panel span-3">
             <div class="panel-head">
                 <h2 class="panel-title">Latest Alerts</h2>
                 <span class="muted">View All</span>
@@ -187,58 +209,6 @@
             </div>
         </section>
 
-        <section class="ops-panel span-3">
-            <div class="panel-head">
-                <h2 class="panel-title">Facility Utilization</h2>
-                <span class="badge">This Week</span>
-            </div>
-            <div class="panel-body progress-list">
-                <div class="progress-row"><span>Gym</span><div class="progress-track"><div class="progress-fill" style="width:87%"></div></div><strong>87%</strong></div>
-                <div class="progress-row"><span>Swimming Pool</span><div class="progress-track"><div class="progress-fill" style="width:76%"></div></div><strong>76%</strong></div>
-                <div class="progress-row"><span>Meeting Room</span><div class="progress-track"><div class="progress-fill" style="width:63%"></div></div><strong>63%</strong></div>
-                <div class="progress-row"><span>Sky Lounge</span><div class="progress-track"><div class="progress-fill" style="width:58%"></div></div><strong>58%</strong></div>
-            </div>
-        </section>
-
-        <section class="ops-panel span-3">
-            <div class="panel-head">
-                <h2 class="panel-title">Package Center</h2>
-                <span class="badge">Today</span>
-            </div>
-            <div class="panel-body metric-list">
-                <div class="metric-row"><span class="dot gold"></span><span>Incoming Packages</span><strong>42</strong></div>
-                <div class="metric-row"><span class="dot gold"></span><span>Waiting Pickup</span><strong>6</strong></div>
-                <div class="metric-row"><span class="dot"></span><span>Collected Today</span><strong>36</strong></div>
-                <div class="metric-row"><span class="dot green"></span><span>Total This Month</span><strong>208</strong></div>
-            </div>
-        </section>
-
-        <section class="ops-panel span-3">
-            <div class="panel-head">
-                <h2 class="panel-title">Visitor Monitoring</h2>
-                <span class="badge">Today</span>
-            </div>
-            <div class="panel-body metric-list">
-                <div class="metric-row"><span class="dot"></span><span>Visitors Today</span><strong>127</strong></div>
-                <div class="metric-row"><span class="dot green"></span><span>Checked In</span><strong style="color:#168d51">118</strong></div>
-                <div class="metric-row"><span class="dot gold"></span><span>Pending Approval</span><strong style="color:#b87924">9</strong></div>
-                <div class="metric-row"><span class="dot"></span><span>Expected Today</span><strong>32</strong></div>
-            </div>
-        </section>
-
-        <section class="ops-panel dark-section span-8">
-            <div class="panel-head">
-                <h2 class="panel-title">Quick Summary</h2>
-            </div>
-            <div class="quick-summary">
-                <div class="summary-cell"><span>Monthly Revenue</span><strong>Rp 2.63 M</strong><div class="trend-up">+ 8.2%</div></div>
-                <div class="summary-cell"><span>Monthly Expense</span><strong>Rp 1.28 M</strong><div class="trend-down">- 2.1%</div></div>
-                <div class="summary-cell"><span>Net Income</span><strong>Rp 1.35 M</strong><div class="trend-up">+ 12.4%</div></div>
-                <div class="summary-cell"><span>Budget vs Actual</span><strong>84.6%</strong><div class="tiny-donut"></div></div>
-                <div class="summary-cell"><span>Resident Satisfaction</span><strong>4.7 / 5.0</strong><div class="stars">*****</div></div>
-                <div class="summary-cell"><span>System Health</span><strong>100%</strong><div class="trend-up">All Systems Operational</div></div>
-            </div>
-        </section>
         <section class="ops-panel span-4">
             <div class="panel-head">
                 <h2 class="panel-title">Recent Activities</h2>
@@ -271,5 +241,59 @@
                 @endforeach
             </div>
         </section>
+
+        <section class="ops-panel span-4">
+            <div class="panel-head">
+                <h2 class="panel-title">Facility Utilization</h2>
+                <span class="badge">This Week</span>
+            </div>
+            <div class="panel-body progress-list">
+                <div class="progress-row"><span>Gym</span><div class="progress-track"><div class="progress-fill" style="width:87%"></div></div><strong>87%</strong></div>
+                <div class="progress-row"><span>Swimming Pool</span><div class="progress-track"><div class="progress-fill" style="width:76%"></div></div><strong>76%</strong></div>
+                <div class="progress-row"><span>Meeting Room</span><div class="progress-track"><div class="progress-fill" style="width:63%"></div></div><strong>63%</strong></div>
+                <div class="progress-row"><span>Sky Lounge</span><div class="progress-track"><div class="progress-fill" style="width:58%"></div></div><strong>58%</strong></div>
+            </div>
+        </section>
+
+        <!-- <section class="ops-panel span-3">
+            <div class="panel-head">
+                <h2 class="panel-title">Package Center</h2>
+                <span class="badge">Today</span>
+            </div>
+            <div class="panel-body metric-list">
+                <div class="metric-row"><span class="dot gold"></span><span>Incoming Packages</span><strong>42</strong></div>
+                <div class="metric-row"><span class="dot gold"></span><span>Waiting Pickup</span><strong>6</strong></div>
+                <div class="metric-row"><span class="dot"></span><span>Collected Today</span><strong>36</strong></div>
+                <div class="metric-row"><span class="dot green"></span><span>Total This Month</span><strong>208</strong></div>
+            </div>
+        </section> -->
+
+        <section class="ops-panel span-4">
+            <div class="panel-head">
+                <h2 class="panel-title">Visitor Monitoring</h2>
+                <span class="badge">Today</span>
+            </div>
+            <div class="panel-body metric-list">
+                <div class="metric-row"><span class="dot"></span><span>Visitors Today</span><strong>127</strong></div>
+                <div class="metric-row"><span class="dot green"></span><span>Checked In</span><strong style="color:#168d51">118</strong></div>
+                <div class="metric-row"><span class="dot gold"></span><span>Pending Approval</span><strong style="color:#b87924">9</strong></div>
+                <div class="metric-row"><span class="dot"></span><span>Expected Today</span><strong>32</strong></div>
+            </div>
+        </section>
+
+        <!-- <section class="ops-panel dark-section span-8">
+            <div class="panel-head">
+                <h2 class="panel-title">Quick Summary</h2>
+            </div>
+            <div class="quick-summary">
+                <div class="summary-cell"><span>Monthly Revenue</span><strong>Rp 2.63 M</strong><div class="trend-up">+ 8.2%</div></div>
+                <div class="summary-cell"><span>Monthly Expense</span><strong>Rp 1.28 M</strong><div class="trend-down">- 2.1%</div></div>
+                <div class="summary-cell"><span>Net Income</span><strong>Rp 1.35 M</strong><div class="trend-up">+ 12.4%</div></div>
+                <div class="summary-cell"><span>Budget vs Actual</span><strong>84.6%</strong><div class="tiny-donut"></div></div>
+                <div class="summary-cell"><span>Resident Satisfaction</span><strong>4.7 / 5.0</strong><div class="stars">*****</div></div>
+                <div class="summary-cell"><span>System Health</span><strong>100%</strong><div class="trend-up">All Systems Operational</div></div>
+            </div>
+        </section> -->
+        
     </div>
 @endsection

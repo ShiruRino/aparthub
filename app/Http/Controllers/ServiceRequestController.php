@@ -4,17 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Resident;
 use App\Models\ServiceRequest;
+use App\Models\ServiceRequestCategory;
+use App\Models\ServiceRequestSubcategory;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ServiceRequestController extends Controller
 {
-    /**
-     * Show the default service request workspace.
-     */
     public function index(Request $request): View
     {
         return $this->page($request, 'ticket-queue');
@@ -60,37 +62,110 @@ class ServiceRequestController extends Controller
         return $this->page($request, 'settings');
     }
 
-    /**
-     * Store a newly created service request.
-     */
     public function store(Request $request): RedirectResponse
     {
-        ServiceRequest::query()->create($this->validatedPayload($request) + [
-            'ticket_number' => $this->nextTicketNumber(),
-        ]);
+        $data = $this->validatedPayload($request);
+
+        DB::transaction(function () use ($data) {
+            ServiceRequest::query()->create(
+                $this->buildServiceRequestAttributes($data, null) + [
+                    'ticket_number' => $this->nextTicketNumber(),
+                ]
+            );
+        });
 
         return redirect()
             ->route('service-request.ticket-queue')
             ->with('status', 'Service request berhasil dibuat.');
     }
 
-    /**
-     * Update the given service request.
-     */
     public function update(Request $request, ServiceRequest $serviceRequest): RedirectResponse
     {
-        $serviceRequest->update($this->validatedPayload($request, $serviceRequest));
+        $data = $this->validatedPayload($request, $serviceRequest);
+
+        DB::transaction(function () use ($data, $serviceRequest) {
+            $serviceRequest->update($this->buildServiceRequestAttributes($data, $serviceRequest));
+        });
 
         return redirect()
             ->back()
             ->with('status', 'Service request berhasil diperbarui.');
     }
 
-    /**
-     * Render a service request workspace.
-     */
+    public function storeCategory(Request $request): RedirectResponse
+    {
+        ServiceRequestCategory::query()->create($this->validatedCategory($request));
+
+        return redirect()
+            ->route('service-request.settings')
+            ->with('status', 'Kategori service request berhasil ditambahkan.');
+    }
+
+    public function updateCategory(Request $request, ServiceRequestCategory $category): RedirectResponse
+    {
+        $category->update($this->validatedCategory($request, $category));
+
+        return redirect()
+            ->route('service-request.settings')
+            ->with('status', 'Kategori service request berhasil diperbarui.');
+    }
+
+    public function destroyCategory(ServiceRequestCategory $category): RedirectResponse
+    {
+        if ($category->serviceRequests()->exists() || $category->subcategories()->exists()) {
+            return redirect()
+                ->route('service-request.settings')
+                ->withErrors(['service_catalog' => 'Kategori masih dipakai oleh subkategori atau ticket.']);
+        }
+
+        $category->delete();
+
+        return redirect()
+            ->route('service-request.settings')
+            ->with('status', 'Kategori service request berhasil dihapus.');
+    }
+
+    public function storeSubcategory(Request $request): RedirectResponse
+    {
+        ServiceRequestSubcategory::query()->create($this->validatedSubcategory($request));
+
+        return redirect()
+            ->route('service-request.settings')
+            ->with('status', 'Subkategori dan SLA berhasil ditambahkan.');
+    }
+
+    public function updateSubcategory(Request $request, ServiceRequestSubcategory $subcategory): RedirectResponse
+    {
+        $subcategory->update($this->validatedSubcategory($request, $subcategory));
+
+        return redirect()
+            ->route('service-request.settings')
+            ->with('status', 'Subkategori dan SLA berhasil diperbarui.');
+    }
+
+    public function destroySubcategory(ServiceRequestSubcategory $subcategory): RedirectResponse
+    {
+        if ($subcategory->serviceRequests()->exists()) {
+            return redirect()
+                ->route('service-request.settings')
+                ->withErrors(['service_catalog' => 'Subkategori masih dipakai oleh ticket.']);
+        }
+
+        $subcategory->delete();
+
+        return redirect()
+            ->route('service-request.settings')
+            ->with('status', 'Subkategori berhasil dihapus.');
+    }
+
     private function page(Request $request, string $page): View
     {
+        $categories = ServiceRequestCategory::query()
+            ->with(['subcategories' => fn ($query) => $query->orderBy('sort_order')->orderBy('name')])
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
         $summary = $this->summary();
         $requests = $this->requestsForPage($request, $page);
         $residents = Resident::query()->with('unit')->orderBy('name')->get();
@@ -100,36 +175,54 @@ class ServiceRequestController extends Controller
             'summary' => $summary,
             'requests' => $requests,
             'residentOptions' => $residents,
-            'priorityOptions' => $this->priorityOptions(),
-            'statusOptions' => $this->statusOptions(),
-            'categoryOptions' => ['Plumbing', 'AC', 'Electrical', 'Housekeeping', 'Internet', 'General'],
+            'priorityOptions' => ServiceRequest::priorityOptions(),
+            'statusOptions' => ServiceRequest::canonicalStatusOptions(),
+            'categoryOptions' => $categories,
+            'subcategoryOptions' => $categories->flatMap->subcategories,
+            'catalogJson' => $categories->map(fn (ServiceRequestCategory $category) => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'subcategories' => $category->subcategories->map(fn (ServiceRequestSubcategory $subcategory) => [
+                    'id' => $subcategory->id,
+                    'name' => $subcategory->name,
+                    'is_active' => $subcategory->is_active,
+                    'low_sla_minutes' => $subcategory->low_sla_minutes,
+                    'medium_sla_minutes' => $subcategory->medium_sla_minutes,
+                    'high_sla_minutes' => $subcategory->high_sla_minutes,
+                    'emergency_sla_minutes' => $subcategory->emergency_sla_minutes,
+                ])->values(),
+            ])->values()->toJson(),
         ]);
     }
 
-    /**
-     * Get a filtered paginator for the requested page.
-     */
     private function requestsForPage(Request $request, string $page): LengthAwarePaginator
     {
         $query = ServiceRequest::query()
-            ->with(['resident.unit'])
-            ->when($request->string('search')->toString(), function ($builder, string $search) {
-                $builder->where(function ($searchQuery) use ($search) {
+            ->with(['resident.unit', 'categoryMaster', 'subcategory', 'attachments'])
+            ->when($request->string('search')->toString(), function (Builder $builder, string $search) {
+                $builder->where(function (Builder $searchQuery) use ($search) {
                     $searchQuery->where('ticket_number', 'like', '%'.$search.'%')
                         ->orWhere('title', 'like', '%'.$search.'%')
                         ->orWhere('category', 'like', '%'.$search.'%')
-                        ->orWhereHas('resident', fn ($residentQuery) => $residentQuery->where('name', 'like', '%'.$search.'%'));
+                        ->orWhereHas('subcategory', fn (Builder $subcategoryQuery) => $subcategoryQuery->where('name', 'like', '%'.$search.'%'))
+                        ->orWhereHas('resident', fn (Builder $residentQuery) => $residentQuery->where('name', 'like', '%'.$search.'%'));
                 });
             })
-            ->when($request->filled('priority'), fn ($builder) => $builder->where('priority', $request->string('priority')))
-            ->when($request->filled('status'), fn ($builder) => $builder->where('status', $request->string('status')))
-            ->when($request->filled('category'), fn ($builder) => $builder->where('category', $request->string('category')));
+            ->when($request->filled('priority'), fn (Builder $builder) => $builder->where('priority', $request->string('priority')->toString()))
+            ->when($request->filled('status'), fn (Builder $builder) => $builder->canonicalStatus($request->string('status')->toString()))
+            ->when($request->filled('category_id'), fn (Builder $builder) => $builder->where('service_request_category_id', $request->integer('category_id')))
+            ->when($request->filled('subcategory_id'), fn (Builder $builder) => $builder->where('service_request_subcategory_id', $request->integer('subcategory_id')))
+            ->when($request->filled('sla_state'), function (Builder $builder) use ($request) {
+                if ($request->string('sla_state')->toString() === 'over') {
+                    $builder->overSla();
+                }
+            });
 
         match ($page) {
-            'work-orders' => $query->whereIn('status', ['Assigned', 'In Progress', 'Over SLA']),
-            'technician-schedule' => $query->whereIn('status', ['Assigned', 'In Progress']),
-            'work-in-progress' => $query->whereIn('status', ['In Progress', 'Over SLA']),
-            'completed-requests' => $query->where('status', 'Completed'),
+            'work-orders' => $query->whereIn('status', [ServiceRequest::STATUS_ASSIGNED, ServiceRequest::STATUS_IN_PROGRESS]),
+            'technician-schedule' => $query->whereIn('status', [ServiceRequest::STATUS_ASSIGNED, ServiceRequest::STATUS_IN_PROGRESS]),
+            'work-in-progress' => $query->canonicalStatus(ServiceRequest::STATUS_IN_PROGRESS),
+            'completed-requests', 'service-history' => $query->canonicalStatus(ServiceRequest::STATUS_COMPLETED),
             default => null,
         };
 
@@ -139,78 +232,132 @@ class ServiceRequestController extends Controller
             ->withQueryString();
     }
 
-    /**
-     * Build dashboard-like service summary metrics.
-     *
-     * @return array<string, int>
-     */
     private function summary(): array
     {
         return [
-            'new' => ServiceRequest::query()->where('status', 'New')->count(),
-            'assigned' => ServiceRequest::query()->where('status', 'Assigned')->count(),
-            'in_progress' => ServiceRequest::query()->where('status', 'In Progress')->count(),
+            'submitted' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_SUBMITTED)->count(),
+            'assigned' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_ASSIGNED)->count(),
+            'in_progress' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_IN_PROGRESS)->count(),
             'completed_today' => ServiceRequest::query()->whereDate('completed_at', today())->count(),
-            'over_sla' => ServiceRequest::query()->where('status', 'Over SLA')->count(),
-            'emergency' => ServiceRequest::query()->where('priority', 'Emergency')->count(),
+            'over_sla' => ServiceRequest::query()->overSla()->count(),
+            'emergency' => ServiceRequest::query()->where('priority', ServiceRequest::PRIORITY_EMERGENCY)->count(),
         ];
     }
 
-    /**
-     * Validate a service request payload.
-     *
-     * @return array<string, mixed>
-     */
     private function validatedPayload(Request $request, ?ServiceRequest $serviceRequest = null): array
     {
         $data = $request->validate([
             'resident_id' => ['required', 'exists:residents,id'],
-            'category' => ['required', 'string', 'max:255'],
+            'category_id' => ['required', 'exists:service_request_categories,id'],
+            'subcategory_id' => ['required', 'exists:service_request_subcategories,id'],
             'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'priority' => ['required', Rule::in($this->priorityOptions())],
-            'status' => ['nullable', Rule::in($this->statusOptions())],
+            'description' => ['required', 'string'],
+            'priority' => ['required', Rule::in(ServiceRequest::priorityOptions())],
+            'status' => ['nullable', Rule::in(ServiceRequest::canonicalStatusOptions())],
             'source' => ['nullable', 'string', 'max:255'],
             'assigned_to' => ['nullable', 'string', 'max:255'],
             'completion_notes' => ['nullable', 'string'],
         ]);
 
-        $data['status'] = $data['status'] ?? ($serviceRequest?->status ?? 'New');
+        $subcategory = ServiceRequestSubcategory::query()
+            ->with('category')
+            ->findOrFail($data['subcategory_id']);
+
+        if ((int) $subcategory->service_request_category_id !== (int) $data['category_id']) {
+            throw ValidationException::withMessages([
+                'subcategory_id' => 'Subkategori tidak sesuai dengan kategori terpilih.',
+            ]);
+        }
+
+        $data['category'] = $subcategory->category?->name ?? '';
+        $data['service_request_category_id'] = $subcategory->service_request_category_id;
+        $data['service_request_subcategory_id'] = $subcategory->id;
+        $data['status'] = $data['status'] ?? ($serviceRequest?->status ?? ServiceRequest::STATUS_SUBMITTED);
         $data['source'] = $data['source'] ?? ($serviceRequest?->source ?? 'Front Office');
-        $data['completed_at'] = $data['status'] === 'Completed'
-            ? ($serviceRequest?->completed_at ?? now())
-            : null;
+        $data['subcategory'] = $subcategory;
 
         return $data;
     }
 
-    /**
-     * Get the allowed service priorities.
-     *
-     * @return list<string>
-     */
-    private function priorityOptions(): array
+    private function buildServiceRequestAttributes(array $data, ?ServiceRequest $serviceRequest): array
     {
-        return ['Low', 'Medium', 'High', 'Emergency'];
+        /** @var ServiceRequestSubcategory $subcategory */
+        $subcategory = $data['subcategory'];
+        $status = $data['status'];
+        $slaTargetMinutes = $subcategory->slaMinutesFor($data['priority']);
+        $createdAt = $serviceRequest?->created_at ?? now();
+
+        return [
+            'resident_id' => $data['resident_id'],
+            'service_request_category_id' => $data['service_request_category_id'],
+            'service_request_subcategory_id' => $data['service_request_subcategory_id'],
+            'category' => $data['category'],
+            'title' => $data['title'],
+            'description' => $data['description'],
+            'priority' => $data['priority'],
+            'status' => $status,
+            'source' => $data['source'],
+            'sla_target_minutes' => $slaTargetMinutes,
+            'sla_due_at' => $createdAt?->copy()->addMinutes($slaTargetMinutes),
+            'assigned_to' => $data['assigned_to'] ?: null,
+            'assigned_at' => $status === ServiceRequest::STATUS_ASSIGNED
+                ? ($serviceRequest?->assigned_at ?? now())
+                : ($serviceRequest?->assigned_at),
+            'in_progress_at' => $status === ServiceRequest::STATUS_IN_PROGRESS
+                ? ($serviceRequest?->in_progress_at ?? now())
+                : ($status === ServiceRequest::STATUS_COMPLETED ? ($serviceRequest?->in_progress_at ?? now()) : $serviceRequest?->in_progress_at),
+            'completion_notes' => $data['completion_notes'] ?? null,
+            'completed_at' => $status === ServiceRequest::STATUS_COMPLETED ? ($serviceRequest?->completed_at ?? now()) : null,
+        ];
     }
 
-    /**
-     * Get the allowed service statuses.
-     *
-     * @return list<string>
-     */
-    private function statusOptions(): array
+    private function validatedCategory(Request $request, ?ServiceRequestCategory $category = null): array
     {
-        return ['New', 'Assigned', 'In Progress', 'Pending', 'Completed', 'Over SLA'];
+        return $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('service_request_categories', 'name')->ignore($category),
+            ],
+            'is_active' => ['required', 'boolean'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+        ]);
     }
 
-    /**
-     * Generate the next ticket number.
-     */
+    private function validatedSubcategory(Request $request, ?ServiceRequestSubcategory $subcategory = null): array
+    {
+        return $request->validate([
+            'service_request_category_id' => ['required', 'exists:service_request_categories,id'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('service_request_subcategories', 'name')
+                    ->where(fn ($builder) => $builder->where('service_request_category_id', $request->integer('service_request_category_id')))
+                    ->ignore($subcategory),
+            ],
+            'is_active' => ['required', 'boolean'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'low_sla_minutes' => ['required', 'integer', 'min:1'],
+            'medium_sla_minutes' => ['required', 'integer', 'min:1'],
+            'high_sla_minutes' => ['required', 'integer', 'min:1'],
+            'emergency_sla_minutes' => ['required', 'integer', 'min:1'],
+        ]);
+    }
+
     private function nextTicketNumber(): string
     {
-        $sequence = ServiceRequest::query()->count() + 1;
+        $year = now()->format('Y');
+        $latest = ServiceRequest::query()
+            ->where('ticket_number', 'like', 'SR-'.$year.'-%')
+            ->latest('id')
+            ->value('ticket_number');
 
-        return 'SR-'.now()->format('Y').'-'.str_pad((string) $sequence, 3, '0', STR_PAD_LEFT);
+        $sequence = $latest
+            ? ((int) substr($latest, strrpos($latest, '-') + 1)) + 1
+            : 1;
+
+        return 'SR-'.$year.'-'.str_pad((string) $sequence, 3, '0', STR_PAD_LEFT);
     }
 }

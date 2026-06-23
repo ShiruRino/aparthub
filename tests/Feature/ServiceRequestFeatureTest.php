@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Resident;
 use App\Models\ServiceRequest;
+use App\Models\ServiceRequestCategory;
+use App\Models\ServiceRequestSubcategory;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,11 +21,13 @@ class ServiceRequestFeatureTest extends TestCase
         $this->seed(DatabaseSeeder::class);
         $admin = User::query()->where('username', 'admin')->firstOrFail();
         $residentId = Resident::query()->value('id');
+        $subcategory = ServiceRequestSubcategory::query()->with('category')->firstOrFail();
 
         $this->actingAs($admin)
             ->post(route('service-request.store'), [
                 'resident_id' => $residentId,
-                'category' => 'Electrical',
+                'category_id' => $subcategory->service_request_category_id,
+                'subcategory_id' => $subcategory->id,
                 'title' => 'Main breaker urgent issue',
                 'description' => 'Emergency shutdown in unit panel.',
                 'priority' => 'Emergency',
@@ -35,6 +39,8 @@ class ServiceRequestFeatureTest extends TestCase
         $serviceRequest = ServiceRequest::query()->where('title', 'Main breaker urgent issue')->firstOrFail();
 
         $this->assertSame('Emergency', $serviceRequest->priority);
+        $this->assertSame(ServiceRequest::STATUS_SUBMITTED, ServiceRequest::mobileVisibleStatus($serviceRequest->status));
+        $this->assertNotNull($serviceRequest->sla_due_at);
         $this->assertNotNull($serviceRequest->created_at);
     }
 
@@ -48,6 +54,50 @@ class ServiceRequestFeatureTest extends TestCase
             ->assertOk()
             ->assertSee('Service Request Status')
             ->assertSee('Service Dispatch');
+    }
+
+    public function test_dashboard_over_sla_summary_uses_sla_due_at_query(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $admin = User::query()->where('username', 'admin')->firstOrFail();
+        $resident = Resident::query()->firstOrFail();
+        $category = ServiceRequestCategory::query()->firstOrFail();
+        $subcategory = ServiceRequestSubcategory::query()->where('service_request_category_id', $category->id)->firstOrFail();
+
+        ServiceRequest::query()->create([
+            'ticket_number' => 'SR-TEST-OVER-1',
+            'resident_id' => $resident->id,
+            'service_request_category_id' => $category->id,
+            'service_request_subcategory_id' => $subcategory->id,
+            'category' => $category->name,
+            'title' => 'Past due request',
+            'description' => 'Should count as over SLA.',
+            'priority' => ServiceRequest::PRIORITY_HIGH,
+            'status' => ServiceRequest::STATUS_ASSIGNED,
+            'source' => 'Front Office',
+            'sla_target_minutes' => 60,
+            'sla_due_at' => now()->subHour(),
+        ]);
+
+        ServiceRequest::query()->create([
+            'ticket_number' => 'SR-TEST-OVER-2',
+            'resident_id' => $resident->id,
+            'service_request_category_id' => $category->id,
+            'service_request_subcategory_id' => $subcategory->id,
+            'category' => $category->name,
+            'title' => 'Within SLA request',
+            'description' => 'Should not count as over SLA.',
+            'priority' => ServiceRequest::PRIORITY_HIGH,
+            'status' => ServiceRequest::STATUS_ASSIGNED,
+            'source' => 'Front Office',
+            'sla_target_minutes' => 60,
+            'sla_due_at' => now()->addHour(),
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertViewHas('serviceSummary', fn (array $summary) => $summary['over_sla'] >= 1);
     }
 
     public function test_assignment_board_and_sla_monitoring_routes_are_removed(): void

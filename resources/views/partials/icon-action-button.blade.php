@@ -3,6 +3,8 @@
     $label = $label ?? 'Open action';
     $variant = $variant ?? 'neutral';
     $modal = $modal ?? null;
+    $href = $href ?? null;
+    $buttonType = $buttonType ?? 'button';
     $extraClass = trim('icon-action-btn ' . ($variant !== 'neutral' ? 'is-' . $variant : '') . ' ' . ($class ?? ''));
 
     $paths = [
@@ -30,16 +32,32 @@
     $attributes = array_merge($modal ? ['data-modal-open' => $modal] : [], $data ?? []);
 @endphp
 
-<button
-    class="{{ $extraClass }}"
-    type="button"
-    title="{{ $label }}"
-    aria-label="{{ $label }}"
-    @foreach ($attributes as $attribute => $value)
-        {{ $attribute }}="{{ $value }}"
-    @endforeach
->
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="{{ $paths[$icon] ?? $paths['eye'] }}"/>
-    </svg>
-</button>
+@if ($href)
+    <a
+        class="{{ $extraClass }}"
+        href="{{ $href }}"
+        title="{{ $label }}"
+        aria-label="{{ $label }}"
+        @foreach ($attributes as $attribute => $value)
+            {{ $attribute }}="{{ $value }}"
+        @endforeach
+    >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="{{ $paths[$icon] ?? $paths['eye'] }}"/>
+        </svg>
+    </a>
+@else
+    <button
+        class="{{ $extraClass }}"
+        type="{{ $buttonType }}"
+        title="{{ $label }}"
+        aria-label="{{ $label }}"
+        @foreach ($attributes as $attribute => $value)
+            {{ $attribute }}="{{ $value }}"
+        @endforeach
+    >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="{{ $paths[$icon] ?? $paths['eye'] }}"/>
+        </svg>
+    </button>
+@endif

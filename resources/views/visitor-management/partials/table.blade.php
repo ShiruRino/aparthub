@@ -35,27 +35,41 @@
             @foreach ($rows as $row)
                 <tr>
                     @foreach ($columns as $column)
-                        @php($key = $column['key'])
+                        @php
+                            $key = $column['key'];
+                        @endphp
                         <td>
                             @if ($key === 'no')
                                 {{ $row['no'] ?? $loop->parent->iteration }}
                             @elseif ($key === 'name')
                                 <strong>{{ $row['name'] }}</strong>
                             @elseif ($key === 'unit')
-                                {{ $row['unit'] ?? '-' }}@isset($row['resident']) - {{ $row['resident'] }}@endisset
+                                {{ $row['unit'] ?? '-' }}
+                                @if (! empty($row['resident']))
+                                    - {{ $row['resident'] }}
+                                @endif
                             @elseif ($key === 'date')
                                 {{ $row['date'] ?? '07 Jun 2026 - '.$row['time'] }}
                             @elseif ($key === 'status')
                                 <span class="badge {{ $row['statusClass'] ?? 'status-approved' }}">{{ $row['status'] }}</span>
                             @elseif ($key === 'action')
                                 <div class="visitor-action-buttons">
-                                    @foreach ($row['actions'] ?? [['View', 'info']] as [$label, $variant])
-                                        @include('partials.icon-action-button', [
-                                            'label' => $label,
-                                            'icon' => $actionIcons[$label] ?? 'eye',
-                                            'variant' => $actionVariants[$variant] ?? 'neutral',
-                                            'modal' => $modalId ?? 'visitor-action-modal',
-                                        ])
+                                    @foreach ($row['actions'] ?? [['View', 'info']] as $action)
+                                        @php
+                                            [$label, $variant, $href] = array_pad($action, 3, null);
+                                            $buttonPayload = [
+                                                'label' => $label,
+                                                'icon' => $actionIcons[$label] ?? 'eye',
+                                                'variant' => $actionVariants[$variant] ?? 'neutral',
+                                            ];
+
+                                            if ($href) {
+                                                $buttonPayload['href'] = $href;
+                                            } else {
+                                                $buttonPayload['modal'] = $modalId ?? 'visitor-action-modal';
+                                            }
+                                        @endphp
+                                        @include('partials.icon-action-button', $buttonPayload)
                                     @endforeach
                                 </div>
                             @else
@@ -69,6 +83,13 @@
     </table>
 </div>
 
-<div class="pagination">
-    <span class="muted">Showing 1 to {{ count($rows) }} of {{ max(count($rows), 20) }} entries</span>
-</div>
+@if (isset($paginator) && $paginator)
+    <div class="pagination">
+        <span class="muted">Showing {{ $paginator->firstItem() ?? 0 }} to {{ $paginator->lastItem() ?? 0 }} of {{ $paginator->total() }} entries</span>
+        <div>{!! $paginator->onEachSide(1)->links() !!}</div>
+    </div>
+@else
+    <div class="pagination">
+        <span class="muted">Showing 1 to {{ count($rows) }} of {{ max(count($rows), 20) }} entries</span>
+    </div>
+@endif

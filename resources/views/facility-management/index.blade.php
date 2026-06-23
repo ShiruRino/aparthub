@@ -30,7 +30,7 @@
         </section>
 
         <div class="visitor-grid">
-            <section class="visitor-panel visitor-span-8">
+            <section class="visitor-panel visitor-span-12">
                 <div class="visitor-panel-head">
                     <h2 class="visitor-panel-title">Facilities</h2>
                 </div>
@@ -74,7 +74,7 @@
                 </div>
             </section>
 
-            <section class="visitor-panel visitor-span-8">
+            <section class="visitor-panel visitor-span-12">
                 <div class="visitor-panel-head">
                     <h2 class="visitor-panel-title">Facility Bookings</h2>
                 </div>

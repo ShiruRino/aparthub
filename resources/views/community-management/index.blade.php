@@ -127,11 +127,15 @@
 
     $page = $pages[$pageKey] ?? $pages['announcements'];
 
-    $announcements = [
-        ['icon' => '!', 'title' => 'Elevator Maintenance Notice', 'status' => 'Published', 'class' => 'status-approved', 'body' => 'Pemeliharaan elevator di Tower A akan dilakukan pada 10 Juni 2026 pukul 00:00 - 04:00 WIB.', 'views' => '1,248'],
-        ['icon' => 'W', 'title' => 'Water Supply Interruption', 'status' => 'Scheduled', 'class' => 'status-pending', 'body' => 'Gangguan pasokan air bersih di seluruh area apartemen pada 12 Juni 2026.', 'views' => '856'],
-        ['icon' => 'P', 'title' => 'New Parking Policy', 'status' => 'Published', 'class' => 'status-approved', 'body' => 'Kebijakan parkir baru mulai berlaku efektif 15 Juni 2026.', 'views' => '632'],
-        ['icon' => 'G', 'title' => 'Garbage Disposal Update', 'status' => 'Draft', 'class' => 'status-expired', 'body' => 'Informasi perubahan jadwal pengambilan sampah organik dan anorganik.', 'views' => '212'],
+    $announcementWorkspace = $announcementWorkspace ?? [
+        'records' => collect(),
+        'filters' => [
+            'search' => '',
+            'status' => '',
+            'category' => '',
+        ],
+        'categories' => collect(['General']),
+        'metrics' => $page['metrics'] ?? [],
     ];
 
     $upcomingEvents = [
@@ -254,6 +258,11 @@
         'archive' => ['Archive New Content', 'Export Archive'],
         'settings' => ['Create Setting', 'Sync Integration'],
     ];
+
+    $authUser = auth()->user();
+    $canAnnouncementCreate = $authUser?->canAccessModule('community-management', 'create') ?? false;
+    $canAnnouncementUpdate = $authUser?->canAccessModule('community-management', 'update') ?? false;
+    $canAnnouncementDelete = $authUser?->canAccessModule('community-management', 'delete') ?? false;
 @endphp
 
 @section('title', $page['label'])
@@ -279,21 +288,34 @@
                 </button>
                 <div class="dropdown-menu">
                     @foreach ($createOptions[$pageKey] ?? $createOptions['announcements'] as $option)
-                        <button
-                            type="button"
-                            data-modal-open="community-action-modal"
-                            data-modal-title="{{ $option }}"
-                            data-modal-headline="{{ $option }}"
-                            data-modal-summary="Create action community management dibuka sebagai popup dummy agar workspace tetap fokus ke daftar operasional."
-                            data-modal-section-title="Create Action Context"
-                            data-modal-workspace="{{ $page['label'] }}"
-                            data-modal-entity="Aether Residences Community"
-                            data-modal-status="Create Preview"
-                            data-modal-next-step="Lanjutkan pembuatan item saat backend form dan submit sudah tersedia."
-                            data-modal-copy="Belum ada penyimpanan backend. Dropdown create ini sekarang memberi feedback interaksi yang lebih jelas dan halus."
-                            data-modal-confirm-label="Open Create Preview"
-                            data-modal-accent="blue"
-                        >{{ $option }}</button>
+                        @if ($pageKey === 'announcements' && $option === 'Create Announcement' && $canAnnouncementCreate)
+                            <button
+                                type="button"
+                                data-modal-open="announcement-form-modal"
+                                data-announcement-editor="create"
+                                data-announcement-title=""
+                                data-announcement-category="General"
+                                data-announcement-content=""
+                                data-announcement-status="Draft"
+                                data-announcement-pinned="0"
+                            >{{ $option }}</button>
+                        @else
+                            <button
+                                type="button"
+                                data-modal-open="community-action-modal"
+                                data-modal-title="{{ $option }}"
+                                data-modal-headline="{{ $option }}"
+                                data-modal-summary="Create action community management dibuka sebagai popup dummy agar workspace tetap fokus ke daftar operasional."
+                                data-modal-section-title="Create Action Context"
+                                data-modal-workspace="{{ $page['label'] }}"
+                                data-modal-entity="Aether Residences Community"
+                                data-modal-status="Create Preview"
+                                data-modal-next-step="Lanjutkan pembuatan item saat backend form dan submit sudah tersedia."
+                                data-modal-copy="Belum ada penyimpanan backend. Dropdown create ini sekarang memberi feedback interaksi yang lebih jelas dan halus."
+                                data-modal-confirm-label="Open Create Preview"
+                                data-modal-accent="blue"
+                            >{{ $option }}</button>
+                        @endif
                     @endforeach
                 </div>
             </div>
@@ -302,8 +324,23 @@
         @if ($pageKey === 'announcements')
             <div class="community-workspace">
                 <div class="community-main">
+                    @if (session('status'))
+                        <div class="alert success" style="margin-bottom:16px;">{{ session('status') }}</div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert danger" style="margin-bottom:16px;">
+                            <strong>Announcement belum tersimpan.</strong>
+                            <ul style="margin:8px 0 0 18px;">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <section class="community-card-row" aria-label="Community metrics">
-                        @foreach ($page['metrics'] as $metric)
+                        @foreach ($announcementWorkspace['metrics'] as $metric)
                             <div class="community-metric {{ $metric['tone'] }}">
                                 <span class="community-metric-icon">{{ $metric['icon'] }}</span>
                                 <div>
@@ -319,20 +356,66 @@
                         <section class="visitor-panel">
                             <div class="visitor-panel-head">
                                 <h3 class="visitor-panel-title">Latest Announcements</h3>
-                                <a href="{{ route('community-management.announcements') }}">View All</a>
+                                <div class="visitor-action-buttons">
+                                    @if ($canAnnouncementCreate)
+                                        <button
+                                            class="btn secondary"
+                                            type="button"
+                                            data-modal-open="announcement-form-modal"
+                                            data-announcement-editor="create"
+                                            data-announcement-title=""
+                                            data-announcement-category="General"
+                                            data-announcement-content=""
+                                            data-announcement-status="Draft"
+                                            data-announcement-pinned="0"
+                                        >
+                                            New Announcement
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="visitor-panel-body">
+                            <div class="visitor-panel-body" style="overflow: scroll;">
+                                <form method="GET" action="{{ route('community-management.announcements') }}" class="community-filter-bar" style="margin-bottom:16px;">
+                                    <input type="search" name="search" placeholder="Search title or content..." value="{{ $announcementWorkspace['filters']['search'] }}">
+                                    <select name="status">
+                                        <option value="">All Status</option>
+                                        <option value="Draft" @selected($announcementWorkspace['filters']['status'] === 'Draft')>Draft</option>
+                                        <option value="Published" @selected($announcementWorkspace['filters']['status'] === 'Published')>Published</option>
+                                    </select>
+                                    <input type="text" name="category" list="announcement-filter-categories" placeholder="All Category" value="{{ $announcementWorkspace['filters']['category'] }}">
+                                    <button class="btn secondary" type="submit">Apply</button>
+                                </form>
+
+                                <datalist id="announcement-filter-categories">
+                                    @foreach ($announcementWorkspace['categories'] as $category)
+                                        <option value="{{ $category }}"></option>
+                                    @endforeach
+                                </datalist>
+
                                 <div class="community-list">
-                                    @foreach ($announcements as $announcement)
+                                    @forelse ($announcementWorkspace['records'] as $announcement)
+                                        @php
+                                            $statusClass = match ($announcement->status) {
+                                                'Published' => 'status-approved',
+                                                'Draft' => 'status-pending',
+                                                default => 'status-expired',
+                                            };
+                                        @endphp
                                         <article class="community-row">
-                                            <span class="community-tile-icon">{{ $announcement['icon'] }}</span>
+                                            <span class="community-tile-icon">{{ strtoupper(substr($announcement->category, 0, 1)) }}</span>
                                             <div>
-                                                <h3>{{ $announcement['title'] }} <span class="{{ $announcement['class'] }}" style="padding:3px 7px;border-radius:999px;font-size:10px;">{{ $announcement['status'] }}</span></h3>
-                                                <p>{{ $announcement['body'] }}</p>
+                                                <h3>
+                                                    {{ $announcement->title }}
+                                                    <span class="{{ $statusClass }}" style="padding:3px 7px;border-radius:999px;font-size:10px;">{{ $announcement->status }}</span>
+                                                    @if ($announcement->is_pinned)
+                                                        <span class="status-approved" style="padding:3px 7px;border-radius:999px;font-size:10px;">Pinned</span>
+                                                    @endif
+                                                </h3>
+                                                <p>{{ $announcement->content }}</p>
                                                 <div class="community-meta">
-                                                    <span>07 Jun 2026</span>
-                                                    <span>All Residents</span>
-                                                    <span>By Building Management</span>
+                                                    <span>{{ optional($announcement->published_at ?? $announcement->updated_at)->format('d M Y H:i') }}</span>
+                                                    <span>{{ $announcement->category }}</span>
+                                                    <span>Global Residents</span>
                                                 </div>
                                             </div>
                                             <div class="visitor-action-buttons">
@@ -342,22 +425,84 @@
                                                     'modal' => 'community-action-modal',
                                                     'data' => [
                                                         'data-modal-title' => 'Announcement Detail',
-                                                        'data-modal-headline' => $announcement['title'],
-                                                        'data-modal-summary' => $announcement['body'],
+                                                        'data-modal-headline' => $announcement->title,
+                                                        'data-modal-summary' => $announcement->content,
                                                         'data-modal-section-title' => 'Announcement Context',
                                                         'data-modal-workspace' => 'Announcement Center',
-                                                        'data-modal-entity' => '07 Jun 2026 - All Residents',
-                                                        'data-modal-status' => $announcement['status'],
-                                                        'data-modal-next-step' => 'Review announcement visibility, audience, dan engagement sebelum publish action nyata.',
-                                                        'data-modal-copy' => 'Views: ' . $announcement['views'] . '. Aksi ini masih berupa preview popup.',
+                                                        'data-modal-entity' => trim(($announcement->category ?: 'General') . ' - Global Residents'),
+                                                        'data-modal-status' => $announcement->status,
+                                                        'data-modal-next-step' => 'Review detail announcement sebelum melakukan edit, publish, atau pin.',
+                                                        'data-modal-copy' => 'Published at: ' . optional($announcement->published_at)->format('d M Y H:i') . '. Announcement Center kini memakai data database sungguhan.',
                                                         'data-modal-confirm-label' => 'Close Preview',
-                                                        'data-modal-accent' => 'purple',
+                                                        'data-modal-accent' => $announcement->is_pinned ? 'gold' : 'purple',
                                                     ],
                                                 ])
-                                                <span>{{ $announcement['views'] }}</span>
+                                                @if ($canAnnouncementUpdate)
+                                                    @include('partials.icon-action-button', [
+                                                        'label' => 'Edit Announcement',
+                                                        'icon' => 'edit',
+                                                        'variant' => 'gold',
+                                                        'modal' => 'announcement-form-modal',
+                                                        'data' => [
+                                                            'data-announcement-editor' => 'edit',
+                                                            'data-announcement-action' => route('community-management.announcements.update', $announcement),
+                                                            'data-announcement-title' => $announcement->title,
+                                                            'data-announcement-category' => $announcement->category,
+                                                            'data-announcement-content' => $announcement->content,
+                                                            'data-announcement-status' => $announcement->status,
+                                                            'data-announcement-pinned' => $announcement->is_pinned ? '1' : '0',
+                                                        ],
+                                                    ])
+
+                                                    <form method="POST" action="{{ route('community-management.announcements.publish', $announcement) }}">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="redirect_search" value="{{ $announcementWorkspace['filters']['search'] }}">
+                                                        <input type="hidden" name="redirect_status" value="{{ $announcementWorkspace['filters']['status'] }}">
+                                                        <input type="hidden" name="redirect_category" value="{{ $announcementWorkspace['filters']['category'] }}">
+                                                        @include('partials.icon-action-button', [
+                                                            'label' => $announcement->status === 'Published' ? 'Unpublish Announcement' : 'Publish Announcement',
+                                                            'icon' => $announcement->status === 'Published' ? 'x' : 'check',
+                                                            'variant' => $announcement->status === 'Published' ? 'danger' : 'success',
+                                                            'buttonType' => 'submit',
+                                                        ])
+                                                    </form>
+
+                                                    <form method="POST" action="{{ route('community-management.announcements.pin', $announcement) }}">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="redirect_search" value="{{ $announcementWorkspace['filters']['search'] }}">
+                                                        <input type="hidden" name="redirect_status" value="{{ $announcementWorkspace['filters']['status'] }}">
+                                                        <input type="hidden" name="redirect_category" value="{{ $announcementWorkspace['filters']['category'] }}">
+                                                        @include('partials.icon-action-button', [
+                                                            'label' => $announcement->is_pinned ? 'Unpin Announcement' : 'Pin Announcement',
+                                                            'icon' => 'pin',
+                                                            'variant' => $announcement->is_pinned ? 'gold' : 'info',
+                                                            'buttonType' => 'submit',
+                                                        ])
+                                                    </form>
+                                                @endif
+
+                                                @if ($canAnnouncementDelete)
+                                                    <form method="POST" action="{{ route('community-management.announcements.destroy', $announcement) }}" onsubmit="return confirm('Hapus announcement ini?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <input type="hidden" name="redirect_search" value="{{ $announcementWorkspace['filters']['search'] }}">
+                                                        <input type="hidden" name="redirect_status" value="{{ $announcementWorkspace['filters']['status'] }}">
+                                                        <input type="hidden" name="redirect_category" value="{{ $announcementWorkspace['filters']['category'] }}">
+                                                        @include('partials.icon-action-button', [
+                                                            'label' => 'Delete Announcement',
+                                                            'icon' => 'trash',
+                                                            'variant' => 'danger',
+                                                            'buttonType' => 'submit',
+                                                        ])
+                                                    </form>
+                                                @endif
                                             </div>
                                         </article>
-                                    @endforeach
+                                    @empty
+                                        <p class="muted" style="margin:0;">Belum ada announcement yang cocok dengan filter saat ini.</p>
+                                    @endforelse
                                 </div>
                             </div>
                         </section>
@@ -435,6 +580,10 @@
 
                 @include('community-management.partials.side-widgets')
             </div>
+
+            @include('community-management.partials.announcement-form-modal', [
+                'categories' => $announcementWorkspace['categories'],
+            ])
         @else
             <div class="community-workspace">
                 <div class="community-main">
@@ -776,4 +925,56 @@
 
         @include('community-management.partials.action-modal')
     </div>
+
+    @if ($pageKey === 'announcements')
+        <script>
+            (() => {
+                const modal = document.getElementById('announcement-form-modal');
+                const form = modal?.querySelector('[data-announcement-form]');
+                const methodInput = modal?.querySelector('[data-announcement-method]');
+                const titleNode = modal?.querySelector('[data-announcement-modal-title]');
+                const submitNode = modal?.querySelector('[data-announcement-submit-label]');
+
+                if (!modal || !form || !methodInput || !titleNode || !submitNode) {
+                    return;
+                }
+
+                const fields = {
+                    title: modal.querySelector('[data-announcement-input="title"]'),
+                    category: modal.querySelector('[data-announcement-input="category"]'),
+                    content: modal.querySelector('[data-announcement-input="content"]'),
+                    status: modal.querySelector('[data-announcement-input="status"]'),
+                    isPinned: modal.querySelector('[data-announcement-input="is_pinned"]'),
+                };
+
+                const applyModalState = (trigger) => {
+                    const mode = trigger?.dataset.announcementEditor === 'edit' ? 'edit' : 'create';
+                    form.action = trigger?.dataset.announcementAction || @json(route('community-management.announcements.store'));
+                    methodInput.value = mode === 'edit' ? 'PUT' : 'POST';
+                    titleNode.textContent = mode === 'edit' ? 'Edit Announcement' : 'Create Announcement';
+                    submitNode.textContent = mode === 'edit' ? 'Update Announcement' : 'Save Announcement';
+
+                    if (fields.title) fields.title.value = trigger?.dataset.announcementTitle || '';
+                    if (fields.category) fields.category.value = trigger?.dataset.announcementCategory || 'General';
+                    if (fields.content) fields.content.value = trigger?.dataset.announcementContent || '';
+                    if (fields.status) fields.status.value = trigger?.dataset.announcementStatus || 'Draft';
+                    if (fields.isPinned) fields.isPinned.checked = (trigger?.dataset.announcementPinned || '0') === '1';
+                };
+
+                document.querySelectorAll('[data-announcement-editor]').forEach((button) => {
+                    button.addEventListener('click', () => applyModalState(button));
+                });
+
+                @if ($errors->any())
+                    document.querySelectorAll('.visitor-modal.is-open').forEach((dialog) => {
+                        dialog.classList.remove('is-open');
+                        dialog.setAttribute('aria-hidden', 'true');
+                    });
+                    modal.classList.add('is-open');
+                    modal.setAttribute('aria-hidden', 'false');
+                    document.body.classList.add('is-modal-open');
+                @endif
+            })();
+        </script>
+    @endif
 @endsection

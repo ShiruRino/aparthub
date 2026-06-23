@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AppSetting;
 use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
@@ -58,9 +59,13 @@ class DatabaseSeeder extends Seeder
             'can_delete' => true,
         ]));
 
+        AppSetting::putInteger('visitor_guest_max', AppSetting::getInteger('visitor_guest_max') ?? 10);
+
         $this->call([
             ResidentManagementSeeder::class,
+            ServiceRequestCatalogSeeder::class,
             ServiceRequestSeeder::class,
+            AnnouncementSeeder::class,
             FacilityManagementSeeder::class,
         ]);
     }

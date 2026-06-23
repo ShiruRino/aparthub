@@ -289,7 +289,7 @@ class DynamicAccessControlTest extends TestCase
             ->assertDontSee('Alur Pengelolaan Paket');
     }
 
-    public function test_visitor_management_uses_subpage_routes_without_separate_check_in_or_check_out(): void
+    public function test_visitor_management_uses_workspace_routes_and_removes_legacy_pages(): void
     {
         $visitorRouteNames = collect(Route::getRoutes())
             ->map(fn ($route) => $route->getName())
@@ -303,8 +303,8 @@ class DynamicAccessControlTest extends TestCase
             $this->assertContains($routeName, $visitorRouteNames);
         }
 
-        $this->assertNotContains('visitor-management.check-in', $visitorRouteNames);
-        $this->assertNotContains('visitor-management.check-out', $visitorRouteNames);
+        $this->assertNotContains('visitor-management.vehicles', $visitorRouteNames);
+        $this->assertNotContains('visitor-management.reports', $visitorRouteNames);
     }
 
     public function test_billing_finance_uses_dropdown_subpage_routes(): void
@@ -748,7 +748,7 @@ class DynamicAccessControlTest extends TestCase
             ->assertSee('Auto Billing');
     }
 
-    public function test_visitor_management_sidebar_dropdown_uses_real_routes(): void
+    public function test_visitor_management_sidebar_uses_single_real_link_and_workspace_tabs(): void
     {
         $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
 
@@ -768,7 +768,7 @@ class DynamicAccessControlTest extends TestCase
             ->get(route('visitor-management.index'))
             ->assertOk()
             ->assertSee('Visitor Registration')
-            ->assertSee('Register Visitor')
+            ->assertSee('Register Walk-In Visitor')
             ->assertSee('Check-In / Out')
             ->assertSee('Blacklist')
             ->assertSee('All Visitor Registration');

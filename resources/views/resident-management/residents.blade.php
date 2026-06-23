@@ -7,18 +7,47 @@
 @section('content')
     <div class="resident-list-page">
         <header class="resident-page-head">
-            <h2>Daftar Residen Aether Residences</h2>
-            <button
-                class="btn"
-                type="button"
-                data-modal-open="resident-resident-form-modal"
-                data-form-mode="create"
-                data-form-title="Tambah Residen Baru"
-                data-form-action="{{ route('resident-management.residents.store') }}"
-            >
-                Tambah Residen Baru
-            </button>
+            <div style="display:grid;gap:10px;">
+                <h2>Daftar Residen Aether Residences</h2>
+                <div class="visitor-stat-strip">
+                    <span class="visitor-chip">Resident Saat Ini: {{ $residentCapacity['current'] }}</span>
+                    <span class="visitor-chip">Maksimum: {{ $residentCapacity['maximum'] ?? 'Tanpa Batas' }}</span>
+                    @if ($residentCapacity['remaining'] !== null)
+                        <span class="visitor-chip">Sisa Slot: {{ $residentCapacity['remaining'] }}</span>
+                    @endif
+                    @if ($residentCapacity['is_limit_reached'])
+                        <span class="visitor-chip" style="background:#fff1f2;color:#b91c1c;border-color:#fecdd3;">Kapasitas Penuh</span>
+                    @endif
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                @if (auth()->user()->canAccessModule('resident-management', 'update'))
+                    <button
+                        class="btn secondary"
+                        type="button"
+                        data-modal-open="resident-capacity-modal"
+                    >
+                        Atur Maksimum Resident
+                    </button>
+                @endif
+                <button
+                    class="btn"
+                    type="button"
+                    data-modal-open="{{ $residentCapacity['is_limit_reached'] ? '' : 'resident-resident-form-modal' }}"
+                    data-form-mode="create"
+                    data-form-title="Tambah Residen Baru"
+                    data-form-action="{{ route('resident-management.residents.store') }}"
+                    @disabled($residentCapacity['is_limit_reached'])
+                    title="{{ $residentCapacity['is_limit_reached'] ? 'Batas maksimum resident sudah tercapai.' : 'Tambah Residen Baru' }}"
+                >
+                    Tambah Residen Baru
+                </button>
+            </div>
         </header>
+
+        @if ($errors->has('resident_limit'))
+            <div class="alert danger" style="margin-bottom:16px;">{{ $errors->first('resident_limit') }}</div>
+        @endif
 
         <form class="resident-filter-panel" method="GET" action="{{ route('resident-management.residents') }}" aria-label="Filter daftar residen">
             <div class="resident-filter-field">
@@ -111,11 +140,14 @@
                                                 'data-form-title' => 'Edit Residen',
                                                 'data-form-action' => route('resident-management.residents.update', $row['id']),
                                                 'data-resident-name' => $row['name'],
+                                                'data-resident-email' => $row['email'] ?? '',
+                                                'data-resident-mobile-no' => $row['mobile_no'] ?? '',
                                                 'data-resident-unit-id' => $row['unit_id'] ?? '',
                                                 'data-resident-type' => $row['type'],
                                                 'data-resident-status' => $row['status'],
                                                 'data-resident-move-in-date' => $row['move_in_date'] ?? '',
                                                 'data-resident-move-out-date' => $row['move_out_date'] ?? '',
+                                                'data-resident-contract-end-date' => $row['contract_end_date'] ?? '',
                                                 'data-resident-avatar-tone' => $row['avatar_tone'] ?? '',
                                             ],
                                         ])
@@ -174,6 +206,14 @@
                         </select>
                     </label>
                     <label class="resident-filter-field">
+                        <span>Email</span>
+                        <input id="residentEmail" name="email" type="email" value="{{ old('email') }}">
+                    </label>
+                    <label class="resident-filter-field">
+                        <span>Mobile Number</span>
+                        <input id="residentMobileNo" name="mobile_no" type="text" value="{{ old('mobile_no') }}">
+                    </label>
+                    <label class="resident-filter-field">
                         <span>Jenis Residen</span>
                         <select id="residentType" name="resident_type" required>
                             @foreach ($residentTypes as $residentType)
@@ -198,6 +238,18 @@
                         <input id="residentMoveOutDate" name="move_out_date" type="date" value="{{ old('move_out_date') }}">
                     </label>
                     <label class="resident-filter-field">
+                        <span>Contract End Date</span>
+                        <input id="residentContractEndDate" name="contract_end_date" type="date" value="{{ old('contract_end_date') }}">
+                    </label>
+                    <label class="resident-filter-field">
+                        <span>Password</span>
+                        <input id="residentPassword" name="password" type="password">
+                    </label>
+                    <label class="resident-filter-field">
+                        <span>Confirm Password</span>
+                        <input id="residentPasswordConfirmation" name="password_confirmation" type="password">
+                    </label>
+                    <label class="resident-filter-field">
                         <span>Avatar Tone</span>
                         <select id="residentAvatarTone" name="avatar_tone">
                             <option value="default">Default</option>
@@ -216,6 +268,38 @@
         </div>
     </div>
 
+    <div class="visitor-modal resident-modal" id="resident-capacity-modal" aria-hidden="true">
+        <button class="visitor-modal-backdrop" type="button" data-modal-close aria-label="Close modal"></button>
+        <div class="visitor-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="resident-capacity-title">
+            <div class="visitor-modal-head">
+                <h2 class="visitor-modal-title" id="resident-capacity-title">Konfigurasi Maksimum Resident</h2>
+                <button class="visitor-modal-close" type="button" data-modal-close aria-label="Close modal">x</button>
+            </div>
+            <form class="visitor-modal-body" method="POST" action="{{ route('resident-management.settings.resident-capacity') }}">
+                @csrf
+                @method('PATCH')
+                <label class="resident-filter-field">
+                    <span>Maksimum Resident</span>
+                    <input
+                        name="max_residents"
+                        type="number"
+                        min="1"
+                        placeholder="Kosongkan untuk tanpa batas"
+                        value="{{ old('max_residents', $residentCapacity['maximum']) }}"
+                    >
+                </label>
+                <div class="visitor-info-grid">
+                    <div class="visitor-info-row"><span>Resident Saat Ini</span><strong>{{ $residentCapacity['current'] }}</strong></div>
+                    <div class="visitor-info-row"><span>Sisa Slot</span><strong>{{ $residentCapacity['remaining'] ?? 'Tanpa Batas' }}</strong></div>
+                </div>
+                <div class="visitor-form-actions">
+                    <button class="btn secondary" type="button" data-modal-close>Batal</button>
+                    <button class="btn" type="submit">Simpan Konfigurasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         (() => {
             const modal = document.getElementById('resident-resident-form-modal');
@@ -223,17 +307,23 @@
             const methodInput = document.getElementById('residentResidentFormMethod');
             const title = document.getElementById('resident-resident-form-title');
             const nameInput = document.getElementById('residentName');
+            const emailInput = document.getElementById('residentEmail');
+            const mobileInput = document.getElementById('residentMobileNo');
             const unitInput = document.getElementById('residentUnitId');
             const typeInput = document.getElementById('residentType');
             const statusInput = document.getElementById('residentStatus');
             const moveInInput = document.getElementById('residentMoveInDate');
             const moveOutInput = document.getElementById('residentMoveOutDate');
+            const contractEndDateInput = document.getElementById('residentContractEndDate');
+            const passwordInput = document.getElementById('residentPassword');
+            const passwordConfirmationInput = document.getElementById('residentPasswordConfirmation');
             const avatarInput = document.getElementById('residentAvatarTone');
 
             if (!modal || !form) return;
 
             document.querySelectorAll('[data-modal-open="resident-resident-form-modal"]').forEach((button) => {
                 button.addEventListener('click', () => {
+                    if (button.disabled) return;
                     const isEdit = button.dataset.formMode === 'edit';
 
                     title.textContent = button.dataset.formTitle || 'Tambah Residen Baru';
@@ -241,11 +331,16 @@
                     methodInput.value = isEdit ? 'PUT' : 'POST';
 
                     nameInput.value = button.dataset.residentName || '';
+                    emailInput.value = button.dataset.residentEmail || '';
+                    mobileInput.value = button.dataset.residentMobileNo || '';
                     unitInput.value = button.dataset.residentUnitId || '';
                     typeInput.value = button.dataset.residentType || 'Pemilik';
                     statusInput.value = button.dataset.residentStatus || 'Menunggu Approval';
                     moveInInput.value = button.dataset.residentMoveInDate || '';
                     moveOutInput.value = button.dataset.residentMoveOutDate || '';
+                    contractEndDateInput.value = button.dataset.residentContractEndDate || '';
+                    passwordInput.value = '';
+                    passwordConfirmationInput.value = '';
                     avatarInput.value = button.dataset.residentAvatarTone || 'default';
                 });
             });

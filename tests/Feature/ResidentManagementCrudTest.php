@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AppSetting;
 use App\Models\Resident;
 use App\Models\ResidentFamilyMember;
 use App\Models\ResidentMoveRequest;
@@ -250,5 +251,38 @@ class ResidentManagementCrudTest extends TestCase
         $this->assertDatabaseMissing('resident_vehicles', [
             'id' => $vehicle->id,
         ]);
+    }
+
+    public function test_admin_cannot_create_resident_when_maximum_capacity_is_reached(): void
+    {
+        $unit = Unit::query()->where('code', 'C-1204')->firstOrFail();
+
+        AppSetting::putInteger('resident_max_capacity', Resident::query()->count());
+
+        $this->actingAs($this->admin)
+            ->post(route('resident-management.residents.store'), [
+                'unit_id' => $unit->id,
+                'name' => 'Blocked Resident',
+                'resident_type' => 'Penyewa',
+                'status' => 'Aktif',
+                'move_in_date' => '2026-06-14',
+                'avatar_tone' => 'female',
+            ])
+            ->assertSessionHasErrors('resident_limit');
+
+        $this->assertDatabaseMissing('residents', [
+            'name' => 'Blocked Resident',
+        ]);
+    }
+
+    public function test_admin_can_update_resident_capacity_configuration(): void
+    {
+        $this->actingAs($this->admin)
+            ->patch(route('resident-management.settings.resident-capacity'), [
+                'max_residents' => 250,
+            ])
+            ->assertRedirect(route('resident-management.residents'));
+
+        $this->assertSame(250, AppSetting::getInteger('resident_max_capacity'));
     }
 }

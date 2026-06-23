@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AppSetting;
 use App\Models\Resident;
 use App\Models\ResidentFamilyMember;
 use App\Models\ResidentMoveRequest;
@@ -11,11 +12,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ResidentManagementController extends Controller
 {
+    private const RESIDENT_MAX_CAPACITY_KEY = 'resident_max_capacity';
+
     /**
      * Show the resident registration and monitoring page.
      */
@@ -39,6 +44,7 @@ class ResidentManagementController extends Controller
             ->withQueryString();
 
         $residentPreview = $residents->getCollection()->first();
+        $residentCapacity = $this->residentCapacitySummary();
         $rows = $residents->getCollection()->map(function (Resident $resident) {
             $owner = $resident->resident_type === 'Penyewa'
                 ? $resident->unit?->residents
@@ -48,6 +54,8 @@ class ResidentManagementController extends Controller
             return [
                 'id' => $resident->id,
                 'name' => $resident->name,
+                'email' => $resident->email,
+                'mobile_no' => $resident->mobile_no,
                 'unit' => $resident->unit?->code ? 'Unit '.$resident->unit->code : '-',
                 'unit_id' => $resident->unit_id,
                 'tower' => $resident->unit ? $resident->unit->tower.' / '.str_pad((string) $resident->unit->floor, 2, '0', STR_PAD_LEFT) : '-',
@@ -57,6 +65,8 @@ class ResidentManagementController extends Controller
                 'date' => optional($resident->move_in_date)->format('d M Y') ?? 'TBD',
                 'move_in_date' => optional($resident->move_in_date)->format('Y-m-d'),
                 'move_out_date' => optional($resident->move_out_date)->format('Y-m-d'),
+                'contract_end_date' => optional($resident->contract_end_date)->format('Y-m-d'),
+                'contract_end_date_label' => optional($resident->contract_end_date)->format('d M Y') ?? '-',
                 'avatar' => $this->initials($resident->name),
                 'avatarClass' => $resident->avatar_tone,
                 'avatar_tone' => $resident->avatar_tone,
@@ -101,6 +111,7 @@ class ResidentManagementController extends Controller
             'residentStatuses' => ['Aktif', 'Menunggu Approval', 'Keluar'],
             'residentTypes' => ['Pemilik', 'Penyewa'],
             'residentPreview' => $residentPreview,
+            'residentCapacity' => $residentCapacity,
         ]);
     }
 
@@ -321,6 +332,7 @@ class ResidentManagementController extends Controller
         $data = $this->validatedResident($request);
 
         DB::transaction(function () use ($data) {
+            $this->ensureResidentCapacityAvailable();
             $resident = Resident::query()->create($data);
             $this->syncUnitOccupancyByResident($resident);
         });
@@ -331,11 +343,30 @@ class ResidentManagementController extends Controller
     }
 
     /**
+     * Update maximum resident capacity configuration.
+     */
+    public function updateResidentCapacity(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'max_residents' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        AppSetting::putInteger(
+            self::RESIDENT_MAX_CAPACITY_KEY,
+            blank($data['max_residents'] ?? null) ? null : (int) $data['max_residents']
+        );
+
+        return redirect()
+            ->route('resident-management.residents')
+            ->with('status', 'Konfigurasi maksimum resident berhasil diperbarui.');
+    }
+
+    /**
      * Update the given resident.
      */
     public function updateResident(Request $request, Resident $resident): RedirectResponse
     {
-        $data = $this->validatedResident($request);
+        $data = $this->validatedResident($request, $resident);
         $previousUnitId = $resident->unit_id;
 
         DB::transaction(function () use ($resident, $data, $previousUnitId) {
@@ -666,17 +697,70 @@ class ResidentManagementController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function validatedResident(Request $request): array
+    private function validatedResident(Request $request, ?Resident $resident = null): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'unit_id' => ['nullable', 'exists:units,id'],
             'name' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email:rfc,dns', 'max:255', Rule::unique('residents', 'email')->ignore($resident)],
+            'mobile_no' => ['nullable', 'string', 'max:30', Rule::unique('residents', 'mobile_no')->ignore($resident)],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'resident_type' => ['required', Rule::in(['Pemilik', 'Penyewa'])],
             'status' => ['required', Rule::in(['Aktif', 'Menunggu Approval', 'Keluar'])],
             'move_in_date' => ['nullable', 'date'],
             'move_out_date' => ['nullable', 'date', 'after_or_equal:move_in_date'],
+            'contract_end_date' => ['nullable', 'date'],
             'avatar_tone' => ['nullable', 'string', 'max:50'],
         ]);
+
+        $data['email'] = blank($data['email'] ?? null) ? null : $data['email'];
+        $data['mobile_no'] = blank($data['mobile_no'] ?? null) ? null : $data['mobile_no'];
+
+        if (blank($data['password'] ?? null)) {
+            unset($data['password']);
+        } else {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Summarize the active resident capacity settings for the UI.
+     *
+     * @return array<string, int|bool|null>
+     */
+    private function residentCapacitySummary(): array
+    {
+        $current = Resident::query()->count();
+        $maximum = AppSetting::getInteger(self::RESIDENT_MAX_CAPACITY_KEY);
+
+        return [
+            'current' => $current,
+            'maximum' => $maximum,
+            'remaining' => $maximum === null ? null : max($maximum - $current, 0),
+            'is_limit_reached' => $maximum !== null && $current >= $maximum,
+        ];
+    }
+
+    /**
+     * Prevent resident creation when the configured maximum capacity is reached.
+     */
+    private function ensureResidentCapacityAvailable(): void
+    {
+        $maximum = AppSetting::getInteger(self::RESIDENT_MAX_CAPACITY_KEY);
+
+        if ($maximum === null) {
+            return;
+        }
+
+        $current = Resident::query()->count();
+
+        if ($current >= $maximum) {
+            throw ValidationException::withMessages([
+                'resident_limit' => 'Batas maksimum resident sudah tercapai. Tambah resident baru diblokir sampai kapasitas dinaikkan.',
+            ]);
+        }
     }
 
     /**

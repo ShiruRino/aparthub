@@ -539,7 +539,7 @@
         .span-12 { grid-column: span 12; }
 
         .stat-card {
-            grid-column: span 2;
+            grid-column: span 6;
             display: grid;
             grid-template-columns: 58px minmax(0, 1fr);
             align-items: center;
@@ -549,6 +549,7 @@
             background: var(--dark-card);
             color: #ffffff;
             box-shadow: var(--shadow);
+            gap: 0.5rem;
         }
 
         .stat-icon {
@@ -4860,7 +4861,7 @@
                                 <a href="{{ route('resident-management.residents') }}" @class(['active' => request()->routeIs('resident-management.residents')])>Residents</a>
                                 <a href="{{ route('resident-management.units') }}" @class(['active' => request()->routeIs('resident-management.units')])>Unit Management</a>
                                 <a href="{{ route('resident-management.move-in-out') }}" @class(['active' => request()->routeIs('resident-management.move-in-out')])>Move In / Out</a>
-                                <a href="{{ route('resident-management.family-members') }}" @class(['active' => request()->routeIs('resident-management.family-members')])>Family Member</a>
+                                <!-- <a href="{{ route('resident-management.family-members') }}" @class(['active' => request()->routeIs('resident-management.family-members')])>Family Member</a> -->
                                 <!-- <a href="{{ route('resident-management.vehicles') }}" @class(['active' => request()->routeIs('resident-management.vehicles')])>Vehicle Management</a> -->
                             </div>
                         </div>
@@ -5138,7 +5139,7 @@
                 </div>
 
                 <div class="top-actions">
-                    <div class="top-dropdown" data-dropdown>
+                    <!-- <div class="top-dropdown" data-dropdown>
                         <button class="top-chip" type="button" data-dropdown-toggle aria-expanded="false">
                             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V7l8-4 8 4v14M9 21v-8h6v8M8 8h.01M12 7h.01M16 8h.01"/></svg>
                             <span>Aether Residences</span>
@@ -5150,11 +5151,11 @@
                             <a href="#">Skyline Suites</a>
                             <div class="dropdown-note">Property switcher uses static data for now.</div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="top-chip" aria-label="Selected date">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 2v4M17 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z"/></svg>
-                        <span>07 Jun 2026</span>
+                        <span><?=date('D, d M Y')?></span>
                     </div>
 
                     <div class="top-dropdown" data-dropdown>

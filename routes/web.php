@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
             Route::delete('/residents/{resident}', [ResidentManagementController::class, 'destroyResident'])
                 ->middleware('module.access:resident-management,delete')
                 ->name('residents.destroy');
+            Route::patch('/settings/resident-capacity', [ResidentManagementController::class, 'updateResidentCapacity'])
+                ->middleware('module.access:resident-management,update')
+                ->name('settings.resident-capacity');
 
             Route::get('/units', [ResidentManagementController::class, 'units'])
                 ->middleware('module.access:resident-management,read')
@@ -141,15 +144,49 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('visitor-management')
         ->name('visitor-management.')
-        ->middleware('module.access:visitor-management,read')
         ->group(function () {
-            Route::get('/', [VisitorManagementController::class, 'index'])->name('index');
-            Route::get('/registration', [VisitorManagementController::class, 'registration'])->name('registration');
-            Route::get('/pending-approval', [VisitorManagementController::class, 'pendingApproval'])->name('pending-approval');
-            Route::get('/expected-visitors', [VisitorManagementController::class, 'expectedVisitors'])->name('expected-visitors');
-            Route::get('/check-in-out', [VisitorManagementController::class, 'checkInOut'])->name('check-in-out');
-            Route::get('/history', [VisitorManagementController::class, 'history'])->name('history');
-            Route::get('/blacklist', [VisitorManagementController::class, 'blacklist'])->name('blacklist');
+            Route::get('/', [VisitorManagementController::class, 'index'])
+                ->middleware('module.access:visitor-management,read')
+                ->name('index');
+            Route::get('/registration', [VisitorManagementController::class, 'registration'])
+                ->middleware('module.access:visitor-management,read')
+                ->name('registration');
+            Route::get('/pending-approval', [VisitorManagementController::class, 'pendingApproval'])
+                ->middleware('module.access:visitor-management,read')
+                ->name('pending-approval');
+            Route::get('/expected-visitors', [VisitorManagementController::class, 'expectedVisitors'])
+                ->middleware('module.access:visitor-management,read')
+                ->name('expected-visitors');
+            Route::get('/check-in-out', [VisitorManagementController::class, 'checkInOut'])
+                ->middleware('module.access:visitor-management,read')
+                ->name('check-in-out');
+            Route::get('/history', [VisitorManagementController::class, 'history'])
+                ->middleware('module.access:visitor-management,read')
+                ->name('history');
+            Route::get('/blacklist', [VisitorManagementController::class, 'blacklist'])
+                ->middleware('module.access:visitor-management,read')
+                ->name('blacklist');
+            Route::post('/walk-in', [VisitorManagementController::class, 'storeWalkIn'])
+                ->middleware('module.access:visitor-management,create')
+                ->name('walk-in.store');
+            Route::post('/lookup-code', [VisitorManagementController::class, 'lookupByCode'])
+                ->middleware('module.access:visitor-management,update')
+                ->name('lookup');
+            Route::post('/visitors/{visitor}/approve', [VisitorManagementController::class, 'approve'])
+                ->middleware('module.access:visitor-management,update')
+                ->name('approve');
+            Route::post('/visitors/{visitor}/reject', [VisitorManagementController::class, 'reject'])
+                ->middleware('module.access:visitor-management,update')
+                ->name('reject');
+            Route::post('/visitors/{visitor}/check-in', [VisitorManagementController::class, 'checkIn'])
+                ->middleware('module.access:visitor-management,update')
+                ->name('check-in');
+            Route::post('/visitors/{visitor}/check-out', [VisitorManagementController::class, 'checkOut'])
+                ->middleware('module.access:visitor-management,update')
+                ->name('check-out');
+            Route::get('/visitors/{visitor}/identity-photo', [VisitorManagementController::class, 'identityPhoto'])
+                ->middleware('module.access:visitor-management,read')
+                ->name('identity-photo');
         });
 
     Route::prefix('service-request')
@@ -169,6 +206,24 @@ Route::middleware('auth')->group(function () {
             Route::put('/{serviceRequest}', [ServiceRequestController::class, 'update'])
                 ->middleware('module.access:service-request,update')
                 ->name('update');
+            Route::post('/settings/categories', [ServiceRequestController::class, 'storeCategory'])
+                ->middleware('module.access:service-request,create')
+                ->name('settings.categories.store');
+            Route::put('/settings/categories/{category}', [ServiceRequestController::class, 'updateCategory'])
+                ->middleware('module.access:service-request,update')
+                ->name('settings.categories.update');
+            Route::delete('/settings/categories/{category}', [ServiceRequestController::class, 'destroyCategory'])
+                ->middleware('module.access:service-request,delete')
+                ->name('settings.categories.destroy');
+            Route::post('/settings/subcategories', [ServiceRequestController::class, 'storeSubcategory'])
+                ->middleware('module.access:service-request,create')
+                ->name('settings.subcategories.store');
+            Route::put('/settings/subcategories/{subcategory}', [ServiceRequestController::class, 'updateSubcategory'])
+                ->middleware('module.access:service-request,update')
+                ->name('settings.subcategories.update');
+            Route::delete('/settings/subcategories/{subcategory}', [ServiceRequestController::class, 'destroySubcategory'])
+                ->middleware('module.access:service-request,delete')
+                ->name('settings.subcategories.destroy');
             Route::get('/service-history', [ServiceRequestController::class, 'serviceHistory'])->name('service-history');
             Route::get('/settings', [ServiceRequestController::class, 'settings'])->name('settings');
         });
@@ -195,6 +250,21 @@ Route::middleware('auth')->group(function () {
         ->group(function () {
             Route::redirect('/', '/community-management/announcements')->name('index');
             Route::get('/announcements', [CommunityManagementController::class, 'announcements'])->name('announcements');
+            Route::post('/announcements', [CommunityManagementController::class, 'storeAnnouncement'])
+                ->middleware('module.access:community-management,create')
+                ->name('announcements.store');
+            Route::put('/announcements/{announcement}', [CommunityManagementController::class, 'updateAnnouncement'])
+                ->middleware('module.access:community-management,update')
+                ->name('announcements.update');
+            Route::delete('/announcements/{announcement}', [CommunityManagementController::class, 'destroyAnnouncement'])
+                ->middleware('module.access:community-management,delete')
+                ->name('announcements.destroy');
+            Route::patch('/announcements/{announcement}/publish', [CommunityManagementController::class, 'toggleAnnouncementPublish'])
+                ->middleware('module.access:community-management,update')
+                ->name('announcements.publish');
+            Route::patch('/announcements/{announcement}/pin', [CommunityManagementController::class, 'toggleAnnouncementPin'])
+                ->middleware('module.access:community-management,update')
+                ->name('announcements.pin');
             Route::get('/events', [CommunityManagementController::class, 'events'])->name('events');
             Route::get('/polling-survey', [CommunityManagementController::class, 'pollingSurvey'])->name('polling-survey');
             Route::get('/forum', [CommunityManagementController::class, 'forum'])->name('forum');
