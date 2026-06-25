@@ -26,16 +26,17 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Resident Management', 'slug' => 'resident-management', 'description' => 'Kelola halaman operasional penghuni.', 'sort_order' => 10],
             ['name' => 'Visitor Management', 'slug' => 'visitor-management', 'description' => 'Kelola halaman operasional visitor.', 'sort_order' => 20],
             ['name' => 'Service Request', 'slug' => 'service-request', 'description' => 'Kelola halaman operasional service request.', 'sort_order' => 30],
-            ['name' => 'Security Management', 'slug' => 'security-management', 'description' => 'Kelola task assignment, patroli, insiden, dan monitoring keamanan.', 'sort_order' => 40],
-            ['name' => 'Community Management', 'slug' => 'community-management', 'description' => 'Kelola halaman operasional komunitas penghuni.', 'sort_order' => 50],
-            ['name' => 'Tenant Marketplace', 'slug' => 'tenant-marketplace', 'description' => 'Kelola direktori tenant marketplace dan input tenant.', 'sort_order' => 60],
-            ['name' => 'Package Center', 'slug' => 'package-center', 'description' => 'Kelola paket masuk, pengambilan, dan riwayat paket.', 'sort_order' => 70],
-            ['name' => 'Billing & Finance', 'slug' => 'billing-finance', 'description' => 'Kelola invoice, collection, auto billing, dan histori pembayaran.', 'sort_order' => 80],
-            ['name' => 'Facility Management', 'slug' => 'facility-management', 'description' => 'Kelola fasilitas dan booking fasilitas penghuni.', 'sort_order' => 90],
-            ['name' => 'Users', 'slug' => 'users', 'description' => 'Kelola data user.', 'sort_order' => 100],
-            ['name' => 'Modules', 'slug' => 'modules', 'description' => 'Kelola daftar module aplikasi.', 'sort_order' => 110],
-            ['name' => 'Access', 'slug' => 'access', 'description' => 'Kelola hak akses CRUD per user dan module.', 'sort_order' => 120],
-            ['name' => 'Roles', 'slug' => 'roles', 'description' => 'Kelola role user.', 'sort_order' => 130],
+            ['name' => 'Technician Management', 'slug' => 'technician-management', 'description' => 'Kelola akun teknisi, team assignment, dan profil operasional teknisi.', 'sort_order' => 40],
+            ['name' => 'Security Management', 'slug' => 'security-management', 'description' => 'Kelola task assignment, patroli, insiden, dan monitoring keamanan.', 'sort_order' => 50],
+            ['name' => 'Community Management', 'slug' => 'community-management', 'description' => 'Kelola halaman operasional komunitas penghuni.', 'sort_order' => 60],
+            ['name' => 'Tenant Marketplace', 'slug' => 'tenant-marketplace', 'description' => 'Kelola direktori tenant marketplace dan input tenant.', 'sort_order' => 70],
+            ['name' => 'Package Center', 'slug' => 'package-center', 'description' => 'Kelola paket masuk, pengambilan, dan riwayat paket.', 'sort_order' => 80],
+            ['name' => 'Billing & Finance', 'slug' => 'billing-finance', 'description' => 'Kelola invoice, collection, auto billing, dan histori pembayaran.', 'sort_order' => 90],
+            ['name' => 'Facility Management', 'slug' => 'facility-management', 'description' => 'Kelola fasilitas dan booking fasilitas penghuni.', 'sort_order' => 100],
+            ['name' => 'Users', 'slug' => 'users', 'description' => 'Kelola data user.', 'sort_order' => 110],
+            ['name' => 'Modules', 'slug' => 'modules', 'description' => 'Kelola daftar module aplikasi.', 'sort_order' => 120],
+            ['name' => 'Access', 'slug' => 'access', 'description' => 'Kelola hak akses CRUD per user dan module.', 'sort_order' => 130],
+            ['name' => 'Roles', 'slug' => 'roles', 'description' => 'Kelola role user.', 'sort_order' => 140],
         ])->map(fn (array $module) => Module::query()->updateOrCreate(
             ['slug' => $module['slug']],
             $module + ['is_active' => true]
@@ -60,10 +61,14 @@ class DatabaseSeeder extends Seeder
         ]));
 
         AppSetting::putInteger('visitor_guest_max', AppSetting::getInteger('visitor_guest_max') ?? 10);
+        AppSetting::query()->updateOrCreate(['key' => 'technician_hotline_name'], ['value' => 'Service Dispatch Hotline']);
+        AppSetting::query()->updateOrCreate(['key' => 'technician_hotline_phone'], ['value' => '021-1500-112']);
+        AppSetting::query()->updateOrCreate(['key' => 'technician_hotline_note'], ['value' => 'Hubungi hotline bila ada eskalasi onsite atau kendala akses unit.']);
 
         $this->call([
             ResidentManagementSeeder::class,
             ServiceRequestCatalogSeeder::class,
+            TechnicianManagementSeeder::class,
             ServiceRequestSeeder::class,
             AnnouncementSeeder::class,
             FacilityManagementSeeder::class,

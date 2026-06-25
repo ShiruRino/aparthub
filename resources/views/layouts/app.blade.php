@@ -4810,6 +4810,7 @@
         $canResidentRead = $authUser?->canAccessModule('resident-management', 'read');
         $canVisitorRead = $authUser?->canAccessModule('visitor-management', 'read');
         $canServiceRead = $authUser?->canAccessModule('service-request', 'read');
+        $canTechnicianRead = $authUser?->canAccessModule('technician-management', 'read');
         $canSecurityRead = $authUser?->canAccessModule('security-management', 'read');
         $canCommunityRead = $authUser?->canAccessModule('community-management', 'read');
         $canTenantRead = $authUser?->canAccessModule('tenant-marketplace', 'read');
@@ -4900,6 +4901,15 @@
                                 <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11h6M9 15h6M8 3h8l2 3h2v15H4V6h2l2-3Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </span>
                             <span>Service Request</span>
+                        </a>
+                    @endif
+
+                    @if ($canTechnicianRead)
+                        <a href="{{ route('technician-management.index') }}" title="Technician Management" @class(['side-link', 'active' => request()->routeIs('technician-management.*')])>
+                            <span class="side-icon">
+                                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 20a5 5 0 0 1 10 0"/><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M18 8h3m-1.5-1.5v3"/></svg>
+                            </span>
+                            <span>Technician Management</span>
                         </a>
                     @endif
 
@@ -5109,6 +5119,22 @@
                             <span>!</span><span>SLA Summary</span>
                         </a>
                     </div>
+                @elseif ($canTechnicianRead && request()->routeIs('technician-management.*'))
+                    <div class="sidebar-quick-actions" aria-label="Technician management quick actions">
+                        <div class="sidebar-quick-title">Quick Actions</div>
+                        <a class="sidebar-quick-link" href="{{ route('technician-management.index') }}">
+                            <span>#</span><span>Technician Roster</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('service-request.work-orders') }}">
+                            <span>+</span><span>Assigned Work Orders</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('service-request.technician-schedule') }}">
+                            <span>&gt;</span><span>Team Schedule</span>
+                        </a>
+                        <a class="sidebar-quick-link" href="{{ route('service-request.work-in-progress') }}">
+                            <span>!</span><span>Execution Progress</span>
+                        </a>
+                    </div>
                 @endif
             </div>
 
@@ -5199,7 +5225,7 @@
                 'resident-content' => request()->routeIs('resident-management.*'),
                 'billing-content' => request()->routeIs('billing-finance.*'),
                 'visitor-content' => request()->routeIs('visitor-management.*'),
-                'service-content' => request()->routeIs('service-request.*'),
+                'service-content' => request()->routeIs('service-request.*') || request()->routeIs('technician-management.*'),
                 'security-content' => request()->routeIs('security-management.*'),
                 'community-content' => request()->routeIs('community-management.*'),
                 'tenant-content' => request()->routeIs('tenant-marketplace.*'),

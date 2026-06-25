@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,6 +25,8 @@ class ServiceRequest extends Model
 
     public const STATUS_IN_PROGRESS = 'In Progress';
 
+    public const STATUS_ON_THE_WAY = 'On The Way';
+
     public const STATUS_COMPLETED = 'Completed';
 
     public const STATUS_CANCELLED = 'Cancelled';
@@ -38,6 +41,7 @@ class ServiceRequest extends Model
         'resident_id',
         'service_request_category_id',
         'service_request_subcategory_id',
+        'technician_team_id',
         'category',
         'title',
         'description',
@@ -48,6 +52,9 @@ class ServiceRequest extends Model
         'sla_due_at',
         'assigned_to',
         'assigned_at',
+        'scheduled_at',
+        'on_the_way_at',
+        'estimated_arrival_minutes',
         'in_progress_at',
         'completion_notes',
         'completed_at',
@@ -64,6 +71,9 @@ class ServiceRequest extends Model
             'sla_target_minutes' => 'integer',
             'sla_due_at' => 'datetime',
             'assigned_at' => 'datetime',
+            'scheduled_at' => 'datetime',
+            'on_the_way_at' => 'datetime',
+            'estimated_arrival_minutes' => 'integer',
             'in_progress_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
@@ -87,9 +97,19 @@ class ServiceRequest extends Model
         return $this->belongsTo(ServiceRequestSubcategory::class, 'service_request_subcategory_id');
     }
 
+    public function technicianTeam(): BelongsTo
+    {
+        return $this->belongsTo(TechnicianTeam::class);
+    }
+
     public function attachments(): HasMany
     {
         return $this->hasMany(ServiceRequestAttachment::class);
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(ServiceRequestEvent::class)->latest();
     }
 
     public static function priorityOptions(): array
@@ -107,6 +127,7 @@ class ServiceRequest extends Model
         return [
             self::STATUS_SUBMITTED,
             self::STATUS_ASSIGNED,
+            self::STATUS_ON_THE_WAY,
             self::STATUS_IN_PROGRESS,
             self::STATUS_COMPLETED,
             self::STATUS_CANCELLED,
@@ -118,6 +139,7 @@ class ServiceRequest extends Model
         return match ($status) {
             'New', 'Pending', self::STATUS_SUBMITTED => self::STATUS_SUBMITTED,
             self::STATUS_ASSIGNED => self::STATUS_ASSIGNED,
+            self::STATUS_ON_THE_WAY => self::STATUS_ON_THE_WAY,
             'Over SLA', self::STATUS_IN_PROGRESS => self::STATUS_IN_PROGRESS,
             self::STATUS_COMPLETED => self::STATUS_COMPLETED,
             self::STATUS_CANCELLED => self::STATUS_CANCELLED,
@@ -170,6 +192,10 @@ class ServiceRequest extends Model
                 'label' => self::STATUS_ASSIGNED,
                 'timestamp' => $this->assigned_at->toIso8601String(),
             ] : null,
+            $this->on_the_way_at ? [
+                'label' => self::STATUS_ON_THE_WAY,
+                'timestamp' => $this->on_the_way_at->toIso8601String(),
+            ] : null,
             $this->in_progress_at ? [
                 'label' => self::STATUS_IN_PROGRESS,
                 'timestamp' => $this->in_progress_at->toIso8601String(),
@@ -186,6 +212,7 @@ class ServiceRequest extends Model
         return match ($status) {
             self::STATUS_SUBMITTED => $query->whereIn('status', ['New', 'Pending', self::STATUS_SUBMITTED]),
             self::STATUS_ASSIGNED => $query->where('status', self::STATUS_ASSIGNED),
+            self::STATUS_ON_THE_WAY => $query->where('status', self::STATUS_ON_THE_WAY),
             self::STATUS_IN_PROGRESS => $query->whereIn('status', ['Over SLA', self::STATUS_IN_PROGRESS]),
             self::STATUS_COMPLETED => $query->where('status', self::STATUS_COMPLETED),
             self::STATUS_CANCELLED => $query->where('status', self::STATUS_CANCELLED),
@@ -207,5 +234,25 @@ class ServiceRequest extends Model
                             ->whereColumn('completed_at', '>', 'sla_due_at');
                     });
             });
+    }
+
+    public function beforeAttachments(): HasMany
+    {
+        return $this->attachments()->where('attachment_type', ServiceRequestAttachment::TYPE_TECHNICIAN_BEFORE);
+    }
+
+    public function afterAttachments(): HasMany
+    {
+        return $this->attachments()->where('attachment_type', ServiceRequestAttachment::TYPE_TECHNICIAN_AFTER);
+    }
+
+    public function residentSupportingAttachments(): HasMany
+    {
+        return $this->attachments()->where('attachment_type', ServiceRequestAttachment::TYPE_RESIDENT_SUPPORTING);
+    }
+
+    public function attachmentsByType(string $type): EloquentCollection
+    {
+        return $this->attachments->where('attachment_type', $type)->values();
     }
 }

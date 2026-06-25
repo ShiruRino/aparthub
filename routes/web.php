@@ -12,6 +12,7 @@ use App\Http\Controllers\ResidentManagementController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SecurityManagementController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\TechnicianManagementController;
 use App\Http\Controllers\TenantMarketplaceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisitorManagementController;
@@ -226,6 +227,25 @@ Route::middleware('auth')->group(function () {
                 ->name('settings.subcategories.destroy');
             Route::get('/service-history', [ServiceRequestController::class, 'serviceHistory'])->name('service-history');
             Route::get('/settings', [ServiceRequestController::class, 'settings'])->name('settings');
+        });
+
+    Route::prefix('technician-management')
+        ->name('technician-management.')
+        ->middleware('module.access:technician-management,read')
+        ->group(function () {
+            Route::get('/', [TechnicianManagementController::class, 'index'])->name('index');
+            Route::post('/technicians', [TechnicianManagementController::class, 'storeTechnician'])
+                ->middleware('module.access:technician-management,create')
+                ->name('technicians.store');
+            Route::put('/technicians/{technician}', [TechnicianManagementController::class, 'updateTechnician'])
+                ->middleware('module.access:technician-management,update')
+                ->name('technicians.update');
+            Route::post('/teams', [TechnicianManagementController::class, 'storeTeam'])
+                ->middleware('module.access:technician-management,create')
+                ->name('teams.store');
+            Route::put('/teams/{team}', [TechnicianManagementController::class, 'updateTeam'])
+                ->middleware('module.access:technician-management,update')
+                ->name('teams.update');
         });
 
     Route::prefix('security-management')

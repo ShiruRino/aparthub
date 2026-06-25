@@ -179,7 +179,7 @@ class ResidentServiceRequestApiTest extends TestCase
             ->assertJsonValidationErrors(['attachments.0']);
     }
 
-    public function test_service_request_api_accepts_images_alias_and_returns_images_payload(): void
+    public function test_service_request_api_creates_attachment_records_and_returns_attachment_metadata(): void
     {
         Storage::fake('public');
 
@@ -191,20 +191,76 @@ class ResidentServiceRequestApiTest extends TestCase
             'Accept' => 'application/json',
         ])->post('/api/service-requests', [
             'subcategory_id' => $subcategory->id,
-            'title' => 'Image Alias Ticket',
-            'description' => 'Ticket created with images payload.',
+            'title' => 'Attachment Ticket',
+            'description' => 'Ticket created with canonical attachments payload.',
             'priority' => ServiceRequest::PRIORITY_MEDIUM,
-            'images' => [
+            'attachments' => [
                 UploadedFile::fake()->image('proof-one.jpg'),
                 UploadedFile::fake()->image('proof-two.png'),
             ],
         ]);
 
         $response->assertCreated()
-            ->assertJsonCount(2, 'data.images')
-            ->assertJsonCount(2, 'data.attachments');
+            ->assertJsonCount(2, 'data.attachments')
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    'id',
+                    'ticket_number',
+                    'attachments' => [
+                        '*' => ['id', 'file_name', 'mime_type', 'file_size', 'url'],
+                    ],
+                ],
+            ]);
 
         $this->assertDatabaseCount('service_request_attachments', 2);
+        $this->assertStringContainsString('/storage/service-requests/attachments/', $response->json('data.attachments.0.url'));
+    }
+
+    public function test_service_request_api_rejects_legacy_images_alias(): void
+    {
+        Storage::fake('public');
+
+        [$resident, $category, $subcategory] = $this->seedResidentCatalogData();
+        $token = $resident->createToken('mobile')->plainTextToken;
+
+        $this->withHeaders([
+            'Authorization' => 'Bearer '.$token,
+            'Accept' => 'application/json',
+        ])->post('/api/service-requests', [
+            'subcategory_id' => $subcategory->id,
+            'title' => 'Legacy Images Alias Ticket',
+            'description' => 'Legacy field should be rejected.',
+            'priority' => ServiceRequest::PRIORITY_MEDIUM,
+            'images' => [
+                UploadedFile::fake()->image('legacy-proof.jpg'),
+            ],
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['images']);
+    }
+
+    public function test_admin_service_request_detail_renders_uploaded_images(): void
+    {
+        Storage::fake('public');
+
+        [$resident, $category, $subcategory] = $this->seedResidentCatalogData();
+        $admin = $this->createAdminUser();
+
+        $ticket = ServiceRequest::query()->create($this->ticketPayload($resident, $category, $subcategory, 'SR-IMG-001'));
+        $ticket->attachments()->create([
+            'disk' => 'public',
+            'path' => 'service-requests/attachments/proof-admin.jpg',
+            'original_name' => 'proof-admin.jpg',
+            'mime_type' => 'image/jpeg',
+            'file_size' => 12345,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('service-request.ticket-queue'))
+            ->assertOk()
+            ->assertSee('proof-admin.jpg')
+            ->assertSee('/storage/service-requests/attachments/proof-admin.jpg');
     }
 
     public function test_admin_status_update_is_visible_through_resident_ticket_detail_api(): void

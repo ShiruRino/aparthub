@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureAuthenticatedResident;
 use App\Http\Middleware\EnsureAuthenticatedSecurityUser;
+use App\Http\Middleware\EnsureAuthenticatedTechnicianUser;
 use App\Http\Middleware\EnsureModuleAccess;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'module.access' => EnsureModuleAccess::class,
             'resident.api' => EnsureAuthenticatedResident::class,
             'security.api' => EnsureAuthenticatedSecurityUser::class,
+            'technician.api' => EnsureAuthenticatedTechnicianUser::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -6,7 +6,9 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -25,6 +27,9 @@ class User extends Authenticatable
         'role_id',
         'name',
         'username',
+        'email',
+        'mobile_no',
+        'is_active',
         'password',
     ];
 
@@ -54,12 +59,38 @@ class User extends Authenticatable
         return $this->hasMany(UserModule::class);
     }
 
+    public function technicianProfile(): HasOne
+    {
+        return $this->hasOne(TechnicianProfile::class);
+    }
+
+    public function technicianTeams(): BelongsToMany
+    {
+        return $this->belongsToMany(TechnicianTeam::class, 'technician_team_user')
+            ->withTimestamps();
+    }
+
+    public function serviceRequestEvents(): HasMany
+    {
+        return $this->hasMany(ServiceRequestEvent::class, 'acted_by_user_id');
+    }
+
     /**
      * Determine whether the user has the admin role.
      */
     public function isAdmin(): bool
     {
         return $this->role?->slug === 'admin';
+    }
+
+    public function isTechnician(): bool
+    {
+        return $this->role?->slug === 'technician';
+    }
+
+    public function activeForApi(): bool
+    {
+        return $this->is_active !== false;
     }
 
     /**
@@ -101,6 +132,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 }

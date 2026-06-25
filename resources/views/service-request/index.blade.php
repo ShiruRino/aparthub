@@ -34,15 +34,15 @@
     $metrics = [
         ['label' => 'Submitted', 'value' => $summary['submitted'], 'tone' => 'status-pending'],
         ['label' => 'Assigned', 'value' => $summary['assigned'], 'tone' => 'status-approved'],
+        ['label' => 'On The Way', 'value' => $summary['on_the_way'], 'tone' => 'status-approved'],
         ['label' => 'In Progress', 'value' => $summary['in_progress'], 'tone' => 'status-approved'],
         ['label' => 'Completed Today', 'value' => $summary['completed_today'], 'tone' => 'status-approved'],
-        ['label' => 'Over SLA', 'value' => $summary['over_sla'], 'tone' => 'status-rejected'],
         ['label' => 'Emergency', 'value' => $summary['emergency'], 'tone' => 'status-rejected'],
     ];
 
     $statusClass = function (string $status): string {
         return match ($status) {
-            ServiceRequest::STATUS_COMPLETED, ServiceRequest::STATUS_ASSIGNED, ServiceRequest::STATUS_IN_PROGRESS => 'status-approved',
+            ServiceRequest::STATUS_COMPLETED, ServiceRequest::STATUS_ASSIGNED, ServiceRequest::STATUS_ON_THE_WAY, ServiceRequest::STATUS_IN_PROGRESS => 'status-approved',
             ServiceRequest::STATUS_SUBMITTED => 'status-pending',
             ServiceRequest::STATUS_CANCELLED => 'status-expired',
             default => 'status-expired',
@@ -158,8 +158,17 @@
                             </select>
                         </label>
                         <label class="resident-filter-field">
-                            <span>Assign To</span>
-                            <input name="assigned_to" type="text" value="{{ old('assigned_to') }}" placeholder="Opsional">
+                            <span>Technician Team</span>
+                            <select name="technician_team_id">
+                                <option value="">Belum ditetapkan</option>
+                                @foreach ($teamOptions as $team)
+                                    <option value="{{ $team->id }}" @selected((string) old('technician_team_id') === (string) $team->id)>{{ $team->name }}</option>
+                                @endforeach
+                            </select>
+                        </label>
+                        <label class="resident-filter-field">
+                            <span>Scheduled At</span>
+                            <input name="scheduled_at" type="datetime-local" value="{{ old('scheduled_at') ? \Illuminate\Support\Carbon::parse(old('scheduled_at'))->format('Y-m-d\\TH:i') : '' }}">
                         </label>
                         <label class="resident-filter-field">
                             <span>Request Title</span>
@@ -323,6 +332,15 @@
                             </select>
                         </label>
                         <label class="resident-filter-field">
+                            <span>Technician Team</span>
+                            <select name="technician_team_id">
+                                <option value="">All Teams</option>
+                                @foreach ($teamOptions as $team)
+                                    <option value="{{ $team->id }}" @selected((string) request('technician_team_id') === (string) $team->id)>{{ $team->name }}</option>
+                                @endforeach
+                            </select>
+                        </label>
+                        <label class="resident-filter-field">
                             <span>SLA State</span>
                             <select name="sla_state">
                                 <option value="">All SLA</option>
@@ -342,7 +360,9 @@
                                 <th>Category / Subcategory</th>
                                 <th>Priority</th>
                                 <th>Status</th>
-                                <th>Assigned To</th>
+                                <th>Technician Team</th>
+                                <th>Assigned Snapshot</th>
+                                <th>Scheduled At</th>
                                 <th>Operational Timestamp</th>
                                 <th>SLA Due At</th>
                                 <th>SLA State</th>
@@ -367,12 +387,14 @@
                                     </td>
                                     <td><span class="resident-status {{ $priorityClass($ticket->priority) }}">{{ $ticket->priority }}</span></td>
                                     <td><span class="resident-status {{ $statusClass($ticket->canonicalStatus()) }}">{{ $ticket->canonicalStatus() }}</span></td>
+                                    <td>{{ $ticket->technicianTeam?->name ?: 'Belum ada team' }}</td>
                                     <td>{{ $ticket->assigned_to ?: 'Belum ditugaskan' }}</td>
-                                    <td>{{ $ticket->operationalTimestamp()?->format('d M Y · H:i') }}</td>
-                                    <td>{{ $ticket->sla_due_at?->format('d M Y · H:i') ?? '-' }}</td>
+                                    <td>{{ $ticket->scheduled_at?->format('d M Y ? H:i') ?? '-' }}</td>
+                                    <td>{{ $ticket->operationalTimestamp()?->format('d M Y ? H:i') }}</td>
+                                    <td>{{ $ticket->sla_due_at?->format('d M Y ? H:i') ?? '-' }}</td>
                                     <td><span class="resident-status {{ $ticket->isOverSla() ? 'status-rejected' : 'status-approved' }}">{{ $ticket->slaState() }}</span></td>
                                     @if ($pageKey === 'completed-requests' || $pageKey === 'service-history')
-                                        <td>{{ $ticket->completed_at?->format('d M Y · H:i') ?? '-' }}</td>
+                                        <td>{{ $ticket->completed_at?->format('d M Y ? H:i') ?? '-' }}</td>
                                     @endif
                                     <td>
                                         <div class="resident-action-row">
@@ -383,7 +405,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ $pageKey === 'completed-requests' || $pageKey === 'service-history' ? 11 : 10 }}">Belum ada data service request.</td>
+                                    <td colspan="{{ $pageKey === 'completed-requests' || $pageKey === 'service-history' ? 13 : 12 }}">Belum ada data service request.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -402,6 +424,7 @@
                     <div class="visitor-panel-body">
                         <div class="visitor-info-row"><span>Submitted</span><strong>{{ $summary['submitted'] }}</strong></div>
                         <div class="visitor-info-row"><span>Assigned</span><strong>{{ $summary['assigned'] }}</strong></div>
+                        <div class="visitor-info-row"><span>On The Way</span><strong>{{ $summary['on_the_way'] }}</strong></div>
                         <div class="visitor-info-row"><span>In Progress</span><strong>{{ $summary['in_progress'] }}</strong></div>
                     </div>
                 </article>
@@ -454,28 +477,53 @@
                             <div class="visitor-info-row"><span>Subcategory</span><strong>{{ $subcategoryLabel }}</strong></div>
                             <div class="visitor-info-row"><span>Priority</span><strong>{{ $ticket->priority }}</strong></div>
                             <div class="visitor-info-row"><span>Status</span><strong>{{ $ticket->canonicalStatus() }}</strong></div>
-                            <div class="visitor-info-row"><span>Assigned To</span><strong>{{ $ticket->assigned_to ?: 'Belum ditugaskan' }}</strong></div>
-                            <div class="visitor-info-row"><span>SLA Due At</span><strong>{{ $ticket->sla_due_at?->format('d M Y · H:i') ?? '-' }}</strong></div>
+                            <div class="visitor-info-row"><span>Technician Team</span><strong>{{ $ticket->technicianTeam?->name ?: 'Belum ada team' }}</strong></div>
+                            <div class="visitor-info-row"><span>Assigned Snapshot</span><strong>{{ $ticket->assigned_to ?: 'Belum ditugaskan' }}</strong></div>
+                            <div class="visitor-info-row"><span>Scheduled At</span><strong>{{ $ticket->scheduled_at?->format('d M Y - H:i') ?? '-' }}</strong></div>
+                            <div class="visitor-info-row"><span>SLA Due At</span><strong>{{ $ticket->sla_due_at?->format('d M Y - H:i') ?? '-' }}</strong></div>
                             <div class="visitor-info-row"><span>SLA State</span><strong>{{ $ticket->slaState() }}</strong></div>
-                            <div class="visitor-info-row"><span>Created At</span><strong>{{ $ticket->created_at?->format('d M Y · H:i') ?? '-' }}</strong></div>
-                            <div class="visitor-info-row"><span>Completed At</span><strong>{{ $ticket->completed_at?->format('d M Y · H:i') ?? '-' }}</strong></div>
+                            <div class="visitor-info-row"><span>Created At</span><strong>{{ $ticket->created_at?->format('d M Y - H:i') ?? '-' }}</strong></div>
+                            <div class="visitor-info-row"><span>Completed At</span><strong>{{ $ticket->completed_at?->format('d M Y - H:i') ?? '-' }}</strong></div>
                             <div class="visitor-info-row"><span>Resolution Notes</span><strong>{{ $ticket->completion_notes ?: 'Belum ada catatan penyelesaian.' }}</strong></div>
                         </div>
 
-                        @if ($ticket->attachments->isNotEmpty())
-                            <div class="service-attachment-row" style="margin-top:18px;">
-                                @foreach ($ticket->attachments as $attachment)
-                                    <a href="{{ $attachment->url }}" target="_blank" rel="noreferrer" style="display:block;border:1px solid #dce4ef;border-radius:14px;overflow:hidden;background:#f8fbff;">
-                                        <img src="{{ $attachment->url }}" alt="{{ $attachment->original_name }}" style="width:100%;height:180px;object-fit:cover;">
-                                        <span style="display:block;padding:10px 12px;color:#0b2149;font-weight:600;">{{ $attachment->original_name }}</span>
-                                    </a>
+                        <div style="display:grid;gap:18px;margin-top:18px;">
+                            @foreach ([
+                                'Resident Supporting' => $ticket->attachmentsByType(\App\Models\ServiceRequestAttachment::TYPE_RESIDENT_SUPPORTING),
+                                'Technician Before' => $ticket->attachmentsByType(\App\Models\ServiceRequestAttachment::TYPE_TECHNICIAN_BEFORE),
+                                'Technician After' => $ticket->attachmentsByType(\App\Models\ServiceRequestAttachment::TYPE_TECHNICIAN_AFTER),
+                            ] as $attachmentLabel => $attachmentSet)
+                                <div>
+                                    <strong style="display:block;margin-bottom:10px;color:#0b2149;">{{ $attachmentLabel }}</strong>
+                                    @if ($attachmentSet->isNotEmpty())
+                                        <div class="service-attachment-row">
+                                            @foreach ($attachmentSet as $attachment)
+                                                <a href="{{ $attachment->url }}" target="_blank" rel="noreferrer" style="display:block;border:1px solid #dce4ef;border-radius:14px;overflow:hidden;background:#f8fbff;">
+                                                    <img src="{{ $attachment->url }}" alt="{{ $attachment->original_name }}" style="width:100%;height:180px;object-fit:cover;">
+                                                    <span style="display:block;padding:10px 12px;color:#0b2149;font-weight:600;">{{ $attachment->original_name }}</span>
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <p class="muted" style="margin:0;">Belum ada lampiran {{ strtolower($attachmentLabel) }}.</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+
+                        @if ($ticket->events->isNotEmpty())
+                            <div style="display:grid;gap:10px;margin-top:18px;">
+                                <strong style="color:#0b2149;">Execution Timeline</strong>
+                                @foreach ($ticket->events as $event)
+                                    <div class="visitor-info-row">
+                                        <span>{{ $event->event_type }}</span>
+                                        <strong>{{ ($event->actor?->name ? $event->actor->name.' - ' : '').($event->created_at?->format('d M Y - H:i') ?? '-') }}</strong>
+                                    </div>
                                 @endforeach
                             </div>
                         @else
-                            <p class="muted" style="margin:18px 0 0;">Tidak ada lampiran untuk ticket ini.</p>
+                            <p class="muted" style="margin:18px 0 0;">Timeline event belum tersedia untuk ticket ini.</p>
                         @endif
-
-                        <p class="muted" style="margin:18px 0 0;">Timeline ticket: {{ collect($ticket->timeline())->map(fn ($item) => $item['label'].' ('.Carbon\Carbon::parse($item['timestamp'])->format('d M H:i').')')->implode(' > ') }}</p>
 
                         <div class="visitor-form-actions">
                             <button class="btn secondary" type="button" data-modal-close>Close</button>
@@ -537,8 +585,21 @@
                                 <input type="text" name="source" value="{{ $ticket->source }}">
                             </label>
                             <label class="resident-filter-field">
-                                <span>Assigned To</span>
+                                <span>Technician Team</span>
+                                <select name="technician_team_id">
+                                    <option value="">Belum ditetapkan</option>
+                                    @foreach ($teamOptions as $team)
+                                        <option value="{{ $team->id }}" @selected($ticket->technician_team_id === $team->id)>{{ $team->name }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                            <label class="resident-filter-field">
+                                <span>Assigned Snapshot</span>
                                 <input type="text" name="assigned_to" value="{{ $ticket->assigned_to }}">
+                            </label>
+                            <label class="resident-filter-field">
+                                <span>Scheduled At</span>
+                                <input type="datetime-local" name="scheduled_at" value="{{ $ticket->scheduled_at?->format('Y-m-d\TH:i') }}">
                             </label>
                             <label class="resident-filter-field">
                                 <span>SLA Preview</span>
@@ -816,3 +877,5 @@
         });
     </script>
 @endsection
+
+

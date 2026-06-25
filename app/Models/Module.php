@@ -12,7 +12,7 @@ class Module extends Model
      *
      * @var list<string>
      */
-    public const SYSTEM_SLUGS = ['resident-management', 'visitor-management', 'service-request', 'security-management', 'community-management', 'tenant-marketplace', 'package-center', 'billing-finance', 'facility-management', 'users', 'modules', 'access', 'roles'];
+    public const SYSTEM_SLUGS = ['resident-management', 'visitor-management', 'service-request', 'security-management', 'technician-management', 'community-management', 'tenant-marketplace', 'package-center', 'billing-finance', 'facility-management', 'users', 'modules', 'access', 'roles'];
 
     /**
      * The attributes that are mass assignable.

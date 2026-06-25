@@ -42,15 +42,16 @@ class DynamicAccessControlTest extends TestCase
             ['name' => 'Resident Management', 'slug' => 'resident-management', 'sort_order' => 10],
             ['name' => 'Visitor Management', 'slug' => 'visitor-management', 'sort_order' => 20],
             ['name' => 'Service Request', 'slug' => 'service-request', 'sort_order' => 30],
-            ['name' => 'Security Management', 'slug' => 'security-management', 'sort_order' => 40],
-            ['name' => 'Community Management', 'slug' => 'community-management', 'sort_order' => 50],
-            ['name' => 'Tenant Marketplace', 'slug' => 'tenant-marketplace', 'sort_order' => 60],
-            ['name' => 'Package Center', 'slug' => 'package-center', 'sort_order' => 70],
-            ['name' => 'Billing & Finance', 'slug' => 'billing-finance', 'sort_order' => 80],
-            ['name' => 'Users', 'slug' => 'users', 'sort_order' => 90],
-            ['name' => 'Modules', 'slug' => 'modules', 'sort_order' => 100],
-            ['name' => 'Access', 'slug' => 'access', 'sort_order' => 110],
-            ['name' => 'Roles', 'slug' => 'roles', 'sort_order' => 120],
+            ['name' => 'Technician Management', 'slug' => 'technician-management', 'sort_order' => 40],
+            ['name' => 'Security Management', 'slug' => 'security-management', 'sort_order' => 50],
+            ['name' => 'Community Management', 'slug' => 'community-management', 'sort_order' => 60],
+            ['name' => 'Tenant Marketplace', 'slug' => 'tenant-marketplace', 'sort_order' => 70],
+            ['name' => 'Package Center', 'slug' => 'package-center', 'sort_order' => 80],
+            ['name' => 'Billing & Finance', 'slug' => 'billing-finance', 'sort_order' => 90],
+            ['name' => 'Users', 'slug' => 'users', 'sort_order' => 100],
+            ['name' => 'Modules', 'slug' => 'modules', 'sort_order' => 110],
+            ['name' => 'Access', 'slug' => 'access', 'sort_order' => 120],
+            ['name' => 'Roles', 'slug' => 'roles', 'sort_order' => 130],
         ])->map(fn (array $module) => Module::query()->create($module + ['is_active' => true]));
     }
 
@@ -97,6 +98,7 @@ class DynamicAccessControlTest extends TestCase
         $this->get(route('visitor-management.registration'))->assertRedirect(route('login'));
         $this->get(route('service-request.index'))->assertRedirect(route('login'));
         $this->get(route('service-request.ticket-queue'))->assertRedirect(route('login'));
+        $this->get(route('technician-management.index'))->assertRedirect(route('login'));
         $this->get(route('security-management.index'))->assertRedirect(route('login'));
         $this->get(route('security-management.task-assignment'))->assertRedirect(route('login'));
         $this->get(route('community-management.index'))->assertRedirect(route('login'));
@@ -230,6 +232,20 @@ class DynamicAccessControlTest extends TestCase
 
             $response->assertSee('href="'.route($routeName).'"', false);
         }
+    }
+
+    public function test_admin_can_access_technician_management_without_permission_rows(): void
+    {
+        $admin = $this->makeUser($this->adminRole, [
+            'username' => 'admin',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('technician-management.index'))
+            ->assertOk()
+            ->assertSee('Technician Management')
+            ->assertSee('Technician Roster')
+            ->assertSee('Technician Teams');
     }
 
     public function test_admin_can_access_community_management_pages_without_permission_rows(): void
@@ -430,6 +446,10 @@ class DynamicAccessControlTest extends TestCase
             ->assertForbidden();
 
         $this->actingAs($user)
+            ->get(route('technician-management.index'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
             ->get(route('security-management.index'))
             ->assertForbidden();
 
@@ -557,6 +577,21 @@ class DynamicAccessControlTest extends TestCase
                 ->assertOk()
                 ->assertSee($expectedText);
         }
+    }
+
+    public function test_non_admin_can_access_technician_management_with_read_permission(): void
+    {
+        $user = $this->makeUser($this->staffRole);
+
+        $this->grant($user, 'technician-management', [
+            'can_read' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('technician-management.index'))
+            ->assertOk()
+            ->assertSee('Technician Management')
+            ->assertSee('Technician Roster');
     }
 
     public function test_non_admin_can_access_community_management_pages_with_read_permission(): void
@@ -809,6 +844,24 @@ class DynamicAccessControlTest extends TestCase
         }
     }
 
+    public function test_technician_management_sidebar_uses_single_real_link(): void
+    {
+        $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
+
+        $response = $this->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Technician Management')
+            ->assertSee('href="'.route('technician-management.index').'"', false);
+
+        $this->actingAs($admin)
+            ->get(route('technician-management.index'))
+            ->assertOk()
+            ->assertSee('Technician Roster')
+            ->assertSee('Technician Teams')
+            ->assertSee('Assigned Work Orders');
+    }
+
     public function test_security_management_sidebar_uses_single_real_link(): void
     {
         $admin = $this->makeUser($this->adminRole, ['username' => 'admin']);
@@ -927,6 +980,7 @@ class DynamicAccessControlTest extends TestCase
         $residentModule = $this->module('resident-management');
         $visitorModule = $this->module('visitor-management');
         $serviceModule = $this->module('service-request');
+        $technicianModule = $this->module('technician-management');
         $securityModule = $this->module('security-management');
         $communityModule = $this->module('community-management');
         $tenantModule = $this->module('tenant-marketplace');
@@ -1025,6 +1079,22 @@ class DynamicAccessControlTest extends TestCase
             'id' => $serviceModule->id,
             'name' => 'Service Operations',
             'slug' => 'service-request',
+            'is_active' => 1,
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('modules.update', $technicianModule), [
+                'name' => 'Technician Ops',
+                'slug' => 'technician-ops',
+                'sort_order' => 4,
+                'is_active' => '0',
+            ])
+            ->assertRedirect(route('modules.index'));
+
+        $this->assertDatabaseHas('modules', [
+            'id' => $technicianModule->id,
+            'name' => 'Technician Ops',
+            'slug' => 'technician-management',
             'is_active' => 1,
         ]);
 

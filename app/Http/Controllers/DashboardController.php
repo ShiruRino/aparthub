@@ -16,6 +16,7 @@ class DashboardController extends Controller
             'submitted' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_SUBMITTED)->count(),
             'open' => ServiceRequest::query()->whereNotIn('status', [ServiceRequest::STATUS_COMPLETED, ServiceRequest::STATUS_CANCELLED])->count(),
             'assigned' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_ASSIGNED)->count(),
+            'on_the_way' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_ON_THE_WAY)->count(),
             'in_progress' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_IN_PROGRESS)->count(),
             'resolved' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_COMPLETED)->count(),
             'completed_today' => ServiceRequest::query()->whereDate('completed_at', today())->count(),

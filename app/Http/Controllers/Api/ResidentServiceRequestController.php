@@ -17,6 +17,9 @@ use Illuminate\Validation\ValidationException;
 
 class ResidentServiceRequestController extends Controller
 {
+    /**
+     * Return the active service request catalog for the authenticated resident.
+     */
     public function catalog(Request $request): JsonResponse
     {
         /** @var Resident $resident */
@@ -78,6 +81,16 @@ class ResidentServiceRequestController extends Controller
         ]);
     }
 
+    /**
+     * Create a resident service request from multipart form-data.
+     *
+     * Expected payload:
+     * - subcategory_id
+     * - title
+     * - description
+     * - priority
+     * - attachments[] (optional, max 3 image files)
+     */
     public function store(Request $request): JsonResponse
     {
         /** @var Resident $resident */
@@ -90,8 +103,7 @@ class ResidentServiceRequestController extends Controller
             'priority' => ['required', Rule::in(ServiceRequest::priorityOptions())],
             'attachments' => ['nullable', 'array', 'max:3'],
             'attachments.*' => ['file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'images' => ['nullable', 'array', 'max:3'],
-            'images.*' => ['file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'images' => ['prohibited'],
             'resident_id' => ['prohibited'],
             'category_id' => ['prohibited'],
             'ticket_number' => ['prohibited'],
@@ -116,16 +128,7 @@ class ResidentServiceRequestController extends Controller
             ]);
         }
 
-        $files = array_values(array_merge(
-            $request->file('attachments', []),
-            $request->file('images', [])
-        ));
-
-        if (count($files) > 3) {
-            throw ValidationException::withMessages([
-                'images' => 'Maksimal 3 gambar per service request.',
-            ]);
-        }
+        $files = $request->file('attachments', []);
 
         $ticket = DB::transaction(function () use ($files, $resident, $subcategory, $validated) {
             $slaTargetMinutes = $subcategory->slaMinutesFor($validated['priority']);
@@ -158,6 +161,7 @@ class ResidentServiceRequestController extends Controller
                     'original_name' => $file->getClientOriginalName(),
                     'mime_type' => $file->getMimeType() ?: 'application/octet-stream',
                     'file_size' => $file->getSize(),
+                    'attachment_type' => ServiceRequestAttachment::TYPE_RESIDENT_SUPPORTING,
                 ]);
             }
 
@@ -227,13 +231,7 @@ class ResidentServiceRequestController extends Controller
                 'file_name' => $attachment->original_name,
                 'mime_type' => $attachment->mime_type,
                 'file_size' => $attachment->file_size,
-                'url' => $attachment->url,
-            ])->values(),
-            'images' => $ticket->attachments->map(fn (ServiceRequestAttachment $attachment) => [
-                'id' => $attachment->id,
-                'file_name' => $attachment->original_name,
-                'mime_type' => $attachment->mime_type,
-                'file_size' => $attachment->file_size,
+                'attachment_type' => $attachment->attachment_type,
                 'url' => $attachment->url,
             ])->values(),
         ];

@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\ResidentServiceRequestController;
 use App\Http\Controllers\Api\ResidentVisitorController;
 use App\Http\Controllers\Api\SecurityAuthController;
 use App\Http\Controllers\Api\SecurityVisitorAccessController;
+use App\Http\Controllers\Api\TechnicianAuthController;
+use App\Http\Controllers\Api\TechnicianServiceRequestController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('resident')->group(function () {
@@ -48,5 +50,23 @@ Route::prefix('security')->group(function () {
         Route::post('/logout', [SecurityAuthController::class, 'logout'])->name('api.security.logout');
         Route::post('/visitor-access/validate', [SecurityVisitorAccessController::class, 'validateCode'])->name('api.security.visitor-access.validate');
         Route::get('/visitors/{visitor}/identity-photo', [SecurityVisitorAccessController::class, 'identityPhoto'])->name('api.security.visitors.identity-photo');
+    });
+});
+
+Route::prefix('technician')->group(function () {
+    Route::post('/login', [TechnicianAuthController::class, 'login'])
+        ->middleware('throttle:technician-login')
+        ->name('api.technician.login');
+
+    Route::middleware(['auth:sanctum', 'technician.api'])->group(function () {
+        Route::get('/me', [TechnicianAuthController::class, 'me'])->name('api.technician.me');
+        Route::patch('/profile', [TechnicianAuthController::class, 'updateProfile'])->name('api.technician.profile');
+        Route::post('/logout', [TechnicianAuthController::class, 'logout'])->name('api.technician.logout');
+        Route::get('/hotline', [TechnicianServiceRequestController::class, 'hotline'])->name('api.technician.hotline');
+        Route::get('/service-requests', [TechnicianServiceRequestController::class, 'index'])->name('api.technician.service-requests.index');
+        Route::get('/service-requests/{ticket}', [TechnicianServiceRequestController::class, 'show'])->name('api.technician.service-requests.show');
+        Route::post('/service-requests/{ticket}/on-the-way', [TechnicianServiceRequestController::class, 'onTheWay'])->name('api.technician.service-requests.on-the-way');
+        Route::post('/service-requests/{ticket}/start', [TechnicianServiceRequestController::class, 'start'])->name('api.technician.service-requests.start');
+        Route::post('/service-requests/{ticket}/complete', [TechnicianServiceRequestController::class, 'complete'])->name('api.technician.service-requests.complete');
     });
 });

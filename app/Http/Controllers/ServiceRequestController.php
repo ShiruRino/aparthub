@@ -6,6 +6,9 @@ use App\Models\Resident;
 use App\Models\ServiceRequest;
 use App\Models\ServiceRequestCategory;
 use App\Models\ServiceRequestSubcategory;
+use App\Models\TechnicianTeam;
+use App\Models\User;
+use App\Services\ServiceRequestWorkflowService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -17,6 +20,8 @@ use Illuminate\View\View;
 
 class ServiceRequestController extends Controller
 {
+    public function __construct(private readonly ServiceRequestWorkflowService $workflow) {}
+
     public function index(Request $request): View
     {
         return $this->page($request, 'ticket-queue');
@@ -65,11 +70,26 @@ class ServiceRequestController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validatedPayload($request);
+        /** @var User|null $actor */
+        $actor = $request->user();
 
-        DB::transaction(function () use ($data) {
-            ServiceRequest::query()->create(
+        DB::transaction(function () use ($data, $actor) {
+            $ticket = ServiceRequest::query()->create(
                 $this->buildServiceRequestAttributes($data, null) + [
                     'ticket_number' => $this->nextTicketNumber(),
+                ]
+            );
+
+            $this->workflow->logEvent(
+                $ticket,
+                'created',
+                null,
+                $ticket->status,
+                $actor,
+                null,
+                [
+                    'source' => $ticket->source,
+                    'technician_team_id' => $ticket->technician_team_id,
                 ]
             );
         });
@@ -82,9 +102,27 @@ class ServiceRequestController extends Controller
     public function update(Request $request, ServiceRequest $serviceRequest): RedirectResponse
     {
         $data = $this->validatedPayload($request, $serviceRequest);
+        /** @var User|null $actor */
+        $actor = $request->user();
 
-        DB::transaction(function () use ($data, $serviceRequest) {
-            $serviceRequest->update($this->buildServiceRequestAttributes($data, $serviceRequest));
+        DB::transaction(function () use ($data, $serviceRequest, $actor) {
+            $fromStatus = $serviceRequest->status;
+            $attributes = $this->buildServiceRequestAttributes($data, $serviceRequest);
+            $serviceRequest->update($attributes);
+
+            $this->workflow->logEvent(
+                $serviceRequest->fresh(),
+                'admin_update',
+                $fromStatus,
+                $attributes['status'],
+                $actor,
+                $attributes['completion_notes'] ?? null,
+                [
+                    'technician_team_id' => $attributes['technician_team_id'] ?? null,
+                    'scheduled_at' => $attributes['scheduled_at'] ?? null,
+                    'assigned_to' => $attributes['assigned_to'] ?? null,
+                ]
+            );
         });
 
         return redirect()
@@ -169,6 +207,7 @@ class ServiceRequestController extends Controller
         $summary = $this->summary();
         $requests = $this->requestsForPage($request, $page);
         $residents = Resident::query()->with('unit')->orderBy('name')->get();
+        $teams = TechnicianTeam::query()->withCount('users')->orderBy('name')->get();
 
         return view('service-request.index', [
             'pageKey' => $page,
@@ -179,6 +218,7 @@ class ServiceRequestController extends Controller
             'statusOptions' => ServiceRequest::canonicalStatusOptions(),
             'categoryOptions' => $categories,
             'subcategoryOptions' => $categories->flatMap->subcategories,
+            'teamOptions' => $teams,
             'catalogJson' => $categories->map(fn (ServiceRequestCategory $category) => [
                 'id' => $category->id,
                 'name' => $category->name,
@@ -198,7 +238,7 @@ class ServiceRequestController extends Controller
     private function requestsForPage(Request $request, string $page): LengthAwarePaginator
     {
         $query = ServiceRequest::query()
-            ->with(['resident.unit', 'categoryMaster', 'subcategory', 'attachments'])
+            ->with(['resident.unit', 'categoryMaster', 'subcategory', 'technicianTeam', 'attachments', 'events.actor'])
             ->when($request->string('search')->toString(), function (Builder $builder, string $search) {
                 $builder->where(function (Builder $searchQuery) use ($search) {
                     $searchQuery->where('ticket_number', 'like', '%'.$search.'%')
@@ -212,6 +252,7 @@ class ServiceRequestController extends Controller
             ->when($request->filled('status'), fn (Builder $builder) => $builder->canonicalStatus($request->string('status')->toString()))
             ->when($request->filled('category_id'), fn (Builder $builder) => $builder->where('service_request_category_id', $request->integer('category_id')))
             ->when($request->filled('subcategory_id'), fn (Builder $builder) => $builder->where('service_request_subcategory_id', $request->integer('subcategory_id')))
+            ->when($request->filled('technician_team_id'), fn (Builder $builder) => $builder->where('technician_team_id', $request->integer('technician_team_id')))
             ->when($request->filled('sla_state'), function (Builder $builder) use ($request) {
                 if ($request->string('sla_state')->toString() === 'over') {
                     $builder->overSla();
@@ -219,8 +260,8 @@ class ServiceRequestController extends Controller
             });
 
         match ($page) {
-            'work-orders' => $query->whereIn('status', [ServiceRequest::STATUS_ASSIGNED, ServiceRequest::STATUS_IN_PROGRESS]),
-            'technician-schedule' => $query->whereIn('status', [ServiceRequest::STATUS_ASSIGNED, ServiceRequest::STATUS_IN_PROGRESS]),
+            'work-orders' => $query->whereIn('status', [ServiceRequest::STATUS_ASSIGNED, ServiceRequest::STATUS_ON_THE_WAY, ServiceRequest::STATUS_IN_PROGRESS]),
+            'technician-schedule' => $query->whereIn('status', [ServiceRequest::STATUS_ASSIGNED, ServiceRequest::STATUS_ON_THE_WAY, ServiceRequest::STATUS_IN_PROGRESS]),
             'work-in-progress' => $query->canonicalStatus(ServiceRequest::STATUS_IN_PROGRESS),
             'completed-requests', 'service-history' => $query->canonicalStatus(ServiceRequest::STATUS_COMPLETED),
             default => null,
@@ -237,6 +278,7 @@ class ServiceRequestController extends Controller
         return [
             'submitted' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_SUBMITTED)->count(),
             'assigned' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_ASSIGNED)->count(),
+            'on_the_way' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_ON_THE_WAY)->count(),
             'in_progress' => ServiceRequest::query()->canonicalStatus(ServiceRequest::STATUS_IN_PROGRESS)->count(),
             'completed_today' => ServiceRequest::query()->whereDate('completed_at', today())->count(),
             'over_sla' => ServiceRequest::query()->overSla()->count(),
@@ -256,6 +298,8 @@ class ServiceRequestController extends Controller
             'status' => ['nullable', Rule::in(ServiceRequest::canonicalStatusOptions())],
             'source' => ['nullable', 'string', 'max:255'],
             'assigned_to' => ['nullable', 'string', 'max:255'],
+            'technician_team_id' => ['nullable', 'exists:technician_teams,id'],
+            'scheduled_at' => ['nullable', 'date'],
             'completion_notes' => ['nullable', 'string'],
         ]);
 
@@ -286,11 +330,16 @@ class ServiceRequestController extends Controller
         $status = $data['status'];
         $slaTargetMinutes = $subcategory->slaMinutesFor($data['priority']);
         $createdAt = $serviceRequest?->created_at ?? now();
+        $technicianTeam = ! empty($data['technician_team_id'])
+            ? TechnicianTeam::query()->find($data['technician_team_id'])
+            : null;
+        $assignedTo = $technicianTeam?->name ?: (($data['assigned_to'] ?? null) ?: null);
 
         return [
             'resident_id' => $data['resident_id'],
             'service_request_category_id' => $data['service_request_category_id'],
             'service_request_subcategory_id' => $data['service_request_subcategory_id'],
+            'technician_team_id' => $technicianTeam?->id,
             'category' => $data['category'],
             'title' => $data['title'],
             'description' => $data['description'],
@@ -299,10 +348,15 @@ class ServiceRequestController extends Controller
             'source' => $data['source'],
             'sla_target_minutes' => $slaTargetMinutes,
             'sla_due_at' => $createdAt?->copy()->addMinutes($slaTargetMinutes),
-            'assigned_to' => $data['assigned_to'] ?: null,
-            'assigned_at' => $status === ServiceRequest::STATUS_ASSIGNED
+            'assigned_to' => $assignedTo,
+            'assigned_at' => in_array($status, [ServiceRequest::STATUS_ASSIGNED, ServiceRequest::STATUS_ON_THE_WAY, ServiceRequest::STATUS_IN_PROGRESS, ServiceRequest::STATUS_COMPLETED], true)
                 ? ($serviceRequest?->assigned_at ?? now())
                 : ($serviceRequest?->assigned_at),
+            'scheduled_at' => $data['scheduled_at'] ?? null,
+            'on_the_way_at' => $status === ServiceRequest::STATUS_ON_THE_WAY
+                ? ($serviceRequest?->on_the_way_at ?? now())
+                : ($serviceRequest?->on_the_way_at),
+            'estimated_arrival_minutes' => $serviceRequest?->estimated_arrival_minutes,
             'in_progress_at' => $status === ServiceRequest::STATUS_IN_PROGRESS
                 ? ($serviceRequest?->in_progress_at ?? now())
                 : ($status === ServiceRequest::STATUS_COMPLETED ? ($serviceRequest?->in_progress_at ?? now()) : $serviceRequest?->in_progress_at),
