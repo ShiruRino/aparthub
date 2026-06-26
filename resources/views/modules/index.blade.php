@@ -68,8 +68,6 @@
             </table>
         </div>
 
-        <div class="pagination">
-            {{ $modules->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $modules])
     </div>
 @endsection

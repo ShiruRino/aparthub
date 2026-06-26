@@ -15,21 +15,24 @@ class FacilityManagementController extends Controller
     /**
      * Show the facility workspace.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         $facilities = Facility::query()
             ->withCount('bookings')
             ->orderBy('name')
-            ->get();
+            ->paginate(8, ['*'], 'facilities_page')
+            ->withQueryString();
 
         $bookings = FacilityBooking::query()
             ->with(['facility', 'resident.unit'])
             ->latest('booking_date')
-            ->get();
+            ->paginate(8, ['*'], 'bookings_page')
+            ->withQueryString();
 
         return view('facility-management.index', [
             'facilities' => $facilities,
             'bookings' => $bookings,
+            'facilityOptions' => Facility::query()->orderBy('name')->get(),
             'residentOptions' => Resident::query()->with('unit')->orderBy('name')->get(),
             'statusOptions' => ['Available', 'Booked', 'Maintenance'],
             'bookingStatusOptions' => ['Pending', 'Confirmed', 'Completed', 'Cancelled'],

@@ -49,7 +49,7 @@
             <div class="alert danger" style="margin-bottom:16px;">{{ $errors->first('resident_limit') }}</div>
         @endif
 
-        <form class="resident-filter-panel" method="GET" action="{{ route('resident-management.residents') }}" aria-label="Filter daftar residen">
+        <form class="resident-filter-panel" method="GET" action="{{ route('resident-management.residents') }}" aria-label="Filter daftar residen" data-auto-submit-get>
             <div class="resident-filter-field">
                 <label for="resident-search">Search</label>
                 <div class="resident-search">
@@ -61,7 +61,7 @@
             </div>
             <div class="resident-filter-field">
                 <label for="resident-tower">Tower</label>
-                <select id="resident-tower" name="tower">
+                <select id="resident-tower" name="tower" data-auto-submit-control>
                     <option value="">Semua Tower</option>
                     @foreach ($towers as $tower)
                         <option value="{{ $tower }}" @selected(($filters['tower'] ?? '') === $tower)>{{ $tower }}</option>
@@ -70,7 +70,7 @@
             </div>
             <div class="resident-filter-field">
                 <label for="resident-floor">Lantai</label>
-                <select id="resident-floor" name="floor_band">
+                <select id="resident-floor" name="floor_band" data-auto-submit-control>
                     <option value="">Semua Lantai</option>
                     @foreach ($floorBands as $band)
                         <option value="{{ $band }}" @selected(($filters['floor_band'] ?? '') === $band)>{{ $band }}</option>
@@ -79,7 +79,7 @@
             </div>
             <div class="resident-filter-field">
                 <label for="resident-status">Status Residen</label>
-                <select id="resident-status" name="status">
+                <select id="resident-status" name="status" data-auto-submit-control>
                     <option value="">Semua Status</option>
                     @foreach ($residentStatuses as $status)
                         <option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ $status }}</option>
@@ -88,7 +88,7 @@
             </div>
             <div class="resident-filter-field">
                 <label for="resident-type">Jenis Residen</label>
-                <select id="resident-type" name="resident_type">
+                <select id="resident-type" name="resident_type" data-auto-submit-control>
                     <option value="">Semua Jenis</option>
                     @foreach ($residentTypes as $type)
                         <option value="{{ $type }}" @selected(($filters['resident_type'] ?? '') === $type)>{{ $type }}</option>
@@ -103,12 +103,12 @@
                     <thead>
                         <tr>
                             <th><input class="resident-check" type="checkbox" aria-label="Select all residents"></th>
-                            <th>Foto</th>
                             <th>Nama Residen</th>
                             <th>Unit</th>
                             <th>Tower/Lantai</th>
                             <th>Status</th>
                             <th>Jenis Residen</th>
+                            <th>Gender</th>
                             <th>Tanggal Masuk</th>
                             <th>Tindakan</th>
                         </tr>
@@ -117,12 +117,12 @@
                         @forelse ($rows as $row)
                             <tr>
                                 <td><input class="resident-check" type="checkbox" aria-label="Select {{ $row['name'] }}"></td>
-                                <td><div class="resident-avatar {{ $row['avatarClass'] }}">{{ $row['avatar'] }}</div></td>
                                 <td>{{ $row['name'] }}</td>
                                 <td>{{ $row['unit'] }}</td>
                                 <td>{{ $row['tower'] }}</td>
                                 <td><span class="resident-status {{ $row['statusClass'] }}">{{ $row['status'] }}</span></td>
                                 <td>{{ $row['type'] }}</td>
+                                <td><span class="resident-status {{ $row['genderClass'] }}">{{ $row['gender'] }}</span></td>
                                 <td>{{ $row['date'] }}</td>
                                 <td>
                                     <div class="resident-action-row">
@@ -145,6 +145,7 @@
                                                 'data-resident-unit-id' => $row['unit_id'] ?? '',
                                                 'data-resident-type' => $row['type'],
                                                 'data-resident-status' => $row['status'],
+                                                'data-resident-gender' => $row['gender_value'] ?? '',
                                                 'data-resident-move-in-date' => $row['move_in_date'] ?? '',
                                                 'data-resident-move-out-date' => $row['move_out_date'] ?? '',
                                                 'data-resident-contract-end-date' => $row['contract_end_date'] ?? '',
@@ -226,6 +227,16 @@
                         <select id="residentStatus" name="status" required>
                             @foreach ($residentStatuses as $residentStatus)
                                 <option value="{{ $residentStatus }}">{{ $residentStatus }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <label class="resident-filter-field">
+                        <span>Gender</span>
+                        <select id="residentGender" name="gender">
+                            <option value="">Prefer not to say</option>
+                            @foreach ($genderOptions as $genderOption)
+                                @continue($genderOption === 'Prefer not to say')
+                                <option value="{{ $genderOption }}">{{ $genderOption }}</option>
                             @endforeach
                         </select>
                     </label>
@@ -312,6 +323,7 @@
             const unitInput = document.getElementById('residentUnitId');
             const typeInput = document.getElementById('residentType');
             const statusInput = document.getElementById('residentStatus');
+            const genderInput = document.getElementById('residentGender');
             const moveInInput = document.getElementById('residentMoveInDate');
             const moveOutInput = document.getElementById('residentMoveOutDate');
             const contractEndDateInput = document.getElementById('residentContractEndDate');
@@ -336,6 +348,7 @@
                     unitInput.value = button.dataset.residentUnitId || '';
                     typeInput.value = button.dataset.residentType || 'Pemilik';
                     statusInput.value = button.dataset.residentStatus || 'Menunggu Approval';
+                    genderInput.value = button.dataset.residentGender || '';
                     moveInInput.value = button.dataset.residentMoveInDate || '';
                     moveOutInput.value = button.dataset.residentMoveOutDate || '';
                     contractEndDateInput.value = button.dataset.residentContractEndDate || '';

@@ -62,6 +62,9 @@ class ResidentManagementController extends Controller
                 'status' => $resident->status,
                 'statusClass' => $this->residentStatusClass($resident->status),
                 'type' => $resident->resident_type,
+                'gender' => $this->residentGenderLabel($resident->gender),
+                'gender_value' => $resident->gender,
+                'genderClass' => $this->residentGenderClass($resident->gender),
                 'date' => optional($resident->move_in_date)->format('d M Y') ?? 'TBD',
                 'move_in_date' => optional($resident->move_in_date)->format('Y-m-d'),
                 'move_out_date' => optional($resident->move_out_date)->format('Y-m-d'),
@@ -110,6 +113,7 @@ class ResidentManagementController extends Controller
             'floorBands' => $this->floorBandOptions(),
             'residentStatuses' => ['Aktif', 'Menunggu Approval', 'Keluar'],
             'residentTypes' => ['Pemilik', 'Penyewa'],
+            'genderOptions' => $this->residentGenderOptions(),
             'residentPreview' => $residentPreview,
             'residentCapacity' => $residentCapacity,
         ]);
@@ -597,6 +601,16 @@ class ResidentManagementController extends Controller
     }
 
     /**
+     * Get resident gender options.
+     *
+     * @return list<string>
+     */
+    private function residentGenderOptions(): array
+    {
+        return ['Male', 'Female', 'Prefer not to say'];
+    }
+
+    /**
      * Get unit select options.
      */
     private function unitsForSelect()
@@ -640,6 +654,26 @@ class ResidentManagementController extends Controller
             'Menunggu Approval' => 'pending',
             'Keluar' => 'out',
             default => 'active',
+        };
+    }
+
+    /**
+     * Normalize gender label for resident views.
+     */
+    private function residentGenderLabel(?string $gender): string
+    {
+        return blank($gender) ? 'Prefer not to say' : $gender;
+    }
+
+    /**
+     * Map gender values to compact badge tones.
+     */
+    private function residentGenderClass(?string $gender): string
+    {
+        return match ($this->residentGenderLabel($gender)) {
+            'Male' => 'status-approved',
+            'Female' => 'status-pending',
+            default => 'status-expired',
         };
     }
 
@@ -707,6 +741,7 @@ class ResidentManagementController extends Controller
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'resident_type' => ['required', Rule::in(['Pemilik', 'Penyewa'])],
             'status' => ['required', Rule::in(['Aktif', 'Menunggu Approval', 'Keluar'])],
+            'gender' => ['nullable', Rule::in($this->residentGenderOptions())],
             'move_in_date' => ['nullable', 'date'],
             'move_out_date' => ['nullable', 'date', 'after_or_equal:move_in_date'],
             'contract_end_date' => ['nullable', 'date'],
@@ -715,6 +750,7 @@ class ResidentManagementController extends Controller
 
         $data['email'] = blank($data['email'] ?? null) ? null : $data['email'];
         $data['mobile_no'] = blank($data['mobile_no'] ?? null) ? null : $data['mobile_no'];
+        $data['gender'] = blank($data['gender'] ?? null) ? null : $data['gender'];
 
         if (blank($data['password'] ?? null)) {
             unset($data['password']);

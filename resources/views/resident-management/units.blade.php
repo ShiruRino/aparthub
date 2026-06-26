@@ -11,7 +11,7 @@
             <button class="btn" type="button" data-modal-open="resident-unit-form-modal" data-form-mode="create" data-form-title="Tambah Unit Baru" data-form-action="{{ route('resident-management.units.store') }}">Tambah Unit Baru</button>
         </header>
 
-        <form class="resident-filter-panel" method="GET" action="{{ route('resident-management.units') }}" aria-label="Filter daftar unit">
+        <form class="resident-filter-panel" method="GET" action="{{ route('resident-management.units') }}" aria-label="Filter daftar unit" data-auto-submit-get>
             <div class="resident-filter-field">
                 <label for="unit-search">Search</label>
                 <div class="resident-search">
@@ -21,10 +21,10 @@
                     </button>
                 </div>
             </div>
-            <div class="resident-filter-field"><label for="unit-tower">Tower</label><select id="unit-tower" name="tower"><option value="">Semua Tower</option>@foreach ($towers as $tower)<option value="{{ $tower }}" @selected(($filters['tower'] ?? '') === $tower)>{{ $tower }}</option>@endforeach</select></div>
-            <div class="resident-filter-field"><label for="unit-floor">Lantai</label><select id="unit-floor" name="floor_band"><option value="">Semua Lantai</option>@foreach ($floorBands as $band)<option value="{{ $band }}" @selected(($filters['floor_band'] ?? '') === $band)>{{ $band }}</option>@endforeach</select></div>
-            <div class="resident-filter-field"><label for="unit-status">Status Unit</label><select id="unit-status" name="occupancy_status"><option value="">Semua Status</option>@foreach ($occupancyStatuses as $status)<option value="{{ $status }}" @selected(($filters['occupancy_status'] ?? '') === $status)>{{ $status }}</option>@endforeach</select></div>
-            <div class="resident-filter-field"><label for="unit-type">Jenis Unit</label><select id="unit-type" name="unit_type"><option value="">Semua Jenis</option>@foreach ($unitTypes as $type)<option value="{{ $type }}" @selected(($filters['unit_type'] ?? '') === $type)>{{ $type }}</option>@endforeach</select></div>
+            <div class="resident-filter-field"><label for="unit-tower">Tower</label><select id="unit-tower" name="tower" data-auto-submit-control><option value="">Semua Tower</option>@foreach ($towers as $tower)<option value="{{ $tower }}" @selected(($filters['tower'] ?? '') === $tower)>{{ $tower }}</option>@endforeach</select></div>
+            <div class="resident-filter-field"><label for="unit-floor">Lantai</label><select id="unit-floor" name="floor_band" data-auto-submit-control><option value="">Semua Lantai</option>@foreach ($floorBands as $band)<option value="{{ $band }}" @selected(($filters['floor_band'] ?? '') === $band)>{{ $band }}</option>@endforeach</select></div>
+            <div class="resident-filter-field"><label for="unit-status">Status Unit</label><select id="unit-status" name="occupancy_status" data-auto-submit-control><option value="">Semua Status</option>@foreach ($occupancyStatuses as $status)<option value="{{ $status }}" @selected(($filters['occupancy_status'] ?? '') === $status)>{{ $status }}</option>@endforeach</select></div>
+            <div class="resident-filter-field"><label for="unit-type">Jenis Unit</label><select id="unit-type" name="unit_type" data-auto-submit-control><option value="">Semua Jenis</option>@foreach ($unitTypes as $type)<option value="{{ $type }}" @selected(($filters['unit_type'] ?? '') === $type)>{{ $type }}</option>@endforeach</select></div>
         </form>
 
         <section class="resident-table-panel">
@@ -33,7 +33,6 @@
                     <thead>
                         <tr>
                             <th><input class="resident-check" type="checkbox" aria-label="Select all units"></th>
-                            <th>Foto Unit</th>
                             <th>Nomor Unit</th>
                             <th>Tower/Lantai</th>
                             <th>Jenis Unit</th>
@@ -46,7 +45,6 @@
                         @forelse ($rows as $row)
                             <tr>
                                 <td><input class="resident-check" type="checkbox" aria-label="Select {{ $row['unit'] }}"></td>
-                                <td><div class="resident-unit-thumb {{ $row['thumb'] }}">Unit</div></td>
                                 <td>{{ $row['unit'] }}</td>
                                 <td>{{ $row['tower'] }}</td>
                                 <td>{{ $row['type'] }}</td>
@@ -54,8 +52,8 @@
                                 <td>{{ $row['payment'] }}</td>
                                 <td>
                                     <div class="resident-action-row">
-                                        @include('resident-management.partials.action-button', ['label' => 'Detail Unit', 'icon' => 'eye', 'modal' => 'resident-unit-form-modal', 'data' => ['data-form-mode' => 'edit', 'data-form-title' => 'Detail Unit', 'data-form-action' => route('resident-management.units.update', $row['id']), 'data-unit-code' => $row['code'], 'data-unit-tower' => $row['tower_name'], 'data-unit-floor' => $row['floor_number'], 'data-unit-type' => $row['type'], 'data-unit-status' => $row['status'], 'data-unit-payment' => $row['payment'], 'data-unit-thumb' => $row['thumb']]])
-                                        @include('resident-management.partials.action-button', ['label' => 'Edit Unit', 'icon' => 'edit', 'modal' => 'resident-unit-form-modal', 'data' => ['data-form-mode' => 'edit', 'data-form-title' => 'Edit Unit', 'data-form-action' => route('resident-management.units.update', $row['id']), 'data-unit-code' => $row['code'], 'data-unit-tower' => $row['tower_name'], 'data-unit-floor' => $row['floor_number'], 'data-unit-type' => $row['type'], 'data-unit-status' => $row['status'], 'data-unit-payment' => $row['payment'], 'data-unit-thumb' => $row['thumb']]])
+                                        @include('resident-management.partials.action-button', ['label' => 'Detail Unit', 'icon' => 'eye', 'modal' => 'resident-unit-form-modal', 'data' => ['data-form-mode' => 'edit', 'data-form-title' => 'Detail Unit', 'data-form-action' => route('resident-management.units.update', $row['id']), 'data-unit-code' => $row['code'], 'data-unit-tower' => $row['tower_name'], 'data-unit-floor' => $row['floor_number'], 'data-unit-type' => $row['type'], 'data-unit-status' => $row['status'], 'data-unit-payment' => $row['payment']]])
+                                        @include('resident-management.partials.action-button', ['label' => 'Edit Unit', 'icon' => 'edit', 'modal' => 'resident-unit-form-modal', 'data' => ['data-form-mode' => 'edit', 'data-form-title' => 'Edit Unit', 'data-form-action' => route('resident-management.units.update', $row['id']), 'data-unit-code' => $row['code'], 'data-unit-tower' => $row['tower_name'], 'data-unit-floor' => $row['floor_number'], 'data-unit-type' => $row['type'], 'data-unit-status' => $row['status'], 'data-unit-payment' => $row['payment']]])
                                         <form method="POST" action="{{ route('resident-management.units.destroy', $row['id']) }}" onsubmit="return confirm('Hapus data unit ini?')">
                                             @csrf
                                             @method('DELETE')
@@ -67,7 +65,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="8">Belum ada data unit.</td></tr>
+                            <tr><td colspan="7">Belum ada data unit.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -95,7 +93,6 @@
                     <label class="resident-filter-field"><span>Jenis Unit</span><select id="unitType" name="unit_type" required>@foreach ($unitTypes as $unitType)<option value="{{ $unitType }}">{{ $unitType }}</option>@endforeach</select></label>
                     <label class="resident-filter-field"><span>Status Unit</span><select id="unitStatus" name="occupancy_status" required>@foreach ($occupancyStatuses as $occupancyStatus)<option value="{{ $occupancyStatus }}">{{ $occupancyStatus }}</option>@endforeach</select></label>
                     <label class="resident-filter-field"><span>Status Pembayaran</span><select id="unitPayment" name="payment_status" required>@foreach ($paymentStatuses as $paymentStatus)<option value="{{ $paymentStatus }}">{{ $paymentStatus }}</option>@endforeach</select></label>
-                    <label class="resident-filter-field"><span>Thumbnail Tone</span><select id="unitThumb" name="thumbnail_tone"><option value="default">Default</option><option value="empty">Empty</option><option value="repair">Repair</option></select></label>
                 </div>
                 <div class="visitor-form-actions"><button class="btn secondary" type="button" data-modal-close>Batal</button><button class="btn" type="submit">Simpan Unit</button></div>
             </form>
@@ -115,7 +112,6 @@
                 type: document.getElementById('unitType'),
                 status: document.getElementById('unitStatus'),
                 payment: document.getElementById('unitPayment'),
-                thumb: document.getElementById('unitThumb'),
             };
             document.querySelectorAll('[data-modal-open="resident-unit-form-modal"]').forEach((button) => {
                 button.addEventListener('click', () => {
@@ -129,7 +125,6 @@
                     fields.type.value = button.dataset.unitType || '{{ $unitTypes[0] ?? '' }}';
                     fields.status.value = button.dataset.unitStatus || 'Kosong';
                     fields.payment.value = button.dataset.unitPayment || 'Belum Lunas';
-                    fields.thumb.value = button.dataset.unitThumb || 'default';
                 });
             });
         })();

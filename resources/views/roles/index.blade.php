@@ -63,8 +63,6 @@
             </table>
         </div>
 
-        <div class="pagination">
-            {{ $roles->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $roles])
     </div>
 @endsection

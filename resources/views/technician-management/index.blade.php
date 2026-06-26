@@ -120,8 +120,7 @@
                 </div>
 
                 <div style="display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin-top:18px;">
-                    <span style="color:#67758a;">Menampilkan {{ $technicians->firstItem() ?? 0 }} - {{ $technicians->lastItem() ?? 0 }} dari {{ $technicians->total() }} technician</span>
-                    {{ $technicians->links() }}
+                    @include('partials.pagination', ['paginator' => $technicians])
                 </div>
             </section>
 

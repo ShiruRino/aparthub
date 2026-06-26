@@ -188,7 +188,7 @@ class ResidentVisitorController extends Controller
 
         $expireVisitors->applyToVisitor($visitor);
 
-        if (! $visitor->qrAvailable()) {
+        if (!$visitor->qrAvailable()) {
             return response()->json([
                 'message' => 'QR visitor belum tersedia atau sudah tidak valid.',
             ], 422);

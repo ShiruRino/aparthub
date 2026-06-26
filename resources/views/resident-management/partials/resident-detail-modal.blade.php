@@ -24,6 +24,7 @@
                     <div class="visitor-info-row"><span>Tower / Lantai</span><strong>{{ $row['tower'] }}</strong></div>
                     <div class="visitor-info-row"><span>Email</span><strong>{{ $row['email'] ?: '-' }}</strong></div>
                     <div class="visitor-info-row"><span>Mobile Number</span><strong>{{ $row['mobile_no'] ?: '-' }}</strong></div>
+                    <div class="visitor-info-row"><span>Gender</span><strong>{{ $row['gender'] }}</strong></div>
                     <div class="visitor-info-row"><span>Tanggal Masuk</span><strong>{{ $row['date'] }}</strong></div>
                     <div class="visitor-info-row"><span>Tanggal Keluar</span><strong>{{ $row['move_out_date'] ? \Carbon\Carbon::parse($row['move_out_date'])->format('d M Y') : '-' }}</strong></div>
                     <div class="visitor-info-row"><span>Contract End Date</span><strong>{{ $row['contract_end_date_label'] }}</strong></div>

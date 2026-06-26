@@ -84,10 +84,7 @@
 </div>
 
 @if (isset($paginator) && $paginator)
-    <div class="pagination">
-        <span class="muted">Showing {{ $paginator->firstItem() ?? 0 }} to {{ $paginator->lastItem() ?? 0 }} of {{ $paginator->total() }} entries</span>
-        <div>{!! $paginator->onEachSide(1)->links() !!}</div>
-    </div>
+    @include('partials.pagination', ['paginator' => $paginator])
 @else
     <div class="pagination">
         <span class="muted">Showing 1 to {{ count($rows) }} of {{ max(count($rows), 20) }} entries</span>

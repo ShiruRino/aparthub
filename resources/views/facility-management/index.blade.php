@@ -72,6 +72,7 @@
                         </tbody>
                     </table>
                 </div>
+                @include('partials.pagination', ['paginator' => $facilities])
             </section>
 
             <section class="visitor-panel visitor-span-12">
@@ -116,6 +117,7 @@
                         </tbody>
                     </table>
                 </div>
+                @include('partials.pagination', ['paginator' => $bookings])
             </section>
         </div>
 
@@ -172,7 +174,7 @@
                         <label class="resident-filter-field">
                             <span>Facility</span>
                             <select name="facility_id" required>
-                                @foreach ($facilities as $facility)
+                                @foreach ($facilityOptions as $facility)
                                     <option value="{{ $facility->id }}">{{ $facility->name }}</option>
                                 @endforeach
                             </select>
@@ -301,7 +303,7 @@
                             <label class="resident-filter-field">
                                 <span>Facility</span>
                                 <select name="facility_id" required>
-                                    @foreach ($facilities as $facility)
+                                    @foreach ($facilityOptions as $facility)
                                         <option value="{{ $facility->id }}" @selected($booking->facility_id === $facility->id)>{{ $facility->name }}</option>
                                     @endforeach
                                 </select>

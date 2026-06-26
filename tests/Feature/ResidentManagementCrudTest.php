@@ -37,6 +37,7 @@ class ResidentManagementCrudTest extends TestCase
                 'name' => 'Nadia Putri',
                 'resident_type' => 'Penyewa',
                 'status' => 'Aktif',
+                'gender' => 'Female',
                 'move_in_date' => '2026-06-14',
                 'move_out_date' => null,
                 'avatar_tone' => 'female',
@@ -56,6 +57,7 @@ class ResidentManagementCrudTest extends TestCase
                 'name' => 'Nadia Putri Updated',
                 'resident_type' => 'Pemilik',
                 'status' => 'Keluar',
+                'gender' => 'Male',
                 'move_in_date' => '2026-06-14',
                 'move_out_date' => '2026-06-15',
                 'avatar_tone' => 'out',
@@ -66,6 +68,7 @@ class ResidentManagementCrudTest extends TestCase
 
         $this->assertSame('Nadia Putri Updated', $resident->name);
         $this->assertSame('Keluar', $resident->status);
+        $this->assertSame('Male', $resident->gender);
 
         $this->actingAs($this->admin)
             ->delete(route('resident-management.residents.destroy', $resident))
@@ -284,5 +287,35 @@ class ResidentManagementCrudTest extends TestCase
             ->assertRedirect(route('resident-management.residents'));
 
         $this->assertSame(250, AppSetting::getInteger('resident_max_capacity'));
+    }
+
+    public function test_resident_listing_uses_gender_column_and_unit_page_hides_photo_controls(): void
+    {
+        $this->actingAs($this->admin)
+            ->get(route('resident-management.residents'))
+            ->assertOk()
+            ->assertSee('Gender')
+            ->assertDontSee('>Foto<', false);
+
+        $this->actingAs($this->admin)
+            ->get(route('resident-management.units'))
+            ->assertOk()
+            ->assertDontSee('Foto Unit')
+            ->assertDontSee('Thumbnail Tone');
+    }
+
+    public function test_resident_and_unit_filters_render_auto_submit_markup(): void
+    {
+        $this->actingAs($this->admin)
+            ->get(route('resident-management.residents', ['tower' => 'Tower A']))
+            ->assertOk()
+            ->assertSee('data-auto-submit-get', false)
+            ->assertSee('data-auto-submit-control', false);
+
+        $this->actingAs($this->admin)
+            ->get(route('resident-management.units', ['tower' => 'Tower A']))
+            ->assertOk()
+            ->assertSee('data-auto-submit-get', false)
+            ->assertSee('data-auto-submit-control', false);
     }
 }

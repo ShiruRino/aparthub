@@ -26,6 +26,7 @@ class Resident extends Authenticatable
         'password',
         'resident_type',
         'status',
+        'gender',
         'move_in_date',
         'move_out_date',
         'contract_end_date',

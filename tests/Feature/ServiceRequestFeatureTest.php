@@ -52,8 +52,21 @@ class ServiceRequestFeatureTest extends TestCase
         $this->actingAs($admin)
             ->get(route('dashboard'))
             ->assertOk()
+            ->assertSee('Operational Overview')
+            ->assertSee('Service Request Snapshot')
             ->assertSee('Service Request Status')
-            ->assertSee('Service Dispatch');
+            ->assertSee('Recent Activities');
+    }
+
+    public function test_service_request_pagination_keeps_compact_markup_with_filters(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $admin = User::query()->where('username', 'admin')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('service-request.ticket-queue', ['status' => ServiceRequest::STATUS_SUBMITTED]))
+            ->assertOk()
+            ->assertSee('resident-pagination');
     }
 
     public function test_dashboard_over_sla_summary_uses_sla_due_at_query(): void

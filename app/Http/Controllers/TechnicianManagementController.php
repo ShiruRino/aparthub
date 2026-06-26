@@ -158,7 +158,7 @@ class TechnicianManagementController extends Controller
 
             $profile = $technician->technicianProfile;
 
-            if (!$profile) {
+            if (! $profile) {
                 throw ValidationException::withMessages([
                     'technician' => 'Profil teknisi tidak ditemukan.',
                 ]);

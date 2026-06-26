@@ -129,6 +129,17 @@ class VisitorManagementFeatureTest extends TestCase
             ->assertRedirect(route('visitor-management.check-in-out', ['visitor' => $visitor->id]));
     }
 
+    public function test_visitor_filters_render_auto_submit_markup(): void
+    {
+        $admin = $this->createAdmin();
+
+        $this->actingAs($admin)
+            ->get(route('visitor-management.registration'))
+            ->assertOk()
+            ->assertSee('data-auto-submit-get', false)
+            ->assertSee('data-auto-submit-control', false);
+    }
+
     private function createAdmin(): User
     {
         $role = Role::query()->create([

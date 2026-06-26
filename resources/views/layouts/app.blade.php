@@ -842,8 +842,14 @@
         .badge.yellow { background: #fff5df; color: #8b5d09; }
         .muted { color: var(--muted); }
         .empty { padding: 28px; color: var(--muted); text-align: center; }
-        .pagination { padding: 14px; }
-        .pagination nav > div:first-child { display: none; }
+        .pagination {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 0;
+        }
         .access-card { margin-bottom: 18px; }
         .access-card header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid #e4ebf4; background: #ffffff; }
         .access-table td, .access-table th { text-align: center; }
@@ -1278,6 +1284,17 @@
             border-color: #061936;
             background: #061936;
             color: #ffffff;
+        }
+
+        .resident-page-gap {
+            color: #67758a;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .resident-pagination-meta {
+            color: #67758a;
+            font-weight: 600;
         }
 
         .resident-benefit-bar {
@@ -5453,6 +5470,32 @@
 
                     clearTimeout(loaderTimer);
                     loaderTimer = window.setTimeout(() => showPageLoader('Memproses permintaan...'), 40);
+                });
+            });
+
+            document.querySelectorAll('form[data-auto-submit-get]').forEach((form) => {
+                const resetPageInputs = () => {
+                    const currentParams = new URLSearchParams(window.location.search);
+                    currentParams.forEach((value, key) => {
+                        if (!/page$/i.test(key)) return;
+
+                        let input = form.querySelector(`input[name="${key}"]`);
+                        if (!input) {
+                            input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = key;
+                            form.appendChild(input);
+                        }
+
+                        input.value = '1';
+                    });
+                };
+
+                form.querySelectorAll('select[data-auto-submit-control]').forEach((control) => {
+                    control.addEventListener('change', () => {
+                        resetPageInputs();
+                        form.requestSubmit();
+                    });
                 });
             });
 

@@ -413,8 +413,7 @@
                 </div>
 
                 <div style="display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin-top:18px;">
-                    <span style="color:#67758a;">Menampilkan {{ $requests->firstItem() ?? 0 }} - {{ $requests->lastItem() ?? 0 }} dari {{ $requests->total() }} request</span>
-                    {{ $requests->links() }}
+                    @include('partials.pagination', ['paginator' => $requests])
                 </div>
             </section>
 
