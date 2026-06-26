@@ -189,7 +189,7 @@ class Visitor extends Model
             return false;
         }
 
-        return $now->isSameDay($this->visit_date) && $now->lessThanOrEqualTo($this->expires_at);
+        return $now->lessThanOrEqualTo($this->expires_at);
     }
 
     public function qrAvailable(): bool
